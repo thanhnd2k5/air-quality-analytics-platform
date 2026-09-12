@@ -1,0 +1,81 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# IDE & editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Operating System
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Local Datasets (Raw datasets are kept out of Git)
+data/raw/uci/*.csv
+data/temp/
+data/processed/
+
+
+# ML / Large Artifacts
+ml/models/*.joblib
+ml/models/*.pkl
+ml/models/*.onnx
+ml/models/*.h5
+
+# Airflow local runtime logs & DB
+airflow/logs/
+airflow/airflow.db
+airflow/airflow.cfg
+
+# dbt runtime artifacts
+dbt/air_quality_dbt/target/
+dbt/air_quality_dbt/dbt_packages/
+dbt/air_quality_dbt/logs/
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+htmlcov/
