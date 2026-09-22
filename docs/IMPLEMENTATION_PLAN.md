@@ -3,8 +3,8 @@
 > **Project:** Phân tích và dự báo ô nhiễm không khí theo khu vực và điều kiện thời tiết  
 > **Quy mô nhóm:** 2 thành viên  
 > **Vai trò tài liệu:** Kế hoạch triển khai dự án theo phase và milestone  
-> **Phiên bản:** 1.0  
-> **Cập nhật:** 11/09/2026
+> **Phiên bản:** 1.1  
+> **Cập nhật:** 15/09/2026
 >
 > Tài liệu này cần được đọc cùng:
 >
@@ -755,6 +755,7 @@ Ví dụ:
 mart_station_daily
 mart_station_monthly
 mart_pollution_weather
+mart_pm25_episodes   # logic + ngưỡng chốt Phase 8; mart nên có trước khi dashboard Phase 11
 ```
 
 ## Definition of Done
@@ -847,7 +848,27 @@ không xây toàn bộ kết quả cuối trực tiếp trên CSV source.
 - pressure;
 - dew point/humidity;
 - rainfall;
-- wind.
+- wind;
+- cloud cover (nếu enrichment đã có).
+
+### Pollution episodes (phạm vi Phase 8)
+
+Trả lời câu hỏi trong `PROJECT_CONTEXT.md`:
+
+> Các đợt ô nhiễm cao thường kéo dài bao lâu?
+
+Phạm vi phân tích gồm theo trạm, đa-trạm và điều kiện thời tiết liên quan.
+
+**Công việc trong Phase 8:**
+
+1. Chốt và document ngưỡng “PM2.5 cao” sau EDA (phân vị / guideline — nêu rõ lý do).
+2. **Theo từng trạm:** đoạn giờ liên tiếp ≥ ngưỡng = một episode; thống kê số lượng, độ dài, phân bố theo mùa/năm; so sánh giữa các trạm.
+3. **Đa trạm:** xác định khoảng thời gian nhiều trạm cùng trong episode (hoặc overlapping); mức độ lan theo không gian (số trạm đồng thời).
+4. **Gắn weather:** trong mỗi episode (hoặc cửa sổ quanh episode), tóm tắt điều kiện khí tượng (vd. TEMP, WSPM, RH derive, cloud nếu có) — tương quan/pattern, không khẳng định nhân quả.
+5. Materialize **`mart_pm25_episodes`** (và nếu cần bảng phụ episode–station / episode summary) để notebook và dashboard tái sử dụng.
+
+Phân tích trên lịch sử DWH; không xây detector vận hành realtime.  
+Definition of Done Phase 8 bao gồm các mục episode bên dưới trước khi chuyển Phase 9.
 
 ## Output
 
@@ -857,6 +878,8 @@ analysis notebook
 reusable analytical queries
 +
 candidate insights
++
+mart_pm25_episodes (+ tài liệu ngưỡng và định nghĩa episode)
 ```
 
 ## Definition of Done
@@ -865,6 +888,10 @@ candidate insights
 [ ] Seasonal patterns được hiểu
 [ ] Station differences được hiểu
 [ ] Weather relationships được kiểm tra
+[ ] PM2.5 episodes theo trạm: ngưỡng, độ dài, phân bố mùa/năm được document
+[ ] Episode đa-trạm (overlapping / số trạm đồng thời) được phân tích
+[ ] Episode gắn tóm tắt weather trong khoảng episode được phân tích
+[ ] mart_pm25_episodes (hoặc tương đương) dùng được từ SQL
 [ ] Data issues mới được document
 [ ] Candidate ML features được xác định
 ```
@@ -1096,6 +1123,13 @@ Plotly
 - ranking;
 - cluster.
 
+### Pollution Episodes
+
+- độ dài / số episode theo trạm;
+- phân bố theo thời gian;
+- mức độ đồng thời nhiều trạm;
+- weather trung bình trong episode — đọc từ `mart_pm25_episodes`.
+
 ### Weather Analysis
 
 - relationship với PM2.5;
@@ -1120,6 +1154,7 @@ Chỉ thêm khi station coordinates đã được xác minh.
 [ ] Filter hoạt động
 [ ] Charts rõ
 [ ] Clustering hiển thị
+[ ] Pollution episodes hiển thị (từ mart)
 [ ] Prediction hiển thị
 [ ] Không đọc trực tiếp CSV raw cho kết quả chính
 ```

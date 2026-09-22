@@ -2,8 +2,8 @@
 
 > **Project:** Phân tích và dự báo ô nhiễm không khí theo khu vực và điều kiện thời tiết  
 > **Vai trò tài liệu:** Mô tả kiến trúc kỹ thuật và luồng dữ liệu của dự án  
-> **Phiên bản:** 1.0  
-> **Cập nhật:** 11/09/2026
+> **Phiên bản:** 1.1  
+> **Cập nhật:** 15/09/2026
 >
 > Tài liệu này cần được đọc cùng:
 >
@@ -189,10 +189,13 @@ JSON
 
 Vai trò:
 
-- nguồn dữ liệu khí tượng bổ sung;
-- minh họa pipeline ingest API;
-- enrichment;
-- đối chiếu hoặc bổ sung weather feature.
+- nguồn dữ liệu khí tượng bổ sung (REST/JSON);
+- minh họa pipeline ingest API và join đa nguồn;
+- **fill weather UCI missing** (UCI vẫn là primary — không thay thế khi UCI đã có giá trị);
+- enrichment biến UCI không có (ưu tiên `cloud_cover`);
+- tuỳ chọn đối chiếu khi hai nguồn cùng có giá trị.
+
+Chi tiết biến và source priority: `DATA_GUIDE.md` §24 / `PROJECT_CONTEXT.md` §15.
 
 Không mặc định Open-Meteo thay thế weather có sẵn trong UCI.
 
@@ -875,7 +878,10 @@ mart_station_daily
 mart_station_monthly
 mart_pollution_summary
 mart_weather_pollution
+mart_pm25_episodes
 ```
+
+`mart_pm25_episodes` phục vụ phân tích đợt PM2.5 cao: theo trạm, đa-trạm, gắn weather tóm tắt — chi tiết trong `IMPLEMENTATION_PLAN.md` Phase 8. Ngưỡng chốt ở Phase 8; mart cần sẵn trước Phase 11 dashboard.
 
 Mục tiêu:
 
@@ -884,10 +890,6 @@ Mục tiêu:
 - dashboard đơn giản hơn.
 
 Không tạo mart nếu query trực tiếp đã đủ tốt và logic không lặp.
-
----
-
-# 29. Dashboard Data Access
 
 Streamlit nên đọc từ:
 
@@ -1418,6 +1420,15 @@ Trước tiên:
 
 Sau đó mới mở rộng.
 
+Working preference biến (chi tiết trong `DATA_GUIDE.md` §24 / `PROJECT_CONTEXT.md` §15):
+
+```text
+RH            → derive từ TEMP + DEWP (sau resolve)
+Open-Meteo    → cloud_cover (+ tối đa 1 biến phụ)
+biến trùng    → UCI primary; Open-Meteo fill khi UCI missing
+pollutant NA  → không fill bằng Open-Meteo
+```
+
 ---
 
 # 49. Data Warehouse development strategy
@@ -1646,7 +1657,7 @@ Các điểm sau chưa phải final architecture:
 - one fact hay two facts cho air quality/weather;
 - Date + Time dimension tách hay gộp;
 - processed partitioning;
-- Open-Meteo role cuối;
+- Open-Meteo role/variables cuối *(working preference: cloud + fill weather missing; RH derive)*;
 - model artifact storage;
 - prediction output strategy;
 - dashboard map;
