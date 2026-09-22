@@ -2,8 +2,8 @@
 
 > **Project:** Phân tích và dự báo ô nhiễm không khí theo khu vực và điều kiện thời tiết  
 > **Vai trò tài liệu:** Quy chuẩn dữ liệu của dự án  
-> **Phiên bản:** 1.0  
-> **Cập nhật:** 11/09/2026
+> **Phiên bản:** 1.1  
+> **Cập nhật:** 15/09/2026
 >
 > `PROJECT_CONTEXT.md` quyết định **dự án đang làm gì**.  
 > `DATA_GUIDE.md` quyết định **dữ liệu phải được hiểu và xử lý như thế nào**.
@@ -429,12 +429,14 @@ Có thể xem xét:
 
 - interpolation;
 - forward fill giới hạn;
-- external enrichment;
+- **external enrichment** (với weather: Open-Meteo sau UCI — xem §24.3 / §44);
 - model-based imputation;
 - missing indicator;
 - loại observation.
 
 Nhưng phải dựa trên độ dài gap và feature.
+
+**Lưu ý:** chiến lược fill weather từ API **không thay** việc xử lý missing pollutant / target (xem mục Pollutant target ở trên).
 
 ## Dashboard / Historical Analysis
 
@@ -639,30 +641,44 @@ Ví dụ `station_id` có thể là surrogate key trong Warehouse.
 
 # 22. Station location
 
-Hiện **chưa có nguồn tọa độ được xác minh trong dữ liệu local**.
+UCI CSV / trang dataset **không** chứa tọa độ.
 
-Vì vậy:
-
-```text
-latitude
-longitude
-district
-```
-
-được đánh dấu:
+Seed local:
 
 ```text
-PENDING VERIFICATION
+data/raw/reference/stations.csv
 ```
+
+| Trường | Trạng thái |
+|---|---|
+| `latitude`, `longitude` | Có — từ Foreback et al. 2022 ACP Supplement Table S1 (12 MEP sites) |
+| `district` | Có — Skyviewor station list (区县) + đối chiếu PMC9510312; **không** suy từ tên trạm |
+| `station_code` / `station_name` | Khớp tên `station` trong UCI |
+
+Nguồn tọa độ:
+
+```text
+https://acp.copernicus.org/articles/22/11089/2022/acp-22-11089-2022-supplement.pdf
+```
+
+Nguồn district (ghi trong CSV: `district_source` / `district_source_url`):
+
+```text
+https://docs.datastation.skyviewor.com/data-query/china-pollution/pollution-stations-list/
+https://pmc.ncbi.nlm.nih.gov/articles/PMC9510312/
+```
+
+Ví dụ mapping đặc biệt trong seed: `Dingling` → district `Changping`.
+
+`coordinate_status=LITERATURE`. Seed dùng cho Open-Meteo join và map; citation nằm trong CSV/metadata.
 
 Không:
 
-- tự tìm tọa độ rồi coi là đúng;
 - lấy tâm quận thay tọa độ trạm;
 - dùng coordinate của tên địa danh gần giống;
-- sinh tọa độ bằng AI.
-
-Muốn sử dụng Open-Meteo theo station hoặc tạo map thì tọa độ phải được xác minh trước.
+- sinh tọa độ giả;
+- gán district chỉ theo tên trạm;
+- trộn nhiều bảng tọa độ khác nhau cho cùng một trạm mà không document.
 
 ---
 
@@ -696,11 +712,37 @@ Mục tiêu là **tích hợp/enrichment**, không phải chứng minh một ngu
 
 Không lấy hàng chục biến ngay từ đầu.
 
-Candidate set:
+## 24.1. Relative humidity — derive ưu tiên hơn API
+
+UCI **không có** cột RH trực tiếp, nhưng có `TEMP` và `DEWP`.
+
+**Working preference:** derive `relative_humidity_pct` trong ETL/processing từ `TEMP` + `DEWP` (công thức khí tượng chuẩn), ghi rõ đây là biến dẫn xuất.
+
+Không ưu tiên lấy `relative_humidity_2m` từ Open-Meteo chỉ để có RH — trừ khi cần đối chiếu derive vs API.
+
+## 24.2. Enrichment chính từ Open-Meteo
+
+Candidate **ưu tiên đưa vào pipeline enrichment**:
+
+```text
+cloud_cover
+```
+
+Lý do: UCI không có; có thể hữu ích khi phân tích tương quan với pollutant (PM vs O₃ có thể khác hướng). Không mặc định kết luận nhân quả.
+
+Tối đa thêm **một** biến phụ sau EDA nếu có tín hiệu, ví dụ:
+
+```text
+shortwave_radiation
+weather_code
+```
+
+## 24.3. Biến trùng UCI — fill missing (source priority)
+
+Gọi và lưu các biến chồng với UCI để **bổ sung khi UCI thiếu** và (tuỳ chọn) đối chiếu nguồn:
 
 ```text
 temperature_2m
-relative_humidity_2m
 dew_point_2m
 surface_pressure
 rain
@@ -708,15 +750,27 @@ wind_speed_10m
 wind_direction_10m
 ```
 
-Biến đặc biệt đáng quan tâm:
+Working preference khi build cột analytical:
 
 ```text
-relative_humidity_2m
+weather_final = UCI          nếu UCI không missing
+              = Open-Meteo   nếu UCI missing và API có giá trị
+              = null/impute  nếu cả hai thiếu
 ```
 
-vì UCI có `DEWP` nhưng không có relative humidity trực tiếp.
+Nên giữ:
 
-Chỉ bổ sung thêm feature sau EDA nếu có lý do.
+- giá trị theo từng nguồn ở processed hoặc cột riêng khi cần đối chiếu;
+- **flag / lineage** cho biết measure analytical đến từ nguồn nào.
+
+Fact/mart nhận:
+
+- weather đã resolve (ưu tiên UCI);
+- enrichment `cloud_cover` (và biến phụ nếu có).
+
+Pollutant missing không fill bằng Open-Meteo.
+
+Khóa chi tiết sau Phase 5 (đo tỷ lệ fill thực tế; seed tọa độ đã có tại `data/raw/reference/stations.csv`).
 
 ---
 
@@ -781,9 +835,9 @@ Không mặc định `PRES` bằng một trong hai cho tới khi semantics đư�
 
 # 26. Naming weather theo source
 
-Trong processed layer chưa nên ghi đè weather của UCI bằng Open-Meteo.
+Trong processed layer **không ghi đè** weather UCI bằng Open-Meteo.
 
-Sử dụng phân biệt nguồn:
+Giữ cột theo nguồn (để đối chiếu và lineage):
 
 ```text
 uci_temperature_c
@@ -794,15 +848,21 @@ uci_wind_direction
 uci_wind_speed_m_s
 
 om_temperature_c
-om_relative_humidity_pct
 om_dew_point_c
 om_surface_pressure_hpa
 om_rain_mm
 om_wind_speed_m_s
 om_wind_direction_deg
+om_cloud_cover_pct
 ```
 
-Sau khi đánh giá mới quyết định feature cuối.
+Cột analytical đã resolve (`weather_final` / tương đương) và flag nguồn được tạo **sau** bước này, theo rule §24.3:
+
+```text
+UCI → Open-Meteo fill khi UCI missing → impute/flag nếu cả hai thiếu
+```
+
+`relative_humidity_pct` derive từ TEMP/DEWP **đã resolve**, không lấy từ `om_*` làm mặc định (xem §24.1).
 
 ---
 
@@ -1311,9 +1371,19 @@ external enrichment / second source
 
 không mặc định thay thế UCI weather.
 
-Nếu hai nguồn mâu thuẫn:
+Working priority cho **weather trùng**:
 
-> điều tra trước, không tự chọn Open-Meteo vì “API mới hơn”.
+```text
+1. UCI (primary)
+2. Open-Meteo (fill khi UCI missing)
+3. imputation / flag (nếu cả hai thiếu)
+```
+
+Đồng thời Open-Meteo cung cấp biến UCI không có (ưu tiên `cloud_cover`).
+
+Nếu hai nguồn **cùng có giá trị nhưng lệch nhau**:
+
+> điều tra / ghi nhận; không tự chọn Open-Meteo vì “API mới hơn” khi UCI đã có đo.
 
 ---
 
@@ -1404,16 +1474,17 @@ Các quyết định sau phải dựa vào profiling hoặc thử nghiệm.
 
 ## Weather
 
-- Open-Meteo model cuối;
-- variables cuối;
-- role cuối của Open-Meteo;
-- semantics của UCI pressure.
+- Open-Meteo model/grid cuối;
+- variables cuối *(working preference: cloud_cover; UCI→Open-Meteo fill; RH derive — xem §24)*;
+- role cuối của Open-Meteo sau POC;
+- semantics của UCI pressure;
+- công thức derive RH và kiểm tra biên (TEMP/DEWP missing).
 
 ## Station
 
-- coordinates;
-- district;
-- station metadata source.
+- coordinates *(seed LITERATURE: `data/raw/reference/stations.csv` — ACP 2022 Supp. Table S1)*;
+- district *(đã gán; nguồn ghi trong `stations.csv`)*;
+- có giữ một nguồn tọa độ duy nhất (ACP S1) hay bổ sung đối chiếu.
 
 ## Storage
 

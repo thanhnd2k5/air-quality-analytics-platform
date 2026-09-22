@@ -4,8 +4,8 @@
 > **Môn học:** Kho dữ liệu và Khai phá dữ liệu  
 > **Quy mô nhóm:** 2 thành viên  
 > **Trạng thái:** Chuẩn bị triển khai  
-> **Phiên bản tài liệu:** 1.0  
-> **Cập nhật:** 11/09/2026
+> **Phiên bản tài liệu:** 1.1  
+> **Cập nhật:** 15/09/2026
 
 ---
 
@@ -488,10 +488,22 @@ Vì vậy Open-Meteo không được thêm chỉ để có thêm một API.
 Vai trò dự kiến của Open-Meteo:
 
 1. tạo pipeline ingestion từ REST API/JSON;
-2. thể hiện khả năng tích hợp đa nguồn;
-3. bổ sung biến UCI không có hoặc không trực tiếp có, ví dụ relative humidity;
-4. kiểm tra/đối chiếu một phần dữ liệu weather;
+2. thể hiện khả năng tích hợp đa nguồn (CSV + API + station metadata → warehouse thống nhất);
+3. bổ sung biến UCI **không có**, ưu tiên biến ít trùng với weather UCI;
+4. **fill weather UCI missing** (nguồn phụ) và tuỳ chọn đối chiếu khi cả hai cùng có giá trị;
 5. cung cấp thêm weather feature nếu kết quả EDA chứng minh có ích.
+
+### Working preference (15/09/2026) — chưa khóa cứng sau Phase 5
+
+| Nhu cầu | Hướng ưu tiên |
+|---|---|
+| Relative humidity (RH) | **Derive trong ETL** từ `TEMP` + `DEWP` (sau khi các cột đó đã được resolve) |
+| Enrichment từ Open-Meteo | Ưu tiên **`cloud_cover`**; tối đa thêm 1 biến phụ nếu EDA ủng hộ |
+| Biến weather trùng UCI | UCI primary; khi missing → **fill từ Open-Meteo**; còn thiếu → impute/flag |
+| Pollutant missing | Xử lý riêng (profiling gap, anti-leakage cho target); không fill bằng Open-Meteo |
+| Mục tiêu tích hợp | Join đa nguồn theo grain `station + hour`: enrichment + bổ sung weather thiếu |
+
+Lý do: UCI weather gần trạm quan trắc hơn nên là nguồn chính; Open-Meteo là nguồn phụ khi thiếu đo và để thêm biến UCI không có (cloud).
 
 ### Không bắt buộc giữ bằng mọi giá
 
@@ -515,24 +527,27 @@ Không được cố giữ một công nghệ hoặc nguồn dữ liệu chỉ v
 
 # 16. Metadata trạm
 
-Dataset hiện có tên trạm nhưng không có đầy đủ metadata địa lý cần cho visualization theo bản đồ.
+Dataset UCI có tên trạm nhưng **không** kèm tọa độ trên [trang dataset](https://archive.ics.uci.edu/dataset/501/beijing).
 
-Dự án dự kiến xây dựng một reference dataset:
+Reference seed hiện có:
 
 ```text
-station_id
-station_name
-latitude
-longitude
-district (nếu xác minh được)
-other_metadata
+data/raw/reference/stations.csv
 ```
 
-Nguồn tọa độ và district phải được kiểm chứng.
+Gồm 12 trạm khớp `station` trong UCI, với `latitude` / `longitude` lấy từ:
 
-Reference data này có thể được quản lý dưới dạng CSV/seed và ingest vào hệ thống.
+> Foreback et al. (2022), Atmos. Chem. Phys. supplement, Table S1 — 12 MEP sites  
+> https://acp.copernicus.org/articles/22/11089/2022/acp-22-11089-2022-supplement.pdf
 
-Không tự tạo tọa độ giả hoặc gán district theo suy đoán.
+`district` lấy từ danh sách trạm có cột 区县 / mô tả học thuật (không suy từ tên trạm):
+
+- [Skyviewor China pollution stations list](https://docs.datastation.skyviewor.com/data-query/china-pollution/pollution-stations-list/)
+- đối chiếu [PMC9510312 Table 1](https://pmc.ncbi.nlm.nih.gov/articles/PMC9510312/) (Dingling → Changping; Gucheng → Shijingshan)
+
+`coordinate_status=LITERATURE`. Seed dùng cho Open-Meteo join và map.
+
+Không tự tạo tọa độ giả hoặc gán district chỉ theo tên trạm.
 
 ---
 
@@ -994,7 +1009,8 @@ Các trang/view dự kiến:
 
 - năm/tháng/ngày/giờ;
 - seasonality;
-- pollution peaks.
+- pollution peaks;
+- pollution episodes (độ dài đợt cao, đa-trạm).
 
 ### Station Analysis
 
@@ -1356,10 +1372,10 @@ Các vấn đề sau cố tình để mở cho tới khi có đủ dữ liệu.
 - profiling toàn bộ 12 trạm;
 - missing strategy;
 - outlier strategy;
-- station coordinates;
+- station coordinates *(seed LITERATURE: `data/raw/reference/stations.csv` — ACP 2022 Supp. Table S1)*;
 - timezone;
-- API weather variables cuối cùng;
-- role cuối cùng của Open-Meteo.
+- API weather variables cuối cùng *(working preference: cloud_cover; weather fill khi UCI NA; RH derive — xem §15)*;
+- role cuối cùng của Open-Meteo *(sau POC Phase 5)*.
 
 ### Lake
 
@@ -1393,6 +1409,11 @@ Các vấn đề sau cố tình để mở cho tới khi có đủ dữ liệu.
 - prediction interaction;
 - mức độ live/demo.
 
+### Analytics depth
+
+- ngưỡng episode PM2.5 cuối (chốt ở Phase 8 sau EDA);
+- schema chi tiết `mart_pm25_episodes` (sau khi định nghĩa episode ổn định).
+
 Các quyết định này phải dựa trên kết quả thực nghiệm, không chốt theo cảm tính.
 
 ---
@@ -1412,7 +1433,11 @@ Cho tới khi có bằng chứng khác:
 - MinIO giữ raw source;
 - PostgreSQL chứa staging + DWH;
 - dbt transform staging → DWH/marts;
-- dashboard đọc primarily từ warehouse/marts, không đọc trực tiếp raw CSV.
+- dashboard đọc primarily từ warehouse/marts, không đọc trực tiếp raw CSV;
+- **RH được derive từ `TEMP` + `DEWP` trong ETL**, không ưu tiên lấy `relative_humidity_2m` từ Open-Meteo;
+- Open-Meteo ưu tiên enrichment **`cloud_cover`** (+ tối đa 1 biến phụ sau EDA);
+- biến weather trùng: UCI primary; **fill missing bằng Open-Meteo** khi join được; ghi flag/lineage nguồn;
+- missing pollutant xử lý riêng, không fill bằng Open-Meteo.
 
 Mọi assumption có thể thay đổi nếu kết quả thực tế chứng minh phương án khác tốt hơn.
 
