@@ -2,8 +2,9 @@
 
 > **Project:** Phân tích và dự báo ô nhiễm không khí theo khu vực và điều kiện thời tiết  
 > **Vai trò tài liệu:** Quy chuẩn dữ liệu của dự án  
-> **Phiên bản:** 1.1  
-> **Cập nhật:** 15/09/2026
+> **Phiên bản:** 1.2  
+> **Cập nhật:** 25/09/2026  
+> **Phase 1 Decision Gate:** ĐÃ CHỐT (P1-39 → P1-47); evidence: `artifacts/data_profile/`
 >
 > `PROJECT_CONTEXT.md` quyết định **dự án đang làm gì**.  
 > `DATA_GUIDE.md` quyết định **dữ liệu phải được hiểu và xử lý như thế nào**.
@@ -51,44 +52,54 @@ Dataset đầy đủ gồm:
 - 6 meteorological variables;
 - có missing values.
 
-## File đã kiểm chứng trực tiếp
+## Full dataset đã kiểm chứng (Phase 1)
+
+Đã profile đủ **12/12** file PRSA qua `scripts/run_profiling.py`.
+
+Artifacts:
 
 ```text
-PRSA_Data_Wanshouxigong_20130301-20170228.csv
+artifacts/data_profile/station_profile.csv
+artifacts/data_profile/missing_summary.csv
+artifacts/data_profile/extreme_value_summary.csv
+artifacts/data_profile/profiling_report.md
 ```
 
-Kết quả profiling:
+Kết quả tổng hợp:
 
 ```text
-Rows       : 35,064
-Columns    : 18
-Station    : Wanshouxigong
-Start      : 2013-03-01 00:00
-End        : 2017-02-28 23:00
-Frequency  : hourly
-Duplicate timestamps : 0
-Missing timestamps   : 0
+Stations              : 12/12 VERIFIED
+Rows per station      : 35,064
+Total station-hours   : 420,768
+Columns               : 18 (schema đồng nhất 100%)
+Start                 : 2013-03-01 00:00
+End                   : 2017-02-28 23:00
+Frequency             : hourly
+Duplicate timestamps  : 0 (mọi trạm)
+Missing timestamps    : 0 (mọi trạm)
+Invalid negatives     : 0 (pollutant / RAIN / WSPM)
 ```
 
 ### Trạng thái kiểm chứng
 
 ```text
-Wanshouxigong   → VERIFIED
-
-11 trạm còn lại → NOT YET PROFILED LOCALLY
+Aotizhongxin, Changping, Dingling, Dongsi,
+Guanyuan, Gucheng, Huairou, Nongzhanguan,
+Shunyi, Tiantan, Wanliu, Wanshouxigong
+→ VERIFIED (timeline + schema + continuity)
 ```
 
-Không được mặc định 11 file còn lại hoàn toàn giống về chất lượng dữ liệu chỉ vì chúng dùng cùng schema.
+Schema và timeline **đồng nhất**, nhưng **tỷ lệ / độ dài missing measurement khác nhau theo trạm** (xem §11–12 và Decision Gate). Không suy ra chất lượng sensor giống nhau chỉ vì cùng schema.
 
 ---
 
 # 3. Grain của dữ liệu nguồn
 
-Grain cơ bản của PRSA:
+Grain cơ bản của PRSA (**đã xác nhận Phase 1 Decision Gate P1-39**):
 
 > **Một observation tại một trạm trong một giờ.**
 
-Natural key dự kiến:
+Natural key:
 
 ```text
 station + event_time
@@ -102,7 +113,7 @@ Wanshouxigong + 2016-01-01 08:00
 
 phải xác định tối đa một observation trong dataset chuẩn hóa.
 
-Đây cũng là grain đang được ưu tiên cho Data Warehouse.
+**Đây cũng là grain chính thức dự kiến cho Data Warehouse** (Fact `station-hour`). Aggregation theo ngày / quận chỉ thực hiện ở mart nếu cần — không đổi grain Raw/Staging.
 
 ---
 
@@ -318,11 +329,11 @@ Ví dụ:
 12:00 PM2.5 = NA
 ```
 
-File Wanshouxigong đã kiểm tra:
+File đã kiểm tra trước Phase 1 (ví dụ Wanshouxigong) và full 12 trạm sau profiling:
 
 ```text
-Missing timestamp    = 0
-Missing measurements > 0
+Missing timestamp    = 0 (mọi trạm)
+Missing measurements > 0 (khác nhau theo trạm / biến)
 ```
 
 Hai loại lỗi này phải được báo cáo riêng.
@@ -331,7 +342,26 @@ Hai loại lỗi này phải được báo cáo riêng.
 
 # 11. Missing values đã kiểm chứng
 
-Wanshouxigong:
+Nguồn: `artifacts/data_profile/missing_summary.csv` + `profiling_report.md` (12 trạm).
+
+## 11.1. Tỷ lệ missing trung bình toàn dataset
+
+| Variable | Phân loại | Missing TB (%) | Longest run (giờ) |
+|---|---|---:|---:|
+| CO | pollutant | 4.920% | 1517 |
+| O3 | pollutant | 3.155% | 497 |
+| NO2 | pollutant | 2.880% | 900 |
+| SO2 | pollutant | 2.144% | 457 |
+| PM2.5 | pollutant | 2.077% | 343 |
+| PM10 | pollutant | 1.533% | 343 |
+| wd | categorical | 0.433% | 13 |
+| DEWP | weather | 0.096% | 7 |
+| TEMP | weather | 0.094% | 7 |
+| PRES | weather | 0.093% | 7 |
+| RAIN | weather | 0.093% | 6 |
+| WSPM | weather | 0.076% | 5 |
+
+## 11.2. Tham chiếu trạm (ví dụ Wanshouxigong — vẫn khớp seed cũ)
 
 | Variable | Missing | Tỷ lệ xấp xỉ |
 |---|---:|---:|
@@ -348,7 +378,7 @@ Wanshouxigong:
 | wd | 79 | 0.23% |
 | WSPM | 13 | 0.04% |
 
----
+Chi tiết từng trạm: xem `missing_summary.csv`.
 
 # 12. Missing gap
 
@@ -356,7 +386,30 @@ Không chỉ đếm số lượng `NA`.
 
 Pipeline profiling phải tìm **độ dài chuỗi NA liên tục**.
 
-Wanshouxigong đã phát hiện:
+## 12.1. Phân loại (P1-42)
+
+| Loại | Đặc điểm quan sát | Biến điển hình |
+|---|---|---|
+| Gap ngắn / gần single-point | Longest run thường ≤ ~6–13 giờ | TEMP, PRES, DEWP, RAIN, WSPM, wd |
+| Gap dài (sensor outage) | Longest run hàng chục → hàng trăm/nghìn giờ | CO, NO2, O3, và một số PM/SO2 theo trạm |
+
+## 12.2. Long gap đáng chú ý (P1-43)
+
+Biến + trạm cần chú ý (không loại bỏ trạm):
+
+| Station | Biến | Longest gap (h) | Missing % (biến đó) |
+|---|---|---:|---:|
+| Dongsi | CO | 1517 | 9.12% |
+| Dingling | CO | 1051 | 5.74% |
+| Dongsi | NO2 | 900 | 4.57% |
+| Shunyi | CO | 749 | 6.21% |
+| Wanliu | CO | 642 | 5.17% |
+| Wanliu | NO2 | 548 | 3.05% |
+| Shunyi | O3 | 497 | 4.25% |
+
+Weather/categorical: gap dài nhất quan sát được là `wd` tại Huairou (**13 giờ**); các biến số khí tượng ≤ **7 giờ**.
+
+## 12.3. Ví dụ Wanshouxigong (seed cũ — vẫn đúng)
 
 | Variable | Longest observed missing run |
 |---|---:|
@@ -381,7 +434,8 @@ Wanshouxigong đã phát hiện:
 
 # 13. Missing strategy
 
-Chưa khóa thuật toán imputation trước khi profile đủ 12 trạm.
+**Đã khóa chiến lược sơ bộ sau Phase 1 Decision Gate** (P1-42, P1-43).  
+Chưa triển khai imputation trong Phase 1 — chỉ chốt rule để Phase 4/5/10 thi hành.
 
 Quy trình bắt buộc:
 
@@ -402,6 +456,39 @@ Không mặc định:
 ```text
 NA → interpolate
 ```
+
+## 13.1. Weather / categorical (predictor)
+
+Thứ tự đã chốt (không đổi Phase 0):
+
+```text
+1. UCI (primary) nếu có giá trị
+2. Open-Meteo fill khi UCI missing (Phase 5; đo tỷ lệ fill thực tế)
+3. Short-gap impute + flag nếu cả hai thiếu (fallback)
+4. Còn lại → NULL + flag
+```
+
+Fallback short-gap (sau bước 2, hoặc khi chưa có OM trong pipeline local):
+
+| Biến | Treatment sơ bộ |
+|---|---|
+| TEMP, PRES, DEWP, RAIN, WSPM | Linear interpolation trên gap ngắn (quan sát ≤ ~7h) + missing indicator |
+| wd | Forward-fill / mode cửa sổ ngắn (không linear-interp) + flag |
+
+Short impute **không chạy xuyên train/test** (xem §15).
+
+## 13.2. Pollutant
+
+| Vai trò | Treatment |
+|---|---|
+| Target ML (vd. `pm25(t+1)`) | Không interpolate để tạo ground truth; row thiếu target → loại khỏi supervised train/eval |
+| Predictor pollutant | Không fill bằng Open-Meteo; ưu tiên giữ NULL + flag; imputation chi tiết (nếu cần) quyết định ở Phase 4/10 |
+| Dashboard / lịch sử | Có thể giữ `NULL` — trung thực hơn dữ liệu giả |
+| Gap dài (outage) | Flag rõ; không fill xuyên suốt chuỗi hàng trăm giờ |
+
+## 13.3. Chart profiling (P1-38)
+
+Không bắt buộc chart ở Phase 1. Visualization missing/extreme chuyển sang Phase 5 (EDA) và Phase 11 (Dashboard).
 
 ---
 
@@ -469,12 +556,14 @@ không được học thông tin từ tương lai.
 
 # 16. Extreme values
 
-Wanshouxigong có các giá trị lớn như:
+Full dataset (12 trạm) quan sát được các biên như:
 
 ```text
-PM2.5 max = 999 µg/m³
-PM10  max = 961 µg/m³
-CO    max = 9800 µg/m³
+PM2.5 max ≈ 999 µg/m³
+PM10  max ≈ 999 µg/m³
+CO    max = 10000 µg/m³
+O3    max ≈ 1071 µg/m³
+SO2   max = 500 µg/m³
 ```
 
 Không được mặc định:
@@ -484,6 +573,19 @@ large value = outlier = delete
 ```
 
 Ô nhiễm cao có thể chính là signal quan trọng nhất của bài toán.
+
+### Cần điều tra thêm ở EDA (P1-44) — chưa kết luận VALID/INVALID
+
+Các giá trị chạm mức tròn lớn (`999`, `10000`) **có thể là ceiling cảm biến**. Phase 1 chốt:
+
+```text
+giữ raw
+→ đánh dấu cần điều tra (SUSPECT_CAP / tương đương)
+→ không xóa
+→ không winsorize tại Decision Gate
+```
+
+Điều tra chi tiết (đồng thời các pollutant / weather / trạm khác) thuộc Phase 5 EDA.
 
 ---
 
@@ -537,7 +639,11 @@ RAIN  >= 0
 WSPM  >= 0
 ```
 
-Nếu vi phạm:
+**Phase 1 (P1-46):** toàn dataset **0** `invalid_negative` trên pollutant / RAIN / WSPM.
+
+`TEMP` và `DEWP` được phép âm (mùa đông Bắc Kinh); giữ nguyên — **không** coi là lỗi vật lý.
+
+Nếu vi phạm non-negativity trên pollutant/RAIN/WSPM:
 
 ```text
 do not silently fix
@@ -549,7 +655,7 @@ Record phải được:
 - đánh dấu;
 - hoặc đưa vào quarantine để điều tra.
 
-Không đặt hard upper limit tùy ý trước khi nghiên cứu domain.
+Không đặt hard upper limit tùy ý trước khi nghiên cứu domain (xem §16 về `SUSPECT_CAP`).
 
 ---
 
@@ -1074,7 +1180,9 @@ Duplicate được kiểm tra trên:
 station + event_time_local
 ```
 
-Nếu duplicate xuất hiện:
+**Phase 1 (P1-45):** 12/12 trạm có `duplicate_timestamp_count = 0`. Không có duplicate thật cần xử lý ở Raw hiện tại.
+
+Nếu duplicate xuất hiện ở ingestion sau này:
 
 > không dùng `drop_duplicates()` rồi giữ row đầu tiên một cách im lặng.
 
@@ -1448,27 +1556,28 @@ Nhưng AI không được:
 
 ---
 
-# 48. Những việc chưa được chốt
+# 48. Những việc chưa được chốt / còn mở
 
-Các quyết định sau phải dựa vào profiling hoặc thử nghiệm.
-
-## Full dataset
+## Đã chốt sau Phase 1 Decision Gate
 
 - profiling đủ 12 station;
-- kiểm tra row count từng station;
-- kiểm tra timestamp continuity;
-- kiểm tra duplicates;
-- missing pattern giữa các station.
+- row count / timestamp continuity / duplicates;
+- grain DWH = `station-hour`;
+- timeline đồng nhất 2013-03-01 → 2017-02-28;
+- missing strategy sơ bộ (§13);
+- không rule pipeline riêng theo station (P1-47) — chỉ DQ flag cho trạm gap nặng;
+- negative physical: pollutant/RAIN/WSPM OK; TEMP/DEWP âm hợp lệ;
+- extreme `999`/`10000`: giữ raw + đánh dấu điều tra EDA (chưa VALID/INVALID).
 
-## Missing
+## Missing — chi tiết còn mở
 
-- ngưỡng thế nào là gap ngắn/dài;
-- imputation theo từng variable;
-- treatment của missing wind direction.
+- ngưỡng số giờ chính xác cho “short gap” khi implement (đề xuất làm việc: ~6–12h; calibrate ở Phase 4);
+- imputation predictor pollutant (nếu ML cần) — Phase 4/10;
+- encoding cuối cho `wd` — Mining / Data Guide extension.
 
-## Extreme values
+## Extreme values — còn mở
 
-- rule xác định suspect value;
+- rule xác định `SUSPECT` vs `VALID_EXTREME` sau EDA;
 - có winsorization cho model hay không;
 - có transform target hay không.
 
@@ -1478,7 +1587,8 @@ Các quyết định sau phải dựa vào profiling hoặc thử nghiệm.
 - variables cuối *(working preference: cloud_cover; UCI→Open-Meteo fill; RH derive — xem §24)*;
 - role cuối của Open-Meteo sau POC;
 - semantics của UCI pressure;
-- công thức derive RH và kiểm tra biên (TEMP/DEWP missing).
+- công thức derive RH và kiểm tra biên (TEMP/DEWP missing);
+- đo tỷ lệ fill thực tế Open-Meteo (Phase 5).
 
 ## Station
 
@@ -1496,22 +1606,20 @@ Các quyết định sau phải dựa vào profiling hoặc thử nghiệm.
 
 # 49. Data checklist trước khi thiết kế DWH
 
-Không thiết kế DWH cuối cùng cho đến khi có câu trả lời cho:
-
 ```text
-[ ] Đủ inventory 12 file chưa?
-[ ] Grain đã xác nhận chưa?
-[ ] Timestamp continuity đã kiểm tra chưa?
-[ ] Duplicate đã kiểm tra chưa?
-[ ] Missing profile đủ chưa?
-[ ] Station names chuẩn chưa?
-[ ] Units chuẩn chưa?
-[ ] Timezone strategy rõ chưa?
-[ ] Open-Meteo role rõ chưa?
-[ ] Station metadata đủ chưa?
+[x] Đủ inventory 12 file chưa?
+[x] Grain đã xác nhận chưa?                    → station-hour (P1-39)
+[x] Timestamp continuity đã kiểm tra chưa?     → 0 missing hours (P1-40)
+[x] Duplicate đã kiểm tra chưa?                → 0 duplicates (P1-45)
+[x] Missing profile đủ chưa?                   → missing_summary.csv
+[x] Station names chuẩn chưa?                  → 12 tên khớp UCI
+[ ] Units chuẩn chưa?                          → canonical schema đã có; validate khi process
+[ ] Timezone strategy rõ chưa?                 → working assumption Asia/Shanghai
+[ ] Open-Meteo role rõ chưa?                   → preference Phase 0; POC Phase 5
+[x] Station metadata đủ chưa?                  → stations.csv (LITERATURE)
 ```
 
-Không nhất thiết mọi missing phải được xử lý xong, nhưng phải **hiểu chúng**.
+Không nhất thiết mọi missing phải được xử lý xong, nhưng phải **hiểu chúng** — Phase 1 đạt yêu cầu này.
 
 ---
 
@@ -1581,3 +1689,38 @@ Extreme values phải được điều tra trước khi loại bỏ.
 Dữ liệu tương lai không được phép lọt vào forecasting pipeline.
 
 Và mọi transformation quan trọng phải có khả năng truy ngược về source.
+
+---
+
+# 53. Phase 1 Decision Gate (P1-39 → P1-47) + assumptions (P1-49)
+
+Evidence: `artifacts/data_profile/` (profiling 2026-09-22; gate đóng 2026-09-25).
+
+## 53.1. Quyết định
+
+| ID | Quyết định |
+|---|---|
+| P1-38 | Không làm chart ở Phase 1; chuyển Phase 5 / 11 |
+| P1-39 | Grain DWH = `station-hour` — **CHỐT** |
+| P1-40 | 12 trạm cùng timeline `2013-03-01 00:00` → `2017-02-28 23:00` (35,064h) — **CHỐT** |
+| P1-41 | Chất lượng missing **không đồng đều**; không loại trạm. Chú ý: Dongsi, Dingling, Shunyi, Wanliu (gap pollutant dài) |
+| P1-42 | Missing gồm gap ngắn (weather) và gap dài (pollutant outage) — **CHỐT** phân loại |
+| P1-43 | Long gap đáng chú ý: chủ yếu CO / NO2 / O3 tại các trạm ở §12.2 |
+| P1-44 | Extreme lớn (đặc biệt 999 / 10000) → giữ raw + `SUSPECT_CAP` để EDA; không xóa |
+| P1-45 | Không có duplicate thật (0) |
+| P1-46 | Không invalid negative pollutant/RAIN/WSPM; TEMP/DEWP âm hợp lệ |
+| P1-47 | **Không** rule pipeline riêng theo station; một policy toàn cục + DQ flag |
+
+## 53.2. Assumptions — xác nhận / bác bỏ (P1-49)
+
+| Assumption trước Phase 1 | Kết quả |
+|---|---|
+| Grain là `station + hour` | **Xác nhận** |
+| 12 file có thể khác chất lượng dù cùng schema | **Xác nhận một phần**: schema/timeline/continuity đồng nhất; missing measurement **khác** theo trạm |
+| Chỉ Wanshouxigong đã verify; 11 trạm chưa profile | **Bác bỏ** — 12/12 VERIFIED |
+| Có thể một rule interpolate cho mọi missing | **Bác bỏ** |
+| Weather missing ít và gap ngắn | **Xác nhận** |
+| Pollutant có thể gap dài | **Xác nhận** |
+| TEMP/DEWP âm là lỗi | **Bác bỏ** — hợp lệ vật lý |
+| Giá trị cực lớn luôn là outlier cần xóa | **Bác bỏ** — giữ và điều tra |
+| Cần rule riêng từng station ngay Phase 1 | **Bác bỏ** — đủ một policy + flag |
