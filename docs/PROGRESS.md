@@ -7,13 +7,15 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 ## 2026-09-25
 
 ### Current phase
-Phase 1 – Decision Gate + cập nhật tài liệu (**P1-39 → P1-50**)
+Phase 1 – **HOÀN THÀNH** (P1-01 → P1-52; merged PR #3)
 
 ### Completed
 - Đóng **Decision Gate Phase 1** (P1-39 → P1-47) dựa trên `artifacts/data_profile/`.
 - **P1-38:** thống nhất không vẽ chart ở Phase 1; để Phase 5 (EDA) và Phase 11 (Dashboard).
 - **P1-48 / P1-49:** cập nhật `docs/DATA_GUIDE.md` (v1.2) — full 12-station profile, missing strategy sơ bộ, extreme/physical rules, bảng assumptions xác nhận/bác bỏ (§53).
-- **P1-50:** cập nhật checkpoint này trong `PROGRESS.md` và trạng thái task trên WBS.
+- **P1-50:** cập nhật checkpoint trong `PROGRESS.md` và trạng thái task trên WBS.
+- **P1-51:** commit profiling script + artifacts + docs trên `feature/data-profiling`.
+- **P1-52:** merge PR #3 vào `main` (`4ba4665`).
 
 ### Decisions (Decision Gate)
 - **P1-39 Grain:** `station-hour` chính thức cho DWH.
@@ -28,11 +30,10 @@ Phase 1 – Decision Gate + cập nhật tài liệu (**P1-39 → P1-50**)
 ### Evidence
 - `artifacts/data_profile/profiling_report.md` và 3 CSV summary.
 - `docs/DATA_GUIDE.md` §2, §3, §11–13, §16, §18, §34, §48–49, §53.
+- GitHub PR: https://github.com/thanhnd2k5/air-quality-analytics-platform/pull/3
 
 ### Next
-- **P1-51:** commit profiling code + artifacts + docs — trong commit này.
-- **P1-52:** mở PR / merge `feature/data-profiling` vào `main` để đóng Phase 1.
-- Sau đó Phase 2 (Environment & Infrastructure: Docker, MinIO, Postgres).
+- Bắt đầu **Phase 2** (Environment & Infrastructure: Docker, MinIO, Postgres).
 
 ---
 
