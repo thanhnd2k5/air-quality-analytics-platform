@@ -102,23 +102,27 @@ Khuyến nghị: Docker Desktop (Windows) với WSL2 backend.
 ### Hạ tầng Compose hiện tại
 
 ```text
-postgres   → localhost:5433   (DB air_quality_dw + airflow_db; container :5432)
-minio      → API :9000 / Console :9001   (bucket air-quality-lake)
-airflow    → (P2-17+) UI :8080
+postgres            → localhost:5433   (DB air_quality_dw + airflow_db; container :5432)
+minio               → API :9000 / Console :9001   (bucket air-quality-lake)
+airflow-webserver   → UI :8080
+airflow-scheduler   → LocalExecutor (no Redis)
 ```
 
 Khởi động (sau khi copy `.env.example` → `.env`):
 
 ```powershell
 copy .env.example .env
-docker compose up -d postgres minio
+docker compose up airflow-init
+docker compose up -d
 docker compose ps
 ```
 
-Network Docker: `air-quality-network` (service DNS: `postgres`, `minio`).
+- Airflow UI: http://localhost:8080 (user/password từ `_AIRFLOW_WWW_USER_*` trong `.env`)
+- Sample DAG: `sample_hello` (unpause + Trigger trong UI)
+- Chi tiết Airflow: `config/airflow/README.md`
+- Layout Data Lake: `config/minio/bucket_layout.md`
 
-Chi tiết layout Data Lake: `config/minio/bucket_layout.md`.
-
+Network Docker: `air-quality-network` (DNS nội bộ: `postgres`, `minio` — không dùng `localhost` giữa container).
 ---
 
 ## 6. Tài liệu tham chiếu

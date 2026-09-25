@@ -4,6 +4,33 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-09-26 (Phase 2 – Airflow)
+
+### Current phase
+Phase 2 – Environment & Infrastructure (**K2-01 → K2-04** xong; tiếp **K2-05 integration**)
+
+### Completed
+- **P2-17:** Chốt Airflow tối thiểu — image `apache/airflow:2.10.5`, **LocalExecutor**, metadata DB `airflow_db`, services `airflow-init` / `webserver` / `scheduler` (`config/airflow/README.md`).
+- **P2-18:** `airflow-init` migrate metadata + tạo user admin (`_AIRFLOW_WWW_USER_*`).
+- **P2-19 / P2-20:** `airflow-webserver` (:8080) và `airflow-scheduler` healthy.
+- **P2-21:** Mount `airflow/{dags,logs,plugins}` + `src` (`PYTHONPATH=/opt/airflow/src`).
+- **P2-22:** SQLAlchemy URL nội bộ `postgres:5432/airflow_db` (ghép từ `POSTGRES_*` trong compose).
+- **P2-23:** UI http://localhost:8080/health → 200; scheduler healthcheck OK.
+- **P2-24:** DAG `sample_hello` trigger manual → **success**.
+
+### Decisions
+- Không dùng Celery/Redis ở Phase 2 — LocalExecutor đủ cho monorepo local.
+- Connection string Airflow lấy từ `POSTGRES_USER`/`POSTGRES_PASSWORD` (tránh lệch URL cứng trong `.env`).
+
+### Evidence
+- `docker compose ps` → postgres / minio / airflow-webserver / airflow-scheduler **healthy**.
+- DAG run `sample_hello` state **success**.
+
+### Next
+- **P2-25 → P2-30:** integration từ trạng thái sạch, restart/volume, recreate 2 máy, docs start/stop/reset, checkpoint.
+
+---
+
 ## 2026-09-25 (Phase 2)
 
 ### Current phase
@@ -28,7 +55,7 @@ Phase 2 – Environment & Infrastructure (**K2-01 → K2-03** xong; tiếp **K2-
 - `config/`, `scripts/infra/`, `README.md` §5, `config/minio/bucket_layout.md`.
 
 ### Next
-- **K2-04:** Airflow LocalExecutor + webserver/scheduler + sample DAG (P2-17 → P2-24).
+- **K2-04:** Airflow LocalExecutor + webserver/scheduler + sample DAG (P2-17 → P2-24) — **đã xong 2026-09-26**.
 - **K2-05 / K2-06:** integration test, recreate trên 2 máy, docs start/stop.
 
 ---
