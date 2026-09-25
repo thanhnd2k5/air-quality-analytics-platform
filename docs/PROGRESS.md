@@ -4,7 +4,36 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-09-25
+## 2026-09-25 (Phase 2)
+
+### Current phase
+Phase 2 – Environment & Infrastructure (**K2-01 → K2-03** xong; tiếp **K2-04 Airflow**)
+
+### Completed
+- **P2-01:** Xác nhận Phase 1 đã qua Decision Gate (PR #3 trên `main`).
+- **P2-02:** Ghi nhận Docker Engine **29.3.1**, Docker Compose **v5.1.1** (README §5).
+- **P2-03:** Thêm `config/postgres/init/`, `config/minio/`, `scripts/infra/`, `airflow/logs/.gitkeep`.
+- **P2-04:** Hoàn thiện `.env.example` (Postgres dw + airflow_db, MinIO single bucket, Airflow placeholders).
+- **P2-05:** Compose network `air-quality-network` dùng chung cho postgres/minio.
+- **P2-06 → P2-10:** Postgres healthy; DB `air_quality_dw` + schemas `staging/dwh/mart`; DB `airflow_db`; host port **5433** (tránh conflict 5432).
+- **P2-11 → P2-16:** MinIO healthy (`coollabsio/minio` — Docker Hub `minio/minio` đã gỡ 2026-09); bucket `air-quality-lake` + prefix markers; upload/download sample OK.
+
+### Decisions
+- Warehouse DB name: `air_quality_dw` (khớp ARCHITECTURE).
+- Host Postgres port mặc định: **5433** nếu máy đã chiếm 5432.
+- MinIO image: `coollabsio/minio:latest` (thay `minio/minio` đã biến mất trên Docker Hub).
+
+### Evidence
+- `docker compose ps` → postgres/minio **healthy**.
+- `config/`, `scripts/infra/`, `README.md` §5, `config/minio/bucket_layout.md`.
+
+### Next
+- **K2-04:** Airflow LocalExecutor + webserver/scheduler + sample DAG (P2-17 → P2-24).
+- **K2-05 / K2-06:** integration test, recreate trên 2 máy, docs start/stop.
+
+---
+
+## 2026-09-25 (Phase 1 closed)
 
 ### Current phase
 Phase 1 – **HOÀN THÀNH** (P1-01 → P1-52; merged PR #3)
@@ -33,7 +62,7 @@ Phase 1 – **HOÀN THÀNH** (P1-01 → P1-52; merged PR #3)
 - GitHub PR: https://github.com/thanhnd2k5/air-quality-analytics-platform/pull/3
 
 ### Next
-- Bắt đầu **Phase 2** (Environment & Infrastructure: Docker, MinIO, Postgres).
+- Chuyển **Phase 2** (xem entry phía trên).
 
 ---
 

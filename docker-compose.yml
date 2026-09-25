@@ -1,9 +1,13 @@
-version: '3.8'
+# Phase 2 infrastructure: PostgreSQL + MinIO (+ Airflow in P2-17+)
+# Network name matches ARCHITECTURE.md §38: air-quality-network
+#
+# Note (2026-09): official `minio/minio` was removed from Docker Hub.
+# Using community image `coollabsio/minio` (built from MinIO source).
 
 services:
-  # ----------------------------------------------------------------------------
-  # PostgreSQL: Staging schema and Data Warehouse
-  # ----------------------------------------------------------------------------
+  # --------------------------------------------------------------------------
+  # PostgreSQL: warehouse DB (air_quality_dw) + Airflow metadata (airflow_db)
+  # --------------------------------------------------------------------------
   postgres:
     image: postgres:15-alpine
     container_name: air_quality_postgres
@@ -11,24 +15,29 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-air_quality_dwh}
+      POSTGRES_DB: ${POSTGRES_DB:-air_quality_dw}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./config/postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
       - air_quality_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-air_quality_dwh}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-air_quality_dw}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ----------------------------------------------------------------------------
-  # MinIO: Local S3 Object Storage / Data Lake
-  # ----------------------------------------------------------------------------
+  # --------------------------------------------------------------------------
+  # MinIO: Data Lake (bucket air-quality-lake — see config/minio/bucket_layout.md)
+  # --------------------------------------------------------------------------
   minio:
-    image: minio/minio:latest
+    image: coollabsio/minio:latest
     container_name: air_quality_minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -43,14 +52,15 @@ services:
     networks:
       - air_quality_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 10s
 
-  # ----------------------------------------------------------------------------
-  # (Khung dịch vụ Airflow & Dashboard sẽ hoàn thiện ở các Phase tiếp theo)
-  # ----------------------------------------------------------------------------
+  # --------------------------------------------------------------------------
+  # Airflow webserver / scheduler — added in P2-17+
+  # --------------------------------------------------------------------------
 
 volumes:
   postgres_data:
@@ -60,4 +70,5 @@ volumes:
 
 networks:
   air_quality_network:
+    name: air-quality-network
     driver: bridge

@@ -88,7 +88,40 @@ air-quality-analytics-platform/
 
 ---
 
-## 4. Tài liệu tham chiếu
+## 5. Yêu cầu môi trường (Phase 2)
+
+Đã kiểm tra trên máy phát triển (2026-09-25):
+
+| Thành phần | Phiên bản |
+|---|---|
+| Docker Engine | 29.3.1 |
+| Docker Compose | v5.1.1 |
+
+Khuyến nghị: Docker Desktop (Windows) với WSL2 backend.
+
+### Hạ tầng Compose hiện tại
+
+```text
+postgres   → localhost:5433   (DB air_quality_dw + airflow_db; container :5432)
+minio      → API :9000 / Console :9001   (bucket air-quality-lake)
+airflow    → (P2-17+) UI :8080
+```
+
+Khởi động (sau khi copy `.env.example` → `.env`):
+
+```powershell
+copy .env.example .env
+docker compose up -d postgres minio
+docker compose ps
+```
+
+Network Docker: `air-quality-network` (service DNS: `postgres`, `minio`).
+
+Chi tiết layout Data Lake: `config/minio/bucket_layout.md`.
+
+---
+
+## 6. Tài liệu tham chiếu
 
 Chi tiết kiến trúc và kế hoạch thực hiện được lưu trữ trong thư mục [`docs/`](docs/):
 - [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md): Bối cảnh dự án, phạm vi và mục tiêu kinh doanh.
