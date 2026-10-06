@@ -17,6 +17,18 @@ Mounts:
 - `airflow/logs` → `/opt/airflow/logs`
 - `airflow/plugins` → `/opt/airflow/plugins`
 - `src` → `/opt/airflow/src` (`PYTHONPATH=/opt/airflow` → `import src`)
+- `data/raw` → `/opt/airflow/data/raw` (read-only; Phase 3 UCI ingestion)
+
+MinIO from Airflow tasks (compose injects):
+
+| Variable | In-container value |
+|---|---|
+| `MINIO_ENDPOINT` | `minio:9000` |
+| `MINIO_BUCKET` | from `.env` (`air-quality-lake`) |
+| `UCI_RAW_DIR` | `/opt/airflow/data/raw/uci` |
+| `UCI_INVENTORY_PATH` | `/opt/airflow/data/raw/reference/file_inventory.csv` |
+
+Host-side CLI smoke uses `MINIO_ENDPOINT=localhost:9000` from `.env`.
 
 Init once (or after wiping Postgres volume):
 
@@ -26,3 +38,5 @@ docker compose up -d airflow-webserver airflow-scheduler
 ```
 
 Sample DAG: `sample_hello` (trigger manually in UI; starts paused).
+
+Phase 3 DAG (K3-03+): `uci_ingest_raw` — param `station` (default `Wanshouxigong`).

@@ -4,6 +4,111 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-06 (Phase 3 – **HOÀN THÀNH** kỹ thuật; chờ PR)
+
+### Current phase
+Phase 3 – UCI Ingestion → Data Lake (**P3-01 → P3-19 DONE**; còn **P3-20** PR merge)
+
+### Completed
+- **K3-01:** WBS + object-key convention + branch `feature/minio-ingestion`
+- **K3-02:** `minio_client`, `uci_raw`, `uci_to_minio`, CLI, unit tests (4 passed)
+- **P3-03:** mount `./data/raw` (ro); Airflow dùng `MINIO_ROOT_*`; `_PIP_ADDITIONAL_REQUIREMENTS=minio` chỉ trên webserver/scheduler (tránh fail init chạy root)
+- **K3-03:** CLI upload Wanshouxigong; verify byte-identical SHA-256; rerun → `skipped_identical`; DAG `uci_ingest_raw` run `manual__2026-10-06T06:59:30+00:00` → **success** (`validate_source` + `upload_raw`)
+- **K3-04:** ingest đủ 12 trạm; rerun 12 → toàn bộ skip; list MinIO = 12 stations
+- **K3-05:** README + bucket_layout + evidence `artifacts/ingestion/` + tick DoD Phase 3
+
+### Decisions
+- Airflow client creds = `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` (tránh lệch `MINIO_SECRET_KEY` trong `.env`)
+- Host CLI smoke cũng dùng ROOT credentials
+
+### Evidence
+- `artifacts/ingestion/verify_wanshouxigong_p3-11.json`
+- `artifacts/ingestion/ingest_all_p3-14.jsonl`, `ingest_all_rerun_p3-15.jsonl`
+- `artifacts/ingestion/list_raw_uci_p3-14.json` (12 stations)
+- `artifacts/ingestion/dag_runs_uci_ingest_raw.txt`, `compose_ps_p3.txt`, `airflow_health_p3.json`
+
+### Next
+- **P3-20:** PR merge `feature/minio-ingestion` → `main`
+- Sau đó Phase 4 – Processing & Data Quality
+
+---
+
+## 2026-10-06 (Phase 3 – Kickoff / K3-01 Spec)
+
+### Current phase
+Phase 3 – UCI Ingestion → Data Lake (**K3-01** đang làm; WBS P3-01 → P3-20)
+
+### Completed
+- Chốt kế hoạch chi tiết Phase 3 + chia việc A/B trong `IMPLEMENTATION_PLAN.md` §8.
+- Chốt object key / immutability / idempotency / SHA-256 / sidecar `.meta.json`.
+- Cập nhật `config/minio/bucket_layout.md` với convention Phase 3.
+- **P3-01:** branch `feature/minio-ingestion`.
+- **P3-03:** mount `./data/raw` (ro) vào Airflow; inject `MINIO_*` + `UCI_*` env; default `_PIP_ADDITIONAL_REQUIREMENTS=minio`.
+- **P3-04 → P3-09:** `minio_client`, `uci_raw` validation, `uci_to_minio` ingest, CLI `scripts/ingest_uci_station.py`, unit tests (4 passed), DAG `uci_ingest_raw`.
+
+### Decisions
+- Key: `raw/uci/air_quality/station=<Station>/ingestion_date=YYYY-MM-DD/<original_filename>`
+- Không overwrite; cùng checksum → skip; khác checksum cùng key → fail.
+- Validate lúc ingest chỉ nhẹ (inventory + 18 cột + station match); DQ nặng để Phase 4.
+- Mount `./data/raw` (không chỉ `uci/`) để có cả `file_inventory.csv`.
+
+### Next
+- **K3-03:** Trigger DAG `uci_ingest_raw` (Wanshouxigong) + verify checksum + rerun idempotent
+- Smoke CLI (host): `py scripts/ingest_uci_station.py --station Wanshouxigong` (cần MinIO up)
+- DAG đã thêm: `airflow/dags/uci_ingest_raw_dag.py` (P3-09)
+
+---
+
+## 2026-09-29 (Phase 2 – **HOÀN THÀNH**)
+
+### Current phase
+Phase 2 – Environment & Infrastructure (**P2-01 → P2-30 DONE**)
+
+### Completed (đóng gate)
+- **P2-25 / P2-26:** Integration clean up + restart/volume persistence (marker Postgres/MinIO còn sau `down`/`up`/`restart`).
+- **P2-27:** Recreate máy A từ repo + `.env`.
+- **P2-28:** Thành viên B bận — **A làm hộ**: recreate lần 2 chỉ từ repo + `.env` (không secret ngoài `.env`); 4 service healthy; Airflow `/health` OK; MinIO bucket layout OK; DAG `sample_hello` list được.
+- **P2-29:** README §5 start/stop/restart/`down -v`/UI/recreate checklist.
+- **P2-30:** Evidence + PROGRESS; DoD Phase 2 trong `IMPLEMENTATION_PLAN.md` đánh dấu xong.
+
+### Decisions
+- P2-28 chấp nhận proxy recreate lần 2 trên máy A khi B không available (ghi rõ trong PROGRESS / DoD).
+
+### Evidence
+- `artifacts/infra/compose_ps_k2-05.txt`, `airflow_health_k2-05.json`
+- `artifacts/infra/compose_ps_p2-28.txt`, `airflow_health_p2-28.json`
+- README §5; `config/airflow/README.md`; `config/minio/bucket_layout.md`
+
+### Next
+- Chuyển **Phase 3 – UCI Ingestion → Data Lake**.
+
+---
+
+## 2026-09-29 (Phase 2 – Integration / K2-05)
+
+### Current phase
+Phase 2 – Environment & Infrastructure (**K2-01 → K2-05** xong trên máy A; **P2-28** chờ máy B) — **đã đóng phía trên**.
+
+### Completed
+- **P2-25:** `docker compose down` → `up airflow-init` → `up -d` — postgres / minio / airflow-webserver / airflow-scheduler cùng **healthy**.
+- **P2-26:** Seed marker Postgres (`staging._p2_volume_probe`) + MinIO object; sau `compose down/up` và `compose restart` marker vẫn còn; DAG `sample_hello` vẫn list được.
+- **P2-27:** Máy A dựng lại từ repo + `.env` (không secret ngoài `.env`) — OK.
+- **P2-29:** README §5 bổ sung start / stop / restart / `down -v` reset / UI ports / recreate checklist 2 máy.
+- **P2-30:** Evidence `artifacts/infra/compose_ps_k2-05.txt`, `artifacts/infra/airflow_health_k2-05.json`; cập nhật PROGRESS.
+
+### Pending
+- **P2-28:** — **đã xong** (A làm hộ B, xem entry HOÀN THÀNH phía trên).
+
+### Evidence
+- `artifacts/infra/compose_ps_k2-05.txt`
+- `artifacts/infra/airflow_health_k2-05.json` (Airflow `/health` → metadatabase + scheduler healthy)
+- README §5
+
+### Next
+- Phase 3.
+
+---
+
 ## 2026-09-26 (Phase 2 – Airflow)
 
 ### Current phase
@@ -13,7 +118,7 @@ Phase 2 – Environment & Infrastructure (**K2-01 → K2-04** xong; tiếp **K2-
 - **P2-17:** Chốt Airflow tối thiểu — image `apache/airflow:2.10.5`, **LocalExecutor**, metadata DB `airflow_db`, services `airflow-init` / `webserver` / `scheduler` (`config/airflow/README.md`).
 - **P2-18:** `airflow-init` migrate metadata + tạo user admin (`_AIRFLOW_WWW_USER_*`).
 - **P2-19 / P2-20:** `airflow-webserver` (:8080) và `airflow-scheduler` healthy.
-- **P2-21:** Mount `airflow/{dags,logs,plugins}` + `src` (`PYTHONPATH=/opt/airflow/src`).
+- **P2-21:** Mount `airflow/{dags,logs,plugins}` + `src` (`PYTHONPATH=/opt/airflow`).
 - **P2-22:** SQLAlchemy URL nội bộ `postgres:5432/airflow_db` (ghép từ `POSTGRES_*` trong compose).
 - **P2-23:** UI http://localhost:8080/health → 200; scheduler healthcheck OK.
 - **P2-24:** DAG `sample_hello` trigger manual → **success**.
@@ -27,7 +132,7 @@ Phase 2 – Environment & Infrastructure (**K2-01 → K2-04** xong; tiếp **K2-
 - DAG run `sample_hello` state **success**.
 
 ### Next
-- **P2-25 → P2-30:** integration từ trạng thái sạch, restart/volume, recreate 2 máy, docs start/stop/reset, checkpoint.
+- **P2-25 → P2-30:** integration từ trạng thái sạch, restart/volume, recreate 2 máy, docs start/stop/reset, checkpoint — **K2-05 làm 2026-09-29** (còn P2-28 máy B).
 
 ---
 
