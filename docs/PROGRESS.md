@@ -7,7 +7,7 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 ## 2026-10-06 (Phase 3 – **HOÀN THÀNH** kỹ thuật; chờ PR)
 
 ### Current phase
-Phase 3 – UCI Ingestion → Data Lake (**P3-01 → P3-19 DONE**; còn **P3-20** PR merge)
+Phase 3 – UCI Ingestion → Data Lake (**P3-01 → P3-20 DONE** — PR #4)
 
 ### Completed
 - **K3-01:** WBS + object-key convention + branch `feature/minio-ingestion`
@@ -16,6 +16,7 @@ Phase 3 – UCI Ingestion → Data Lake (**P3-01 → P3-19 DONE**; còn **P3-20*
 - **K3-03:** CLI upload Wanshouxigong; verify byte-identical SHA-256; rerun → `skipped_identical`; DAG `uci_ingest_raw` run `manual__2026-10-06T06:59:30+00:00` → **success** (`validate_source` + `upload_raw`)
 - **K3-04:** ingest đủ 12 trạm; rerun 12 → toàn bộ skip; list MinIO = 12 stations
 - **K3-05:** README + bucket_layout + evidence `artifacts/ingestion/` + tick DoD Phase 3
+- **P3-20:** mở PR #4 `feature/minio-ingestion` → `main`
 
 ### Decisions
 - Airflow client creds = `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` (tránh lệch `MINIO_SECRET_KEY` trong `.env`)
@@ -26,9 +27,10 @@ Phase 3 – UCI Ingestion → Data Lake (**P3-01 → P3-19 DONE**; còn **P3-20*
 - `artifacts/ingestion/ingest_all_p3-14.jsonl`, `ingest_all_rerun_p3-15.jsonl`
 - `artifacts/ingestion/list_raw_uci_p3-14.json` (12 stations)
 - `artifacts/ingestion/dag_runs_uci_ingest_raw.txt`, `compose_ps_p3.txt`, `airflow_health_p3.json`
+- PR: https://github.com/thanhnd2k5/air-quality-analytics-platform/pull/4
 
 ### Next
-- **P3-20:** PR merge `feature/minio-ingestion` → `main`
+- Review / merge PR #4
 - Sau đó Phase 4 – Processing & Data Quality
 
 ---
