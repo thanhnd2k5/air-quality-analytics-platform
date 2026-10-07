@@ -13,7 +13,7 @@ Phase 4 – Processing & Data Quality (**P4-01 → P4-20 DONE** — PR)
 - **K4-01 → K4-04:** Spec, library, 1-station slice, scale 12 (xem entries bên dưới)
 - **P4-18:** README + `config/airflow/README.md` + bucket_layout (processed keys / flags)
 - **P4-19:** Evidence `artifacts/processing/`; tick DoD Phase 4 trong `IMPLEMENTATION_PLAN.md` §9
-- **P4-20:** PR `feature/data-processing` → `main`
+- **P4-20:** branch `feature/data-processing` pushed; mở PR → `main` (gh CLI chưa auth trên máy này)
 
 ### Decisions (tóm tắt)
 - Processed key: `processed/uci/air_quality/station=<Station>/process_date=YYYY-MM-DD/<slug>_hourly.parquet`
@@ -23,6 +23,8 @@ Phase 4 – Processing & Data Quality (**P4-01 → P4-20 DONE** — PR)
 ### Evidence
 - `artifacts/processing/` (verify, manifests, DAG runs, list 12 stations)
 - Unit tests: `tests/unit/test_uci_process.py` (7 passed)
+- Commit: `fd8c528`
+- Open PR: https://github.com/thanhnd2k5/air-quality-analytics-platform/compare/main...feature/data-processing?expand=1
 
 ### Next
 - Review / merge PR Phase 4
