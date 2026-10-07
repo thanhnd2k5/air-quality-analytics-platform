@@ -28,6 +28,8 @@ Phase 6 – PostgreSQL Staging (**K6-01 → K6-05 DONE**)
 - `artifacts/staging/` (load JSONL, reconcile, MinIO fingerprints)
 - Unit tests: `tests/unit/test_staging_load.py` (10 passed)
 - DAG runs: `manual__2026-10-07T14:28:35+00:00`, `manual__2026-10-07T14:31:18+00:00`
+- Commit: `eae9254`
+- Open PR: https://github.com/thanhnd2k5/air-quality-analytics-platform/compare/main...feature/postgres-staging?expand=1 (`gh` chưa auth trên máy này)
 
 ### Next
 - Review / merge PR Phase 6
