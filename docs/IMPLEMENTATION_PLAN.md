@@ -3,8 +3,8 @@
 > **Project:** Phân tích và dự báo ô nhiễm không khí theo khu vực và điều kiện thời tiết  
 > **Quy mô nhóm:** 2 thành viên  
 > **Vai trò tài liệu:** Kế hoạch triển khai dự án theo phase và milestone  
-> **Phiên bản:** 1.1  
-> **Cập nhật:** 15/09/2026
+> **Phiên bản:** 1.2  
+> **Cập nhật:** 06/10/2026
 >
 > Tài liệu này cần được đọc cùng:
 >
@@ -407,12 +407,13 @@ sample DAG chạy được
 ## Definition of Done
 
 ```text
-[ ] docker compose up hoạt động
-[ ] PostgreSQL healthy
-[ ] MinIO healthy
-[ ] Airflow healthy
-[ ] Hai thành viên dựng được environment từ repo
-[ ] Không cần cấu hình bí mật bằng tay ngoài .env
+[x] docker compose up hoạt động
+[x] PostgreSQL healthy
+[x] MinIO healthy
+[x] Airflow healthy
+[x] Hai thành viên dựng được environment từ repo
+    (P2-28: thành viên A làm hộ B — recreate lần 2 từ repo + .env, 2026-09-29)
+[x] Không cần cấu hình bí mật bằng tay ngoài .env
 ```
 
 ---
@@ -439,43 +440,121 @@ Sau khi ổn:
 12 stations
 ```
 
+Branch:
+
+```text
+feature/minio-ingestion
+```
+
 ## Flow
 
 ```text
 Local/source UCI
       ↓
-Validation
+Validation (light)
       ↓
 Airflow ingestion task
       ↓
-MinIO Raw
+MinIO Raw (+ sidecar .meta.json)
 ```
 
-## Raw path
+## Quyết định kỹ thuật (chốt 2026-10-06)
 
-Candidate:
+| Mục | Quyết định |
+|---|---|
+| Object key | `raw/uci/air_quality/station=<Station>/ingestion_date=YYYY-MM-DD/<original_filename>` |
+| Immutability | Không overwrite object cùng key |
+| Idempotency | Cùng SHA-256 → skip upload, task success; khác checksum cùng ngày → fail rõ |
+| Checksum | SHA-256 bắt buộc |
+| Metadata | Sidecar `.meta.json` cạnh object + MinIO user-metadata tối thiểu (`station`, `source_file`, `sha256`, `ingestion_ts`) |
+| Validate lúc ingest | Nhẹ: file tồn tại, khớp `file_inventory.csv`, đúng 18 cột, station khớp tên file; không impute/rename |
+| Source trong container | Mount read-only `./data/raw/uci` → `/opt/airflow/data/raw/uci` |
+
+Chi tiết path: `config/minio/bucket_layout.md`.
+
+## Milestones
 
 ```text
-raw/uci/air_quality/
+K3-01  Spec & layout
+K3-02  Library (MinIO client + validate + upload + CLI)
+K3-03  Slice 1 trạm Wanshouxigong qua Airflow
+K3-04  Scale 12 trạm + idempotent rerun
+K3-05  Docs, evidence, đóng DoD
 ```
 
-Object metadata nên lưu:
+## WBS (P3-01 → P3-20)
 
-- source file;
-- station;
-- ingestion timestamp;
-- checksum nếu triển khai;
-- source identifier.
+### K3-01 Spec
+
+- **P3-01** Xác nhận Phase 2 gate đã đóng; tạo branch `feature/minio-ingestion`
+- **P3-02** Chốt object key + metadata schema (bucket_layout + IMPLEMENTATION_PLAN)
+- **P3-03** Mount `data/raw/uci` (ro) vào Airflow services; cập nhật `config/airflow/README.md`
+
+### K3-02 Library
+
+- **P3-04** `src/utils/minio_client.py` — connect từ env `MINIO_*`, put/get/stat/list
+- **P3-05** `src/validation/uci_raw.py` — inventory lookup, schema 18 cols, station match
+- **P3-06** `src/ingestion/uci_to_minio.py` — sha256, build key, upload + sidecar, skip-if-same-checksum
+- **P3-07** `scripts/ingest_uci_station.py` — CLI 1 station (smoke ngoài Airflow)
+- **P3-08** Tests nhỏ trong `tests/` (validate + key builder)
+
+### K3-03 One-station slice
+
+- **P3-09** DAG `uci_ingest_raw` — param `station` (default `Wanshouxigong`); tasks `validate_source` → `upload_raw`
+- **P3-10** Trigger manual 1 lần → object + `.meta.json` đúng path
+- **P3-11** Verify download = source byte-identical (checksum); raw không transform
+- **P3-12** Rerun cùng station → skip/idempotent success, không duplicate sai
+
+### K3-04 Scale 12
+
+- **P3-13** Mở rộng DAG/CLI nhận list 12 stations từ inventory
+- **P3-14** Ingest đủ 12; list prefix đủ 12 station folders
+- **P3-15** Rerun full 12 → skip/success không ghi đè
+- **P3-16** Manifest run → `artifacts/ingestion/` (station, key, sha256, status)
+
+### K3-05 Close
+
+- **P3-17** Cập nhật README / bucket_layout (cách chạy DAG, path, metadata)
+- **P3-18** Evidence: list objects + mẫu meta + DAG run logs text
+- **P3-19** Tick DoD Phase 3; entry PROGRESS đóng phase
+- **P3-20** PR merge `feature/minio-ingestion` → `main`
+
+## Phân chia Phase 3
+
+### Thành viên A (primary – pipeline)
+
+- P3-03 compose mount
+- P3-04 / P3-06 MinIO client + upload
+- P3-09 DAG
+- P3-13 scale orchestration
+- Lead merge PR
+
+### Thành viên B (primary – validation / verify / docs)
+
+- P3-02 metadata/layout spec
+- P3-05 validation (inventory/schema)
+- P3-07 CLI smoke + P3-08 tests
+- P3-11 / P3-14 / P3-15 verify + manifest artifacts
+- P3-17 docs
+
+### Shared
+
+- P3-01 kickoff
+- P3-10 lần chạy đầu
+- P3-12 idempotent check
+- P3-18 → P3-20 đóng gate
+
+Không chia kiểu “A code, B chỉ viết docs”. Thành viên B phải trigger được DAG và giải thích được object key.
 
 ## Definition of Done
 
 ```text
-[ ] 1 station ingest thành công
-[ ] rerun không gây lỗi/dữ liệu sai
-[ ] raw source không bị transform
-[ ] mở rộng đủ 12 stations
-[ ] Airflow hiển thị task status rõ
-[ ] raw objects truy vết được tới source
+[x] 1 station (Wanshouxigong) ingest thành công qua Airflow
+[x] rerun không gây lỗi / không overwrite sai
+[x] raw source không bị transform (byte/checksum)
+[x] mở rộng đủ 12 stations
+[x] Airflow hiển thị task status rõ
+[x] raw objects truy vết được tới source (meta + sha256)
 ```
 
 ---

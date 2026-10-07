@@ -88,7 +88,123 @@ air-quality-analytics-platform/
 
 ---
 
-## 4. Tài liệu tham chiếu
+## 5. Yêu cầu môi trường (Phase 2)
+
+Đã kiểm tra trên máy phát triển (2026-09-25 / integration 2026-09-29):
+
+| Thành phần | Phiên bản |
+|---|---|
+| Docker Engine | 29.3.1 |
+| Docker Compose | v5.1.1 |
+
+Khuyến nghị: Docker Desktop (Windows) với WSL2 backend.
+
+### Hạ tầng Compose hiện tại
+
+```text
+postgres            → localhost:5433   (DB air_quality_dw + airflow_db; container :5432)
+minio               → API :9000 / Console :9001   (bucket air-quality-lake)
+airflow-webserver   → UI :8080
+airflow-scheduler   → LocalExecutor (no Redis)
+```
+
+Network Docker: `air-quality-network` (DNS nội bộ: `postgres`, `minio` — **không** dùng `localhost` giữa container).
+
+### Start / stop / reset
+
+**Lần đầu (máy mới):**
+
+```powershell
+copy .env.example .env
+# Sửa mật khẩu trong .env (POSTGRES_*, MINIO_*, _AIRFLOW_WWW_USER_*)
+# Giữ POSTGRES_USER khớp volume nếu đã init trước đó (mặc định: postgres)
+
+docker compose up airflow-init
+docker compose up -d
+docker compose ps
+bash scripts/infra/init_minio.sh   # bucket + prefix markers (Git Bash / WSL)
+```
+
+**Start lại (đã có volume):**
+
+```powershell
+docker compose up -d
+docker compose ps
+```
+
+**Stop (giữ data):**
+
+```powershell
+docker compose stop
+# hoặc:
+docker compose down          # xóa container, GIỮ volume
+```
+
+**Restart nhanh:**
+
+```powershell
+docker compose restart
+```
+
+**Reset an toàn (XÓA toàn bộ DB / MinIO local — thận trọng):**
+
+```powershell
+docker compose down -v
+docker compose up airflow-init
+docker compose up -d
+bash scripts/infra/init_minio.sh
+```
+
+`down -v` xóa named volumes (`postgres_data`, `minio_data`). Chỉ dùng khi cố ý dựng lại từ đầu.
+
+### Truy cập UI
+
+| UI | URL | Đăng nhập |
+|---|---|---|
+| Airflow | http://localhost:8080 | `_AIRFLOW_WWW_USER_USERNAME` / `_AIRFLOW_WWW_USER_PASSWORD` trong `.env` |
+| MinIO Console | http://localhost:9001 | `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` |
+
+- Sample DAG: `sample_hello` (unpause + Trigger trong Airflow UI)
+- Phase 3 DAG: `uci_ingest_raw` (default station `Wanshouxigong`; conf `{"station":"..."}` hoặc `{"stations":[...]}`)
+- Chi tiết Airflow: `config/airflow/README.md`
+- Layout Data Lake: `config/minio/bucket_layout.md`
+
+### Phase 3 – UCI → MinIO (host CLI)
+
+Yêu cầu MinIO healthy + bucket đã bootstrap. Host CLI dùng `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` (khớp server). Trong `.env`, giữ `MINIO_ACCESS_KEY`/`MINIO_SECRET_KEY` giống ROOT.
+
+```powershell
+# 1 station
+py scripts/ingest_uci_station.py --station Wanshouxigong
+
+# all 12
+py scripts/ingest_uci_station.py --all
+
+# verify one object (byte-identical)
+py scripts/verify_uci_ingest.py
+
+# list raw objects
+py scripts/list_uci_raw_objects.py
+```
+
+Object key: `raw/uci/air_quality/station=<Station>/ingestion_date=YYYY-MM-DD/<original_filename>` (+ `.meta.json`).
+
+### Recreate checklist (2 thành viên)
+
+Trên mỗi máy, chỉ cần repo + `.env` (không commit `.env`):
+
+1. Clone / pull nhánh hiện tại
+2. `copy .env.example .env` và điền secret
+3. Chạy khối **Lần đầu** ở trên
+4. `docker compose ps` → postgres, minio, airflow-webserver, airflow-scheduler đều **healthy**
+5. Mở Airflow UI và MinIO Console được
+
+Không cấu hình secret bằng tay ngoài file `.env`.
+
+Nếu một thành viên không available: thành viên còn lại chạy thêm **một lần recreate** (`docker compose down` → `up airflow-init` → `up -d`) và lưu evidence — đủ cho P2-28 proxy (đã áp dụng 2026-09-29).
+---
+
+## 6. Tài liệu tham chiếu
 
 Chi tiết kiến trúc và kế hoạch thực hiện được lưu trữ trong thư mục [`docs/`](docs/):
 - [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md): Bối cảnh dự án, phạm vi và mục tiêu kinh doanh.

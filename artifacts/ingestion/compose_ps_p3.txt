@@ -1,0 +1,5 @@
+﻿NAME                            IMAGE                     COMMAND                  SERVICE             CREATED         STATUS                   PORTS
+air_quality_airflow_scheduler   apache/airflow:2.10.5     "/usr/bin/dumb-init ΓÇª"   airflow-scheduler   4 minutes ago   Up 4 minutes (healthy)   8080/tcp
+air_quality_airflow_webserver   apache/airflow:2.10.5     "/usr/bin/dumb-init ΓÇª"   airflow-webserver   4 minutes ago   Up 4 minutes (healthy)   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+air_quality_minio               coollabsio/minio:latest   "/usr/bin/docker-entΓÇª"   minio               7 days ago      Up 6 minutes (healthy)   0.0.0.0:9000-9001->9000-9001/tcp, [::]:9000-9001->9000-9001/tcp
+air_quality_postgres            postgres:15-alpine        "docker-entrypoint.sΓÇª"   postgres            7 days ago      Up 6 minutes (healthy)   0.0.0.0:5433->5432/tcp, [::]:5433->5432/tcp

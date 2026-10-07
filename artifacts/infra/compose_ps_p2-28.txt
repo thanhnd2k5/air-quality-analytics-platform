@@ -1,0 +1,5 @@
+﻿NAME                            SERVICE             STATUS                        PORTS
+air_quality_airflow_scheduler   airflow-scheduler   Up 59 seconds (healthy)       8080/tcp
+air_quality_airflow_webserver   airflow-webserver   Up 59 seconds (healthy)       0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp
+air_quality_minio               minio               Up About a minute (healthy)   0.0.0.0:9000-9001->9000-9001/tcp, [::]:9000-9001->9000-9001/tcp
+air_quality_postgres            postgres            Up About a minute (healthy)   0.0.0.0:5433->5432/tcp, [::]:5433->5432/tcp
