@@ -25,8 +25,11 @@ Phase 5 – Open-Meteo Investigation & Integration (**5a + 5b DONE**)
 ### Evidence
 - `artifacts/openmeteo/` (poc, manifests, fill_rate, DAG runs, list_objects)
 - Unit tests: `tests/unit/test_openmeteo.py` (5 passed)
+- Commit: `6decb3a`
+- Open PR: https://github.com/thanhnd2k5/air-quality-analytics-platform/compare/main...feature/openmeteo-investigation?expand=1
 
 ### Next
+- Review / merge PR Phase 5
 - Phase 6 – PostgreSQL Staging (`air_quality_hourly`, `weather_openmeteo_hourly`, `station_reference`)
 
 ---
