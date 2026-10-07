@@ -62,5 +62,5 @@ Phase 6 DAG: `staging_load` — tasks `ensure_schema` → `load_station_referenc
 - Reads latest processed Parquet (not `processed/quarantine/`) and `stations.csv`
 - Writes PostgreSQL `staging.*` on `air_quality_dw`. Does not mutate MinIO.
 - In-container Postgres is `postgres:5432` (host CLI stays on `POSTGRES_PORT`, usually 5433)
-- Idempotency: `staging.load_registry` matches `source_sha256` + `schema_version` + `row_count` → `skipped_identical`
+- Idempotency: `staging.load_registry` matches latest object key + `source_sha256` + `schema_version` + `row_count`, and the table still has that many rows → `skipped_identical`. A newer `process_date` reloads.
 - Webserver/scheduler pip default upgrades `pyarrow` to `25.0.1` (the image ships 19, which cannot read Parquet written by 25). `pandas` and `psycopg2` come with the Airflow image.

@@ -22,6 +22,7 @@ from src.staging.schema import (
     ddl_path,
     frame_to_copy_buffer,
     registry_matches,
+    should_skip_load,
     select_latest_processed_key,
 )
 
@@ -89,13 +90,38 @@ def _air_frame(station: str = "Wanshouxigong", *, rows: int = 1) -> pd.DataFrame
     return pd.DataFrame(records)
 
 
-def test_registry_matches_only_when_sha_schema_and_count_agree():
+def test_registry_matches_only_when_sha_schema_count_and_object_agree():
     existing = RegistryRow("k", "abc", "1.0.0", 35064)
-    assert registry_matches(existing, source_sha256="abc", schema_version="1.0.0", row_count=35064)
-    assert not registry_matches(None, source_sha256="abc", schema_version="1.0.0", row_count=1)
-    assert not registry_matches(existing, source_sha256="zzz", schema_version="1.0.0", row_count=35064)
-    assert not registry_matches(existing, source_sha256="abc", schema_version="2.0.0", row_count=35064)
-    assert not registry_matches(existing, source_sha256="abc", schema_version="1.0.0", row_count=1)
+    kwargs = {
+        "source_sha256": "abc",
+        "schema_version": "1.0.0",
+        "row_count": 35064,
+        "source_object_key": "k",
+    }
+    assert registry_matches(existing, **kwargs)
+    assert not registry_matches(None, source_sha256="abc", schema_version="1.0.0", row_count=1, source_object_key="k")
+    assert not registry_matches(existing, source_sha256="zzz", schema_version="1.0.0", row_count=35064, source_object_key="k")
+    assert not registry_matches(existing, source_sha256="abc", schema_version="2.0.0", row_count=35064, source_object_key="k")
+    assert not registry_matches(existing, source_sha256="abc", schema_version="1.0.0", row_count=1, source_object_key="k")
+    assert not registry_matches(
+        existing,
+        source_sha256="abc",
+        schema_version="1.0.0",
+        row_count=35064,
+        source_object_key="process_date=2026-10-08/k.parquet",
+    )
+
+
+def test_should_skip_requires_rows_still_present():
+    existing = RegistryRow("k", "abc", "1.0.0", 35064)
+    kwargs = {
+        "source_sha256": "abc",
+        "schema_version": "1.0.0",
+        "row_count": 35064,
+        "source_object_key": "k",
+    }
+    assert should_skip_load(existing, loaded_row_count=35064, **kwargs)
+    assert not should_skip_load(existing, loaded_row_count=0, **kwargs)
 
 
 def test_select_latest_ignores_quarantine_and_older_partition():

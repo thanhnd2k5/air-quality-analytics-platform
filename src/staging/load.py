@@ -35,7 +35,7 @@ from src.staging.schema import (
     ddl_path,
     frame_to_copy_buffer,
     meta_key_for,
-    registry_matches,
+    should_skip_load,
     require_sidecar_fields,
     select_latest_processed_key,
 )
@@ -210,15 +210,37 @@ def commit_reference_replace(
         raise
 
 
-def _registry_decision(conn, dataset: str, station: str, source_sha256: str, schema_version: str, row_count: int) -> RegistryRow | None:
+def count_loaded_rows(conn, table: str, station: str | None) -> int:
+    with conn.cursor() as cur:
+        if station is None:
+            cur.execute(f"SELECT COUNT(*) FROM {table}")
+        else:
+            cur.execute(f"SELECT COUNT(*) FROM {table} WHERE station_name = %s", (station,))
+        row = cur.fetchone()
+    conn.rollback()
+    return int(row[0]) if row else 0
+
+
+def _registry_decision(
+    conn,
+    dataset: str,
+    station: str,
+    source_sha256: str,
+    schema_version: str,
+    row_count: int,
+    source_object_key: str,
+    loaded_row_count: int,
+) -> RegistryRow | None:
     with conn.cursor() as cur:
         existing = fetch_registry(cur, dataset, station)
     conn.rollback()
-    if registry_matches(
+    if should_skip_load(
         existing,
         source_sha256=source_sha256,
         schema_version=schema_version,
         row_count=row_count,
+        source_object_key=source_object_key,
+        loaded_row_count=loaded_row_count,
     ):
         return existing
     return None
@@ -267,7 +289,17 @@ def _load_hourly(
         station, prefix_template, client=minio, bucket=bkt
     )
     source_sha256, schema_version, row_count = require_sidecar_fields(sidecar)
-    if _registry_decision(conn, dataset, station, source_sha256, schema_version, row_count):
+    loaded_row_count = count_loaded_rows(conn, table, station)
+    if _registry_decision(
+        conn,
+        dataset,
+        station,
+        source_sha256,
+        schema_version,
+        row_count,
+        parquet_key,
+        loaded_row_count,
+    ):
         return LoadResult(
             dataset=dataset,
             station=station,
@@ -276,7 +308,7 @@ def _load_hourly(
             source_sha256=source_sha256,
             schema_version=schema_version,
             row_count=row_count,
-            message="staging already loaded for same source_sha256 + schema_version + row_count",
+            message="staging already loaded for same object key, source hash, schema, and row count",
         )
     frame = _read_parquet(minio, bkt, parquet_key)
     commit_hourly_replace(
@@ -301,6 +333,15 @@ def _load_hourly(
         row_count=row_count,
         message="replaced station slice in staging",
     )
+
+
+def reference_object_key(path: Path) -> str:
+    """Stable registry identity. Host and Airflow see different absolute paths."""
+    name = path.name
+    parent = path.parent.name
+    if parent:
+        return f"data/raw/reference/{name}" if parent == "reference" else f"{parent}/{name}"
+    return name
 
 
 def stations_csv_path(path: Path | None = None) -> Path:
@@ -328,7 +369,8 @@ def load_station_reference(
         source_sha256 = hashlib.sha256(payload).hexdigest()
         frame = pd.read_csv(io.BytesIO(payload))
         row_count = len(frame)
-        source_key = path.as_posix()
+        source_key = reference_object_key(path)
+        loaded_row_count = count_loaded_rows(connection, TABLE_REFERENCE, None)
         if _registry_decision(
             connection,
             DATASET_REFERENCE,
@@ -336,6 +378,8 @@ def load_station_reference(
             source_sha256,
             STATION_REFERENCE_SCHEMA_VERSION,
             row_count,
+            source_key,
+            loaded_row_count,
         ):
             return LoadResult(
                 dataset=DATASET_REFERENCE,

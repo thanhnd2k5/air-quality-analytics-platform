@@ -111,6 +111,10 @@ def reconcile(
             """
         )
         reference_duplicate_names = int(cur.fetchone()[0])
+        cur.execute(f"SELECT COUNT(DISTINCT station_name) FROM {TABLE_AIR}")
+        air_station_count = int(cur.fetchone()[0])
+        cur.execute(f"SELECT COUNT(DISTINCT station_name) FROM {TABLE_OM}")
+        om_station_count = int(cur.fetchone()[0])
 
     def _check_types(label: str, actual: dict[str, str], expected: dict[str, str]) -> None:
         for column, data_type in expected.items():
@@ -191,13 +195,13 @@ def reconcile(
             errors.append(
                 f"expect_full but station list has {len(stations)} != {EXPECTED_STATION_COUNT}"
             )
-        if air_report["station_count"] != EXPECTED_STATION_COUNT:
+        if air_station_count != EXPECTED_STATION_COUNT:
             errors.append(
-                f"air_quality_hourly station_count {air_report['station_count']} != {EXPECTED_STATION_COUNT}"
+                f"air_quality_hourly station_count {air_station_count} != {EXPECTED_STATION_COUNT}"
             )
-        if om_report["station_count"] != EXPECTED_STATION_COUNT:
+        if om_station_count != EXPECTED_STATION_COUNT:
             errors.append(
-                f"weather_openmeteo_hourly station_count {om_report['station_count']} != {EXPECTED_STATION_COUNT}"
+                f"weather_openmeteo_hourly station_count {om_station_count} != {EXPECTED_STATION_COUNT}"
             )
 
     return {

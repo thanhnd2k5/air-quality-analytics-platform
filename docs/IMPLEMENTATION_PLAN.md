@@ -915,7 +915,7 @@ Không làm ở Phase 6 (để Phase 7): `weather_final`, derive RH, model `stg_
 - Unique `(station_name, event_time_local)`. `station_reference` unique `station_id` và `station_name`.
 - Chọn object processed có `process_date` mới nhất. Không đọc `processed/quarantine/`.
 - Hourly: một transaction `DELETE` theo `station_name` rồi `COPY`. Reference: `TRUNCATE` + `COPY`.
-- Skip khi `load_registry` khớp sidecar `source_sha256` + `schema_version` + `row_count` (reference: SHA-256 file CSV).
+- Skip khi `load_registry` khớp object key mới nhất + sidecar `source_sha256` + `schema_version` + `row_count`, và bảng vẫn còn đúng số dòng đó (reference: SHA-256 file CSV, key ổn định `data/raw/reference/stations.csv`).
 - Đổi checksum hoặc schema → replace slice trạm đó (không fail kiểu no-overwrite của MinIO).
 
 ## Kiểm tra

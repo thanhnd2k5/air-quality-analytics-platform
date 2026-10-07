@@ -144,14 +144,43 @@ def registry_matches(
     source_sha256: str,
     schema_version: str,
     row_count: int,
+    source_object_key: str,
 ) -> bool:
+    """Skip only when the same source file is still the one in staging.
+
+    ``source_object_key`` is the latest processed Parquet key (or the stable
+    stations.csv identity). A newer ``process_date`` partition must reload even
+    when the raw hash, schema version, and row count are unchanged.
+    """
     if existing is None:
         return False
     return (
         existing.source_sha256 == source_sha256
         and existing.schema_version == schema_version
         and int(existing.row_count) == int(row_count)
+        and existing.source_object_key == source_object_key
     )
+
+
+def should_skip_load(
+    existing: RegistryRow | None,
+    *,
+    source_sha256: str,
+    schema_version: str,
+    row_count: int,
+    source_object_key: str,
+    loaded_row_count: int,
+) -> bool:
+    """Registry match is not enough if the table rows were removed outside the loader."""
+    if not registry_matches(
+        existing,
+        source_sha256=source_sha256,
+        schema_version=schema_version,
+        row_count=row_count,
+        source_object_key=source_object_key,
+    ):
+        return False
+    return int(loaded_row_count) == int(row_count)
 
 
 def assert_loadable_object_key(object_key: str) -> None:

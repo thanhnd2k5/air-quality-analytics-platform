@@ -237,7 +237,7 @@ Host CLI dùng `POSTGRES_HOST` / `POSTGRES_PORT` trong `.env` (thường `localh
 
 Bảng: `staging.air_quality_hourly`, `staging.weather_openmeteo_hourly`, `staging.station_reference`, cộng `staging.load_registry`. Không join `weather_final` / không derive RH ở phase này.
 
-Idempotency: skip khi registry khớp `source_sha256` + `schema_version` + `row_count`. Quarantine MinIO không được load.
+Idempotency: skip khi registry khớp object key mới nhất + `source_sha256` + `schema_version` + `row_count`, và bảng vẫn còn đủ dòng. Partition `process_date` mới thì load lại. Quarantine MinIO không được load.
 
 ```powershell
 py scripts/load_staging.py --station Wanshouxigong
