@@ -11,6 +11,10 @@ air-quality-lake/
 │   │           ├── PRSA_Data_<Station>_....csv
 │   │           └── PRSA_Data_<Station>_....csv.meta.json
 │   └── openmeteo/historical_weather/
+│       └── station=<Station>/
+│           └── ingestion_date=YYYY-MM-DD/
+│               ├── historical_<start>_<end>.json
+│               └── historical_<start>_<end>.json.meta.json
 ├── reference/
 │   └── stations/
 └── processed/
@@ -22,7 +26,11 @@ air-quality-lake/
     ├── quarantine/uci/air_quality/
     │   └── station=<Station>/
     │       └── process_date=YYYY-MM-DD/
-    └── weather/          # Phase 5+
+    └── weather/openmeteo/
+        └── station=<Station>/
+            └── process_date=YYYY-MM-DD/
+                ├── <station>_hourly.parquet
+                └── <station>_hourly.meta.json
 ```
 
 Environment variable: `MINIO_BUCKET=air-quality-lake`
@@ -115,6 +123,39 @@ Different source/schema at the same key → fail (no overwrite).
 Also set MinIO user-metadata with at least: `station`, `source_object_key`, `sha256`, `process_ts`.
 
 Canonical columns and DQ flags follow `docs/DATA_GUIDE.md` §5 / §37 and Phase 4 decisions in `docs/IMPLEMENTATION_PLAN.md` §9 (no imputation in this phase).
+
+## Phase 5 – Open-Meteo raw + processed
+
+Raw object key (yearly chunks over UCI range):
+
+```text
+raw/openmeteo/historical_weather/station=<Station>/ingestion_date=YYYY-MM-DD/historical_<start>_<end>.json
+```
+
+Example:
+
+```text
+raw/openmeteo/historical_weather/station=Wanshouxigong/ingestion_date=2026-10-07/historical_2015-01-01_2015-12-31.json
+```
+
+Rules:
+
+- Store API JSON as-is (no column rename in raw).
+- Do **not** overwrite an existing object at the same key.
+- Idempotency: same `request_fingerprint` at the key → skip API fetch + upload (Open-Meteo responses include volatile fields such as `generationtime_ms`).
+- Different fingerprint at the same key → fail (no overwrite).
+
+Sidecar (`.meta.json`) must include request metadata (`DATA_GUIDE.md` §28): station, requested/returned lat/lon, timezone, date range, hourly variables, units, HTTP status, `request_fingerprint`, sha256, ingestion_ts.
+
+Processed object key (`om_*` columns, `DATA_GUIDE.md` §26):
+
+```text
+processed/weather/openmeteo/station=<Station>/process_date=YYYY-MM-DD/<station>_hourly.parquet
+```
+
+- Combines all raw chunks for the station into one hourly Parquet.
+- Does **not** overwrite UCI weather; no `weather_final` join here (Phase 6+).
+- Idempotency: same combined `source_sha256` + `schema_version` → skip.
 
 ## Image note (2026-09)
 

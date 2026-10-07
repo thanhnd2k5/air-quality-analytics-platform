@@ -167,6 +167,7 @@ bash scripts/infra/init_minio.sh
 - Sample DAG: `sample_hello` (unpause + Trigger trong Airflow UI)
 - Phase 3 DAG: `uci_ingest_raw` (default station `Wanshouxigong`; conf `{"station":"..."}` hoặc `{"stations":[...]}`)
 - Phase 4 DAG: `uci_process_raw` (default station `Wanshouxigong`; conf `{"station":"..."}` / `{"stations":[...]}` / `{"process_date":"YYYY-MM-DD"}`)
+- Phase 5 DAG: `openmeteo_ingest_raw` (API → MinIO raw → processed `om_*`; conf `station`/`stations`, `start`/`end`, `process_date`)
 - Chi tiết Airflow: `config/airflow/README.md`
 - Layout Data Lake: `config/minio/bucket_layout.md`
 
@@ -207,6 +208,27 @@ py scripts/list_uci_processed_objects.py
 ```
 
 Object key: `raw/uci/air_quality/station=<Station>/ingestion_date=YYYY-MM-DD/<original_filename>` (+ `.meta.json`).
+
+### Phase 5 – Open-Meteo Investigation & Integration
+
+Gate B = **B** (enrichment `cloud_cover` + fill UCI weather missing). RH derive từ TEMP+DEWP — không ưu tiên RH từ API.
+
+```powershell
+# POC (1 station × 1 month) + compare
+py -3 scripts/poc_openmeteo_fetch.py --station Wanshouxigong --start 2015-01-01 --end 2015-01-31
+py -3 scripts/poc_openmeteo_compare.py --station Wanshouxigong --om-json artifacts/openmeteo/poc/wanshouxigong_2015-01-01_2015-01-31.json --process-date 2026-10-07
+
+# Full range ingest + process
+py -3 scripts/ingest_openmeteo_station.py --station Wanshouxigong --ingestion-date 2026-10-07
+py -3 scripts/process_openmeteo_station.py --station Wanshouxigong --process-date 2026-10-07
+py -3 scripts/ingest_openmeteo_station.py --all --ingestion-date 2026-10-07
+py -3 scripts/process_openmeteo_station.py --all --process-date 2026-10-07
+
+# Fill-rate check (UCI missing filled by OM)
+py -3 scripts/openmeteo_fill_rate.py --station Wanshouxigong
+```
+
+Keys: `raw/openmeteo/historical_weather/...`, `processed/weather/openmeteo/...` (xem `config/minio/bucket_layout.md`).
 
 ### Recreate checklist (2 thành viên)
 

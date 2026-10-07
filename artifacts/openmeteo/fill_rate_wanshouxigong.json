@@ -1,0 +1,46 @@
+{
+  "cloud_cover": {
+    "max": 100.0,
+    "min": 0.0,
+    "null_pct": 0.0
+  },
+  "fill_potential": {
+    "DEWP": {
+      "fillable_by_om": 19,
+      "fillable_of_missing_pct": 100.0,
+      "uci_missing": 19,
+      "uci_missing_pct": 0.0542
+    },
+    "PRES": {
+      "fillable_by_om": 19,
+      "fillable_of_missing_pct": 100.0,
+      "uci_missing": 19,
+      "uci_missing_pct": 0.0542
+    },
+    "RAIN": {
+      "fillable_by_om": 19,
+      "fillable_of_missing_pct": 100.0,
+      "uci_missing": 19,
+      "uci_missing_pct": 0.0542
+    },
+    "TEMP": {
+      "fillable_by_om": 19,
+      "fillable_of_missing_pct": 100.0,
+      "uci_missing": 19,
+      "uci_missing_pct": 0.0542
+    },
+    "WSPM": {
+      "fillable_by_om": 13,
+      "fillable_of_missing_pct": 100.0,
+      "uci_missing": 13,
+      "uci_missing_pct": 0.0371
+    }
+  },
+  "joined_rows": 35064,
+  "om_key": "processed/weather/openmeteo/station=Wanshouxigong/process_date=2026-10-07/wanshouxigong_hourly.parquet",
+  "om_matched_pct": 100.0,
+  "om_rows": 35064,
+  "station": "Wanshouxigong",
+  "uci_key": "processed/uci/air_quality/station=Wanshouxigong/process_date=2026-10-07/wanshouxigong_hourly.parquet",
+  "uci_rows": 35064
+}

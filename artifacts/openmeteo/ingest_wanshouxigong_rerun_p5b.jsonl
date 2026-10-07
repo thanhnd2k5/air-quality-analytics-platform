@@ -1,0 +1,1 @@
+{"station": "Wanshouxigong", "status": "failed", "message": "Refusing to overwrite raw/openmeteo/historical_weather/station=Wanshouxigong/ingestion_date=2026-10-07/historical_2013-03-01_2013-12-31.json: existing sha256=d3fb78c6119faab73b6eddafd44a27c12841bb528113eca749e0a3074f478270 != local sha256=98a850bd176018cf4125f7d61fb733a3e064b9db7ec7da6a6e2a7d145adb487b"}

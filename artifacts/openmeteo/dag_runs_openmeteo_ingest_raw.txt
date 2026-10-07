@@ -1,0 +1,2 @@
+﻿dag_id                run_id                             state    execution_date             start_date                        end_date
+openmeteo_ingest_raw  manual__2026-10-07T12:31:13+00:00  success  2026-10-07T12:31:13+00:00  2026-10-07T12:31:13.508749+00:00  2026-10-07T12:31:17.428852+00:00

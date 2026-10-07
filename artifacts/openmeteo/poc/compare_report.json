@@ -1,0 +1,120 @@
+{
+  "cloud_cover_sanity": {
+    "in_0_100": true,
+    "max": 100.0,
+    "mean": 27.643817204301076,
+    "min": 0.0,
+    "n": 744,
+    "null_pct": 0.0
+  },
+  "comparisons": {
+    "DEWP": {
+      "bias_om_minus_uci": -0.2897849462365591,
+      "mae": 1.8456989247311828,
+      "n_paired": 744,
+      "om_column": "dew_point_2m",
+      "pearson": 0.910373274172389,
+      "spearman": 0.9176972494782233,
+      "uci_column": "dew_point_c"
+    },
+    "PRES": {
+      "bias_om_minus_uci": 0.8346774193548416,
+      "mae": 1.7908602150537654,
+      "n_paired": 744,
+      "om_column": "surface_pressure",
+      "pearson": 0.9549953337135673,
+      "spearman": 0.9539410345936903,
+      "uci_column": "pressure_hpa"
+    },
+    "RAIN": {
+      "bias_om_minus_uci": -0.0005376344086021505,
+      "mae": 0.0005376344086021505,
+      "n_paired": 744,
+      "om_column": "rain",
+      "pearson": null,
+      "spearman": null,
+      "uci_column": "rain_mm"
+    },
+    "TEMP": {
+      "bias_om_minus_uci": -1.6010752688172043,
+      "mae": 2.271505376344086,
+      "n_paired": 744,
+      "om_column": "temperature_2m",
+      "pearson": 0.8016704163940537,
+      "spearman": 0.7941597822337501,
+      "uci_column": "temperature_c"
+    },
+    "WSPM": {
+      "bias_om_minus_uci": 0.2556317204301075,
+      "mae": 0.7456586021505376,
+      "n_paired": 744,
+      "om_column": "wind_speed_10m",
+      "pearson": 0.6250993626479681,
+      "spearman": 0.5109901525070795,
+      "uci_column": "wind_speed_m_s"
+    }
+  },
+  "end": "2015-01-31",
+  "fill_potential": {
+    "DEWP": {
+      "fillable_by_om_count": 0,
+      "fillable_of_missing_pct": null,
+      "om_column": "dew_point_2m",
+      "uci_column": "dew_point_c",
+      "uci_missing_count": 0,
+      "uci_missing_pct": 0.0
+    },
+    "PRES": {
+      "fillable_by_om_count": 0,
+      "fillable_of_missing_pct": null,
+      "om_column": "surface_pressure",
+      "uci_column": "pressure_hpa",
+      "uci_missing_count": 0,
+      "uci_missing_pct": 0.0
+    },
+    "RAIN": {
+      "fillable_by_om_count": 0,
+      "fillable_of_missing_pct": null,
+      "om_column": "rain",
+      "uci_column": "rain_mm",
+      "uci_missing_count": 0,
+      "uci_missing_pct": 0.0
+    },
+    "TEMP": {
+      "fillable_by_om_count": 0,
+      "fillable_of_missing_pct": null,
+      "om_column": "temperature_2m",
+      "uci_column": "temperature_c",
+      "uci_missing_count": 0,
+      "uci_missing_pct": 0.0
+    },
+    "WSPM": {
+      "fillable_by_om_count": 0,
+      "fillable_of_missing_pct": null,
+      "om_column": "wind_speed_10m",
+      "uci_column": "wind_speed_m_s",
+      "uci_missing_count": 0,
+      "uci_missing_pct": 0.0
+    }
+  },
+  "gate_b_recommendation": {
+    "cloud_cover_ok": true,
+    "mean_pearson_temp_dewp_wspm": 0.7790476844048037,
+    "note": "Final Gate B must be recorded in PROJECT_CONTEXT.md / PROGRESS.md",
+    "rationale": "Mean Pearson(TEMP/DEWP/WSPM)=0.779; cloud_cover present & in 0\u2013100; prefer enrichment + UCI-primary fill (working preference).",
+    "suggested": "B"
+  },
+  "join": {
+    "join_key": [
+      "station_name",
+      "event_time_local"
+    ],
+    "joined_rows": 744,
+    "om_rows": 744,
+    "uci_rows_in_window": 744
+  },
+  "om_json": "artifacts/openmeteo/poc/wanshouxigong_2015-01-01_2015-01-31.json",
+  "start": "2015-01-01",
+  "station": "Wanshouxigong",
+  "uci_source": "processed/uci/air_quality/station=Wanshouxigong/process_date=2026-10-07/wanshouxigong_hourly.parquet"
+}

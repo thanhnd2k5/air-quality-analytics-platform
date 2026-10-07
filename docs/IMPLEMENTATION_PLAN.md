@@ -81,7 +81,8 @@ Phase 4
 Data Processing & Quality
         ↓
 Phase 5
-Open-Meteo Integration
+Open-Meteo Investigation & Integration
+(5a Gate B → 5b pipeline)
         ↓
 Phase 6
 PostgreSQL Staging
@@ -747,9 +748,26 @@ Không chia kiểu “A code, B chỉ viết docs”. Thành viên B phải trig
 
 Xác định Open-Meteo **thực sự có giá trị gì** trước khi ingest toàn bộ.
 
-Đây là phase thử nghiệm trước, không phải mặc định scale ngay.
+Chia thành **Phase 5a Investigation (Gate B)** rồi **Phase 5b Integration** (chỉ khi Gate B ≠ C).
 
-## Step 1 – Station metadata
+Không mặc định scale 12 trạm × full range trước khi có số liệu so sánh.
+
+Working preference biến (chi tiết `DATA_GUIDE.md` §24 / `PROJECT_CONTEXT.md` §15):
+
+```text
+RH            → derive từ TEMP + DEWP (sau resolve); không ưu tiên RH từ API
+Open-Meteo    → cloud_cover (+ tối đa 1 biến phụ sau EDA)
+biến trùng    → UCI primary; Open-Meteo fill khi UCI missing
+pollutant NA  → không fill bằng Open-Meteo
+```
+
+POC station mặc định: **Wanshouxigong** (đã có raw + processed Phase 3/4).
+
+---
+
+## Phase 5a – Investigation (Gate B)
+
+### Step 1 – Station metadata
 
 Xác minh:
 
@@ -759,9 +777,9 @@ latitude
 longitude
 ```
 
-cho ít nhất một station.
+cho ít nhất một station (seed: `data/raw/reference/stations.csv`).
 
-## Step 2 – API proof-of-concept
+### Step 2 – API proof-of-concept
 
 Thử:
 
@@ -777,60 +795,97 @@ với:
 timezone=Asia/Shanghai
 ```
 
-và unit phù hợp.
+và unit phù hợp (temp °C, rain mm, wind **m/s**).
 
-## Step 3 – Compare
+Hourly variables POC:
+
+```text
+temperature_2m
+dew_point_2m
+rain
+wind_speed_10m
+wind_direction_10m
+surface_pressure
+cloud_cover
+```
+
+### Step 3 – Compare
 
 So sánh:
 
 ```text
-UCI TEMP ↔ Open-Meteo temperature
-UCI DEWP ↔ Open-Meteo dew point
+UCI TEMP ↔ Open-Meteo temperature_2m
+UCI DEWP ↔ Open-Meteo dew_point_2m
 UCI RAIN ↔ Open-Meteo rain
-UCI WSPM ↔ Open-Meteo wind
+UCI WSPM ↔ Open-Meteo wind_speed_10m
 ```
 
-Không kỳ vọng bằng nhau tuyệt đối.
+Đồng thời đo: % missing UCI weather có thể fill bằng Open-Meteo; sanity `cloud_cover` 0–100.
+
+Không kỳ vọng bằng nhau tuyệt đối (gridded ≠ station weather).
 
 Mục tiêu:
 
 - kiểm tra alignment;
 - timezone;
 - độ hợp lý;
-- giá trị enrichment.
+- giá trị enrichment + fill.
 
-## Step 4 – Decision Gate
+### Step 4 – Decision Gate B
 
 Một trong ba quyết định:
 
 ```text
 A. Giữ Open-Meteo đầy đủ
-B. Chỉ lấy một số biến enrichment
+B. Enrichment (cloud_cover) + fill weather UCI missing   ← kỳ vọng mặc định
 C. Thay đổi vai trò/nguồn nếu không phù hợp
 ```
 
-Quyết định phải cập nhật `PROJECT_CONTEXT.md`.
+Quyết định phải cập nhật `PROJECT_CONTEXT.md` + `PROGRESS.md`.
 
-## Candidate enrichment
-
-Ưu tiên kiểm tra:
+### Definition of Done – Phase 5a
 
 ```text
-relative_humidity_2m
+[x] Station coordinate được xác minh
+[x] API request đúng timezone + units
+[x] Hourly join 1 tháng kiểm tra thành công
+[x] So sánh với UCI weather + % fill potential
+[x] Gate B recorded; docs synced (cloud_cover, không RH API làm candidate chính)
 ```
 
-vì UCI không có humidity trực tiếp.
+### Không làm ở 5a
 
-## Definition of Done
+Airflow DAG production, ingest 12 trạm, Postgres staging, RH derive production, dashboard charts.
+
+---
+
+## Phase 5b – Integration (chỉ sau Gate B ≠ C)
+
+### Mục tiêu
+
+Pipeline tái lập: Open-Meteo API → MinIO raw JSON → processed `om_*` Parquet; mirror pattern UCI Phase 3/4.
+
+Scale path:
 
 ```text
-[ ] Station coordinate được xác minh
-[ ] API request đúng timezone
-[ ] Unit đúng
-[ ] Hourly join kiểm tra thành công
-[ ] So sánh với UCI weather
-[ ] Vai trò Open-Meteo được quyết định
+1 station × full UCI range
+        ↓
+rerun idempotent
+        ↓
+12 stations
 ```
+
+### Definition of Done – Phase 5b
+
+```text
+[x] Raw OM trên MinIO + sidecar request metadata
+[x] Processed om_* Parquet reproducible + idempotent
+[x] DAG chạy thành công ≥ 1 station full range
+[x] Fill-rate / join check documented
+[x] Role cuối (thường B) khóa trong docs
+```
+
+Postgres staging `weather_openmeteo_hourly`, dbt join `weather_final`, RH derive production → **Phase 6+**.
 
 ---
 

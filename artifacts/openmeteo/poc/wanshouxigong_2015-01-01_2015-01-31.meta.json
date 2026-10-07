@@ -1,0 +1,37 @@
+{
+  "end_date": "2015-01-31",
+  "hourly_variables": [
+    "temperature_2m",
+    "dew_point_2m",
+    "rain",
+    "wind_speed_10m",
+    "wind_direction_10m",
+    "surface_pressure",
+    "cloud_cover"
+  ],
+  "http_status": 200,
+  "request_time": "2026-10-07T12:22:14Z",
+  "request_url": "https://archive-api.open-meteo.com/v1/archive?latitude=39.878000&longitude=116.352000&start_date=2015-01-01&end_date=2015-01-31&hourly=temperature_2m%2Cdew_point_2m%2Crain%2Cwind_speed_10m%2Cwind_direction_10m%2Csurface_pressure%2Ccloud_cover&timezone=Asia%2FShanghai&temperature_unit=celsius&wind_speed_unit=ms&precipitation_unit=mm",
+  "requested_latitude": 39.878,
+  "requested_longitude": 116.352,
+  "returned_latitude": 39.89455,
+  "returned_longitude": 116.35983,
+  "source": "openmeteo_historical",
+  "start_date": "2015-01-01",
+  "station": "Wanshouxigong",
+  "timezone": "Asia/Shanghai",
+  "units": {
+    "hourly.cloud_cover": "%",
+    "hourly.dew_point_2m": "\u00b0C",
+    "hourly.rain": "mm",
+    "hourly.surface_pressure": "hPa",
+    "hourly.temperature_2m": "\u00b0C",
+    "hourly.time": "iso8601",
+    "hourly.wind_direction_10m": "\u00b0",
+    "hourly.wind_speed_10m": "m/s",
+    "precipitation_unit": "mm",
+    "temperature_unit": "celsius",
+    "wind_speed_unit": "ms"
+  },
+  "weather_model": null
+}

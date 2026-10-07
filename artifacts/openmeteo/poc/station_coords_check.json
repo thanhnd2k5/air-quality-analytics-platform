@@ -1,0 +1,16 @@
+{
+  "coordinate_status": "LITERATURE",
+  "district": "Xicheng",
+  "end_date": "2015-01-31",
+  "hourly_row_count": 744,
+  "http_status": 200,
+  "metadata_source": "Foreback et al. 2022 ACP Supplement Table S1 (12 MEP sites)",
+  "requested_latitude": 39.878,
+  "requested_longitude": 116.352,
+  "returned_latitude": 39.89455,
+  "returned_longitude": 116.35983,
+  "start_date": "2015-01-01",
+  "station": "Wanshouxigong",
+  "station_code": "Wanshouxigong",
+  "timezone": "Asia/Shanghai"
+}

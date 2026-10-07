@@ -4,6 +4,74 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-07 (Phase 5 – **HOÀN THÀNH** kỹ thuật; PR)
+
+### Current phase
+Phase 5 – Open-Meteo Investigation & Integration (**5a + 5b DONE**)
+
+### Completed
+- **5a:** POC Wanshouxigong 2015-01; Gate B = **B**; docs sync
+- **5b:** raw ingest (60 yearly JSON / 12 stations) + processed `om_*` (12 Parquet, 35064 rows each)
+- Idempotency: raw skip by `request_fingerprint`; processed skip by combined source sha + schema
+- DAG `openmeteo_ingest_raw` success (`manual__2026-10-07T12:31:13+00:00`)
+- Fill-rate Wanshouxigong: UCI weather missing fully fillable by OM (TEMP/DEWP/RAIN/PRES 19/19; WSPM 13/13)
+
+### Decisions
+- Gate B = B (enrichment `cloud_cover` + UCI-primary fill)
+- Raw key: `raw/openmeteo/historical_weather/station=<Station>/ingestion_date=.../historical_<start>_<end>.json`
+- Processed key: `processed/weather/openmeteo/station=<Station>/process_date=.../<slug>_hourly.parquet`
+- `weather_final` / Postgres staging deferred to Phase 6+
+
+### Evidence
+- `artifacts/openmeteo/` (poc, manifests, fill_rate, DAG runs, list_objects)
+- Unit tests: `tests/unit/test_openmeteo.py` (5 passed)
+
+### Next
+- Phase 6 – PostgreSQL Staging (`air_quality_hourly`, `weather_openmeteo_hourly`, `station_reference`)
+
+---
+
+## 2026-10-07 (Phase 5a – Gate B = B; bắt đầu 5b)
+
+### Current phase
+Phase 5 – Open-Meteo (**5a DONE** → **5b Integration**)
+
+### Scope đã chốt
+- **5a Investigation** rồi **5b Integration**
+- Scale: **1 trạm full range → 12**
+- POC: Wanshouxigong × 2015-01; biến `cloud_cover` + overlap UCI
+
+### Gate B
+**B — Enrichment + fill missing** (không thay UCI; không RH từ API)
+
+POC evidence:
+- Join 744/744; TEMP r≈0.80, DEWP≈0.91, WSPM≈0.63, PRES≈0.95
+- `cloud_cover` OK (0–100); units °C / mm / m/s; timezone Asia/Shanghai
+- Artifacts: `artifacts/openmeteo/poc/`
+
+### Next
+- 5b: raw JSON→MinIO + processed `om_*` + DAG; 1 station full → 12
+
+---
+
+## 2026-10-07 (Phase 5 – bắt đầu; scope 5a / 5b)
+
+### Current phase
+Phase 5 – Open-Meteo Investigation & Integration (**5a in progress**)
+
+### Scope đã chốt
+- **5a Investigation** (POC + Gate B) rồi **5b Integration** (chỉ khi Gate B ≠ C)
+- Scale sau Gate B: **1 trạm full range → 12**
+- POC station: **Wanshouxigong**; POC month: **2015-01**
+- Biến: **`cloud_cover`** + overlapping UCI (TEMP/DEWP/RAIN/WSPM/PRES); RH **derive** (không ưu tiên API)
+- Sync `IMPLEMENTATION_PLAN.md` §10 với working preference (`DATA_GUIDE` §24 / `PROJECT_CONTEXT` §15)
+
+### Next
+- POC API + compare UCI↔OM → Gate B
+- Nếu Gate B ≠ C: ingest MinIO + processed + DAG
+
+---
+
 ## 2026-10-07 (Phase 4 – **HOÀN THÀNH** kỹ thuật; PR)
 
 ### Current phase

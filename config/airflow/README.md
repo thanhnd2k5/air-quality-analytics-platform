@@ -46,3 +46,10 @@ Phase 4 DAG (K4-03+): `uci_process_raw` — tasks `resolve_raw` → `transform_a
 - Default station: `Wanshouxigong`
 - Conf: `{"station":"..."}` or `{"stations":[...]}`; optional `{"process_date":"YYYY-MM-DD"}`
 - Reads MinIO raw; writes `processed/uci/air_quality/...` (+ sidecar). Does not mutate raw.
+
+Phase 5 DAG: `openmeteo_ingest_raw` — tasks `ingest_raw` → `process_weather`.
+
+- Default station: `Wanshouxigong`; full UCI date range `2013-03-01` → `2017-02-28` (yearly chunks)
+- Conf: `{"station":"..."}` / `{"stations":[...]}`; optional `start`, `end`, `ingestion_date`, `process_date`, `process` (bool)
+- Writes `raw/openmeteo/historical_weather/...` then `processed/weather/openmeteo/...`
+- Idempotency: raw skip by `request_fingerprint`; processed skip by combined `source_sha256` + `schema_version`

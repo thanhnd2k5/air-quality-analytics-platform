@@ -493,7 +493,7 @@ Vai trò dự kiến của Open-Meteo:
 4. **fill weather UCI missing** (nguồn phụ) và tuỳ chọn đối chiếu khi cả hai cùng có giá trị;
 5. cung cấp thêm weather feature nếu kết quả EDA chứng minh có ích.
 
-### Working preference (15/09/2026) — chưa khóa cứng sau Phase 5
+### Working preference (15/09/2026) → **Gate B = B** (07/10/2026)
 
 | Nhu cầu | Hướng ưu tiên |
 |---|---|
@@ -504,6 +504,19 @@ Vai trò dự kiến của Open-Meteo:
 | Mục tiêu tích hợp | Join đa nguồn theo grain `station + hour`: enrichment + bổ sung weather thiếu |
 
 Lý do: UCI weather gần trạm quan trắc hơn nên là nguồn chính; Open-Meteo là nguồn phụ khi thiếu đo và để thêm biến UCI không có (cloud).
+
+### Gate B decision (Phase 5a — 07/10/2026)
+
+**Quyết định: B — Enrichment (`cloud_cover`) + fill weather UCI missing.** Không thay UCI weather khi đã có giá trị; không lấy RH từ API làm mặc định.
+
+Evidence POC (Wanshouxigong, 2015-01, `timezone=Asia/Shanghai`, wind m/s):
+
+- Join hourly: **744/744** (timezone alignment OK)
+- Pearson: TEMP ≈ 0.80, DEWP ≈ 0.91, WSPM ≈ 0.63, PRES ≈ 0.95
+- `cloud_cover`: full month, range 0–100
+- Fill potential tháng POC = 0 (UCI weather không missing tháng đó); fill vẫn giữ cho các tháng/trạm có gap (xem profiling Phase 1)
+
+Artifacts: `artifacts/openmeteo/poc/`
 
 ### Không bắt buộc giữ bằng mọi giá
 
@@ -1375,7 +1388,7 @@ Các vấn đề sau cố tình để mở cho tới khi có đủ dữ liệu.
 - station coordinates *(seed LITERATURE: `data/raw/reference/stations.csv` — ACP 2022 Supp. Table S1)*;
 - timezone;
 - API weather variables cuối cùng *(working preference: cloud_cover; weather fill khi UCI NA; RH derive — xem §15)*;
-- role cuối cùng của Open-Meteo *(sau POC Phase 5)*.
+- role cuối cùng của Open-Meteo: **Gate B = B** (enrichment + fill; 07/10/2026).
 
 ### Lake
 

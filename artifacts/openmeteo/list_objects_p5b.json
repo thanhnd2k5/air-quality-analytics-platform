@@ -1,0 +1,18 @@
+{
+  "raw_json_count": 60,
+  "processed_parquet_count": 12,
+  "stations": [
+    "Aotizhongxin",
+    "Changping",
+    "Dingling",
+    "Dongsi",
+    "Guanyuan",
+    "Gucheng",
+    "Huairou",
+    "Nongzhanguan",
+    "Shunyi",
+    "Tiantan",
+    "Wanliu",
+    "Wanshouxigong"
+  ]
+}
