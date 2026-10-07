@@ -9,7 +9,10 @@ import pandas as pd
 
 from src.ingestion.openmeteo_client import hourly_to_records
 from src.ingestion.openmeteo_to_minio import iter_date_chunks, request_fingerprint
-from src.processing.openmeteo_to_processed import transform_openmeteo_json_bytes
+from src.processing.openmeteo_to_processed import (
+    select_latest_ingestion_keys,
+    transform_openmeteo_json_bytes,
+)
 from src.reference.stations import get_station, load_stations
 
 
@@ -93,6 +96,24 @@ def test_hourly_to_records_and_transform():
     assert len(df) == 2
     assert df["station_name"].iloc[0] == "Wanshouxigong"
     assert float(df["om_cloud_cover_pct"].iloc[1]) == 20.0
+
+
+def test_select_latest_ingestion_keys_ignores_older_partition():
+    older = (
+        "raw/openmeteo/historical_weather/station=Wanshouxigong/"
+        "ingestion_date=2026-10-01/historical_2015-01-01_2015-12-31.json"
+    )
+    newer_a = (
+        "raw/openmeteo/historical_weather/station=Wanshouxigong/"
+        "ingestion_date=2026-10-07/historical_2013-03-01_2013-12-31.json"
+    )
+    newer_b = (
+        "raw/openmeteo/historical_weather/station=Wanshouxigong/"
+        "ingestion_date=2026-10-07/historical_2014-01-01_2014-12-31.json"
+    )
+    meta = newer_a + ".meta.json"
+    selected = select_latest_ingestion_keys([older, newer_b, meta, newer_a])
+    assert selected == [newer_a, newer_b]
 
 
 def test_poc_artifact_exists_optional():

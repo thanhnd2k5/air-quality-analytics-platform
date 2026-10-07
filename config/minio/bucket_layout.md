@@ -153,7 +153,7 @@ Processed object key (`om_*` columns, `DATA_GUIDE.md` §26):
 processed/weather/openmeteo/station=<Station>/process_date=YYYY-MM-DD/<station>_hourly.parquet
 ```
 
-- Combines all raw chunks for the station into one hourly Parquet.
+- Combines yearly chunks from the **latest** `ingestion_date` partition into one hourly Parquet (older partitions are ignored).
 - Does **not** overwrite UCI weather; no `weather_final` join here (Phase 6+).
 - Idempotency: same combined `source_sha256` + `schema_version` → skip.
 

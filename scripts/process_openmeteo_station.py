@@ -36,6 +36,11 @@ def main() -> int:
     group.add_argument("--station", help="Station name")
     group.add_argument("--all", action="store_true")
     parser.add_argument("--process-date", default=None)
+    parser.add_argument(
+        "--ingestion-date",
+        default=None,
+        help="Raw partition ingestion_date=YYYY-MM-DD (default: latest)",
+    )
     parser.add_argument("--manifest", default=None)
     args = parser.parse_args()
 
@@ -45,7 +50,11 @@ def main() -> int:
 
     for station in stations:
         try:
-            result = process_openmeteo_station(station, process_date=args.process_date)
+            result = process_openmeteo_station(
+                station,
+                process_date=args.process_date,
+                ingestion_date=args.ingestion_date,
+            )
             payload = result.to_dict()
             results.append(payload)
             print(json.dumps(payload, ensure_ascii=False))

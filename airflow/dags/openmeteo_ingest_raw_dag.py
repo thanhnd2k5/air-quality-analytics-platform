@@ -67,9 +67,14 @@ def process_weather(**context) -> list[dict]:
 
     stations = _stations_from_context(**context)
     process_date = conf.get("process_date")
+    ingestion_date = conf.get("ingestion_date")
     results: list[dict] = []
     for station in stations:
-        result = process_openmeteo_station(station, process_date=process_date)
+        result = process_openmeteo_station(
+            station,
+            process_date=process_date,
+            ingestion_date=ingestion_date,
+        )
         payload = result.to_dict()
         logger.info("openmeteo process %s: %s", station, payload.get("status"))
         results.append(payload)

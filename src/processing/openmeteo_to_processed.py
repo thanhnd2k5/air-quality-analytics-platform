@@ -77,30 +77,56 @@ def build_meta_key(processed_object_key: str) -> str:
     return f"{processed_object_key}.meta.json"
 
 
+def _ingestion_date_of(object_name: str) -> str:
+    match = _INGESTION_DATE_RE.search(object_name)
+    return match.group(1) if match else ""
+
+
+def select_latest_ingestion_keys(object_names: list[str]) -> list[str]:
+    """Keep raw JSON objects from the latest ``ingestion_date`` partition only.
+
+    A later re-ingest writes a new partition and must not be concatenated with
+    older yearly chunks (duplicate hours / unstable combined source hash).
+    """
+    jsons = [
+        n
+        for n in object_names
+        if n.endswith(".json") and not n.endswith(".meta.json")
+    ]
+    if not jsons:
+        raise FileNotFoundError("No Open-Meteo raw JSON objects in the given list")
+
+    latest_day = max(_ingestion_date_of(name) for name in jsons)
+    return sorted(name for name in jsons if _ingestion_date_of(name) == latest_day)
+
+
 def list_raw_openmeteo_keys(
     station: str,
     *,
     client: Minio | None = None,
     bucket: str | None = None,
+    ingestion_date: str | None = None,
 ) -> list[str]:
+    """List raw JSON chunks for one station, scoped to one ingestion_date.
+
+    Default is the latest ``ingestion_date=`` partition (same idea as UCI
+    ``resolve_latest_raw_object_key``). Pass ``ingestion_date`` to pin a partition.
+    """
     minio = client or get_minio_client()
     bkt = get_bucket(bucket)
     prefix = _RAW_PREFIX.format(station=station)
+    if ingestion_date:
+        prefix = f"{prefix}ingestion_date={ingestion_date}/"
     names = list_object_names(minio, bkt, prefix=prefix)
-    jsons = [
-        n
-        for n in names
-        if n.endswith(".json") and not n.endswith(".meta.json")
-    ]
-    if not jsons:
-        raise FileNotFoundError(f"No Open-Meteo raw JSON under prefix {prefix}")
-
-    def sort_key(object_name: str) -> tuple[str, str]:
-        match = _INGESTION_DATE_RE.search(object_name)
-        day = match.group(1) if match else ""
-        return (day, object_name)
-
-    return sorted(jsons, key=sort_key)
+    try:
+        selected = select_latest_ingestion_keys(names)
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(f"No Open-Meteo raw JSON under prefix {prefix}") from exc
+    if ingestion_date:
+        selected = [name for name in selected if _ingestion_date_of(name) == ingestion_date]
+        if not selected:
+            raise FileNotFoundError(f"No Open-Meteo raw JSON under prefix {prefix}")
+    return selected
 
 
 def transform_openmeteo_json_bytes(
@@ -145,12 +171,14 @@ def process_openmeteo_station(
     client: Minio | None = None,
     bucket: str | None = None,
     process_date: str | date | None = None,
+    ingestion_date: str | None = None,
     raw_object_keys: list[str] | None = None,
 ) -> OpenMeteoProcessResult:
     """
-    Resolve all raw OM JSON chunks for a station → one processed om_* Parquet.
+    Resolve raw OM JSON chunks from one ingestion_date → one processed om_* Parquet.
 
-    Idempotency: same combined source fingerprint + schema_version → skip.
+    Default source partition is the latest ``ingestion_date``. Idempotency:
+    same combined source fingerprint + schema_version → skip.
     """
     minio = client or get_minio_client()
     bkt = get_bucket(bucket)
@@ -158,7 +186,12 @@ def process_openmeteo_station(
     process_ts = f"{day}T00:00:00Z"
     run_ts = _utc_now_iso()
 
-    raw_keys = raw_object_keys or list_raw_openmeteo_keys(station, client=minio, bucket=bkt)
+    raw_keys = raw_object_keys or list_raw_openmeteo_keys(
+        station,
+        client=minio,
+        bucket=bkt,
+        ingestion_date=ingestion_date,
+    )
     frames: list[pd.DataFrame] = []
     source_digests: list[str] = []
 
