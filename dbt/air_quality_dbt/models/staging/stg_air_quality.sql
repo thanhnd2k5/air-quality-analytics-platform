@@ -1,0 +1,20 @@
+select
+    station_name,
+    event_time_local,
+    pm25_ug_m3,
+    pm10_ug_m3,
+    so2_ug_m3,
+    no2_ug_m3,
+    co_ug_m3,
+    o3_ug_m3,
+    temperature_c,
+    pressure_hpa,
+    dew_point_c,
+    rain_mm,
+    nullif(btrim(wind_direction), '') as wind_direction,
+    wind_speed_m_s,
+    has_missing_pollutant,
+    has_missing_weather,
+    suspect_cap,
+    data_quality_status
+from {{ source('staging', 'air_quality_hourly') }}

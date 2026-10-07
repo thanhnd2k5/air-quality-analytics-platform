@@ -1,0 +1,93 @@
+{
+  "top_station_months_by_pm25": [
+    {
+      "station_name": "Wanshouxigong",
+      "year": 2015,
+      "month": 12,
+      "pm25_avg": 171.2
+    },
+    {
+      "station_name": "Gucheng",
+      "year": 2015,
+      "month": 12,
+      "pm25_avg": 166.47
+    },
+    {
+      "station_name": "Dongsi",
+      "year": 2015,
+      "month": 12,
+      "pm25_avg": 162.44
+    },
+    {
+      "station_name": "Nongzhanguan",
+      "year": 2015,
+      "month": 12,
+      "pm25_avg": 162.06
+    },
+    {
+      "station_name": "Tiantan",
+      "year": 2015,
+      "month": 12,
+      "pm25_avg": 158.95
+    }
+  ],
+  "pm25_by_season": [
+    {
+      "season": "autumn",
+      "pm25_avg": 82.33,
+      "hour_count": 104832
+    },
+    {
+      "season": "spring",
+      "pm25_avg": 76.97,
+      "hour_count": 105984
+    },
+    {
+      "season": "summer",
+      "pm25_avg": 64.67,
+      "hour_count": 105984
+    },
+    {
+      "season": "winter",
+      "pm25_avg": 95.48,
+      "hour_count": 103968
+    }
+  ],
+  "pm25_by_temperature_bin": [
+    {
+      "temp_bin": 1,
+      "pm25_avg": 20.96,
+      "hour_count": 1335
+    },
+    {
+      "temp_bin": 2,
+      "pm25_avg": 98.87,
+      "hour_count": 62052
+    },
+    {
+      "temp_bin": 3,
+      "pm25_avg": 88.35,
+      "hour_count": 103278
+    },
+    {
+      "temp_bin": 4,
+      "pm25_avg": 75.94,
+      "hour_count": 97884
+    },
+    {
+      "temp_bin": 5,
+      "pm25_avg": 70.66,
+      "hour_count": 121820
+    },
+    {
+      "temp_bin": 6,
+      "pm25_avg": 60.38,
+      "hour_count": 25627
+    },
+    {
+      "temp_bin": 7,
+      "pm25_avg": 22.82,
+      "hour_count": 33
+    }
+  ]
+}

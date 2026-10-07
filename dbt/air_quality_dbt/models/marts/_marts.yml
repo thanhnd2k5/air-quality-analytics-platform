@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: mart_station_daily
+    description: >
+      Station-day averages. hour_count is the calendar hours in the fact (24 on this dataset).
+      Each *_hour_count is the number of non-null hours that entered that average or rain sum.
+    columns:
+      - name: station_key
+        tests: [not_null]
+      - name: date_key
+        tests: [not_null]
+      - name: hour_count
+        tests: [not_null]
+      - name: pm25_hour_count
+        tests: [not_null]
+  - name: mart_station_monthly
+    description: >
+      Station-month averages rolled from the hourly fact, not from daily means.
+      hour_count is calendar hours. *_hour_count is non-null hours inside each average or rain sum.
+    columns:
+      - name: station_key
+        tests: [not_null]
+      - name: year
+        tests: [not_null]
+      - name: month
+        tests: [not_null]
+      - name: hour_count
+        tests: [not_null]
+      - name: pm25_hour_count
+        tests: [not_null]
+  - name: mart_pollution_weather
+    description: >
+      Station-day PM2.5, PM10, O3 beside resolved weather. Episode logic stays in Phase 8.
+      hour_count is calendar hours. *_hour_count is non-null hours inside each average or rain sum.
+    columns:
+      - name: station_key
+        tests: [not_null]
+      - name: date_key
+        tests: [not_null]
+      - name: hour_count
+        tests: [not_null]
+      - name: pm25_hour_count
+        tests: [not_null]

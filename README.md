@@ -245,11 +245,18 @@ py scripts/load_staging.py --all
 py scripts/verify_staging_load.py --all
 ```
 
-dbt chỉ khai báo source (chưa có model). Image `dbt-postgres:1.9` vì dbt 1.9 không import được trên Python 3.14:
+Ở Phase 6, dbt chỉ khai báo source. Model warehouse nằm ở Phase 7.
+
+### Phase 7 – Data warehouse (dbt)
+
+Một fact `dwh.fact_air_quality_hourly` (station × giờ). Weather: UCI trước, Open-Meteo khi UCI null, null nếu cả hai thiếu. RH derive từ nhiệt độ và điểm sương đã resolve. `cloud_cover_pct` chỉ từ Open-Meteo. Cờ `data_quality_status` trên fact mô tả dòng đã resolve; cờ UCI gốc nằm ở staging. Mart: `mart.mart_station_daily`, `mart.mart_station_monthly`, `mart.mart_pollution_weather`. `hour_count` là số giờ lịch; `pm25_hour_count` (và các `*_hour_count` khác) là số giờ không null trong trung bình.
+
+Image `dbt-postgres:1.9` vì dbt 1.9 không import được trên Python 3.14. Trong container, host Postgres là `postgres:5432`:
 
 ```powershell
-docker run --rm --network air-quality-network --env-file .env -e POSTGRES_HOST=postgres -e POSTGRES_PORT=5432 -v "${PWD}/dbt:/dbt" ghcr.io/dbt-labs/dbt-postgres:1.9.0 debug --project-dir /dbt/air_quality_dbt --profiles-dir /dbt
-docker run --rm --network air-quality-network --env-file .env -e POSTGRES_HOST=postgres -e POSTGRES_PORT=5432 -v "${PWD}/dbt:/dbt" ghcr.io/dbt-labs/dbt-postgres:1.9.0 parse --project-dir /dbt/air_quality_dbt --profiles-dir /dbt
+docker run --rm --network air-quality-network --env-file .env -e POSTGRES_HOST=postgres -e POSTGRES_PORT=5432 -e DBT_SEND_ANONYMOUS_USAGE_STATS=false -e DO_NOT_TRACK=1 -v "${PWD}/dbt:/dbt" ghcr.io/dbt-labs/dbt-postgres:1.9.0 run --project-dir /dbt/air_quality_dbt --profiles-dir /dbt
+docker run --rm --network air-quality-network --env-file .env -e POSTGRES_HOST=postgres -e POSTGRES_PORT=5432 -e DBT_SEND_ANONYMOUS_USAGE_STATS=false -e DO_NOT_TRACK=1 -v "${PWD}/dbt:/dbt" ghcr.io/dbt-labs/dbt-postgres:1.9.0 test --project-dir /dbt/air_quality_dbt --profiles-dir /dbt
+py scripts/run_olap_checks.py
 ```
 
 ### Recreate checklist (2 thành viên)

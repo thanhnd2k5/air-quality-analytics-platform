@@ -997,40 +997,51 @@ K6-05  Docs, dbt sources smoke, đóng DoD
 
 Xây dựng dimensional warehouse phục vụ analytics.
 
-## Bước 1 – Chốt grain
+## Bước 1 – Grain (đã chốt)
 
-Working grain:
+Grain Phase 1, xác nhận trên dữ liệu staging:
 
 ```text
 1 station × 1 hour
 ```
 
-Phải xác nhận lại từ Phase 1.
+12 trạm × 35.064 giờ (`2013-03-01 00:00` → `2017-02-28 23:00`) = 420.768 dòng fact.
 
-## Bước 2 – Chốt weather modeling
+## Bước 2 – Weather modeling (đã chốt)
 
-Quyết định:
+Một fact, không tách weather fact. UCI và Open-Meteo cùng grain station-hour, join 1:1.
 
-```text
-one fact
-vs
-separate weather fact
-```
+Resolve trên `int_station_hour` rồi ghi vào `dwh.fact_air_quality_hourly`:
 
-dựa trên dữ liệu thực tế.
+- số liệu thời tiết: UCI nếu có giá trị, không thì Open-Meteo, cả hai thiếu thì null (không impute);
+- `*_source` ∈ `uci` | `openmeteo` | null;
+- `wind_direction`: text 16 hướng của UCI; khi UCI trống thì `round(độ / 22.5) mod 16` sang cùng bộ hướng;
+- `cloud_cover_pct` chỉ từ Open-Meteo;
+- `relative_humidity_pct` derive từ nhiệt độ và điểm sương đã resolve (Magnus / Alduchov & Eskridge 1996), kẹp 0–100; null nếu thiếu một trong hai hoặc ≤ −240;
+- pollutant không fill từ Open-Meteo;
+- `has_missing_*` và `data_quality_status` trên fact mô tả dòng đã resolve. Cờ UCI gốc nằm ở staging. `SUSPECT_CAP` vẫn ưu tiên hơn `MISSING_MEASUREMENT`;
+- mart: `hour_count` là số giờ lịch, `*_hour_count` là số giờ không null đi vào từng average / tổng mưa;
+- `dim_date.week_of_year` là tuần ISO, đi với `iso_year`.
+
+Cột thô từng nguồn nằm ở `staging` / `stg_*`.
 
 ## Core models
 
-Candidate:
-
 ```text
-dim_station
-dim_date
-dim_time
-fact_air_quality_hourly
+staging.stg_air_quality          view
+staging.stg_weather_openmeteo    view
+staging.stg_station              view
+staging.int_station_hour         view
+dwh.dim_station                  table   station_key = station_id
+dwh.dim_date                     table   date_key YYYYMMDD, 1461 ngày
+dwh.dim_time                     table   time_key = giờ 0–23
+dwh.fact_air_quality_hourly      table   420768
+mart.mart_station_daily          table   17532 (12 × 1461)
+mart.mart_station_monthly        table   576 (12 × 48), avg từ fact
+mart.mart_pollution_weather      table   station-day PM2.5/PM10/O3 + weather
 ```
 
-Có thể điều chỉnh.
+`mart_pm25_episodes` để Phase 8 (ngưỡng episode). Macro `generate_schema_name` dùng schema `staging` / `dwh` / `mart` đúng tên, không prefix `staging_`.
 
 ## dbt tests
 
@@ -1061,12 +1072,12 @@ mart_pm25_episodes   # logic + ngưỡng chốt Phase 8; mart nên có trước 
 ## Definition of Done
 
 ```text
-[ ] Grain được document
-[ ] Dimensions hoạt động
-[ ] Fact hoạt động
-[ ] dbt tests pass
-[ ] Data lineage staging → DWH rõ
-[ ] Một số OLAP-style queries chạy đúng
+[x] Grain được document
+[x] Dimensions hoạt động
+[x] Fact hoạt động
+[x] dbt tests pass (52/52)
+[x] Data lineage staging → DWH rõ
+[x] Một số OLAP-style queries chạy đúng
 ```
 
 ---

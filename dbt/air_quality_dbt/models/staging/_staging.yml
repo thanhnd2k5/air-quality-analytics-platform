@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: stg_air_quality
+    description: UCI hourly staging, one row per station-hour. Pollutant gaps stay null.
+    columns:
+      - name: station_name
+        tests: [not_null]
+      - name: event_time_local
+        tests: [not_null]
+  - name: stg_weather_openmeteo
+    description: Open-Meteo hourly staging. Does not overwrite UCI weather.
+    columns:
+      - name: station_name
+        tests: [not_null]
+      - name: event_time_local
+        tests: [not_null]
+  - name: stg_station
+    description: Station seed used by dim_station.
+    columns:
+      - name: station_id
+        tests: [not_null, unique]
+      - name: station_name
+        tests: [not_null, unique]
