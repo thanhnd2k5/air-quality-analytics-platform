@@ -166,10 +166,11 @@ bash scripts/infra/init_minio.sh
 
 - Sample DAG: `sample_hello` (unpause + Trigger trong Airflow UI)
 - Phase 3 DAG: `uci_ingest_raw` (default station `Wanshouxigong`; conf `{"station":"..."}` hoặc `{"stations":[...]}`)
+- Phase 4 DAG: `uci_process_raw` (default station `Wanshouxigong`; conf `{"station":"..."}` / `{"stations":[...]}` / `{"process_date":"YYYY-MM-DD"}`)
 - Chi tiết Airflow: `config/airflow/README.md`
 - Layout Data Lake: `config/minio/bucket_layout.md`
 
-### Phase 3 – UCI → MinIO (host CLI)
+### Phase 3 – UCI → MinIO Raw (host CLI)
 
 Yêu cầu MinIO healthy + bucket đã bootstrap. Host CLI dùng `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` (khớp server). Trong `.env`, giữ `MINIO_ACCESS_KEY`/`MINIO_SECRET_KEY` giống ROOT.
 
@@ -185,6 +186,24 @@ py scripts/verify_uci_ingest.py
 
 # list raw objects
 py scripts/list_uci_raw_objects.py
+```
+
+### Phase 4 – Raw → Processed Parquet (host CLI)
+
+Yêu cầu raw UCI đã có trên MinIO (Phase 3). Output: `processed/uci/air_quality/...` (+ quarantine nếu có). Không impute; giữ NULL + DQ flags.
+
+```powershell
+# 1 station
+py scripts/process_uci_station.py --station Wanshouxigong --process-date 2026-10-07
+
+# all 12
+py scripts/process_uci_station.py --all --process-date 2026-10-07
+
+# verify processed (schema, row count, raw untouched)
+py scripts/verify_uci_processed.py --station Wanshouxigong --process-date 2026-10-07
+
+# list processed objects
+py scripts/list_uci_processed_objects.py
 ```
 
 Object key: `raw/uci/air_quality/station=<Station>/ingestion_date=YYYY-MM-DD/<original_filename>` (+ `.meta.json`).
