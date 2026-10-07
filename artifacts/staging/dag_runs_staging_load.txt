@@ -1,0 +1,22 @@
+staging_load manual__2026-10-07T14:22:02+00:00
+  ensure_schema success
+  load_station_reference success
+  load_air_quality failed (pyarrow 19: Repetition level histogram size mismatch)
+  load_openmeteo upstream_failed
+  reconcile upstream_failed
+
+After compose pin pyarrow==25.0.1:
+
+staging_load manual__2026-10-07T14:28:35+00:00 success
+  ensure_schema success
+  load_station_reference success (skipped_identical)
+  load_air_quality success (Wanshouxigong loaded, 35064)
+  load_openmeteo success (skipped_identical)
+  reconcile success
+
+staging_load manual__2026-10-07T14:31:18+00:00 success
+  ensure_schema success
+  load_station_reference success (skipped_identical)
+  load_air_quality success (skipped_identical)
+  load_openmeteo success (skipped_identical)
+  reconcile success

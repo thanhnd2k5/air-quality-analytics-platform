@@ -168,6 +168,7 @@ bash scripts/infra/init_minio.sh
 - Phase 3 DAG: `uci_ingest_raw` (default station `Wanshouxigong`; conf `{"station":"..."}` hoặc `{"stations":[...]}`)
 - Phase 4 DAG: `uci_process_raw` (default station `Wanshouxigong`; conf `{"station":"..."}` / `{"stations":[...]}` / `{"process_date":"YYYY-MM-DD"}`)
 - Phase 5 DAG: `openmeteo_ingest_raw` (API → MinIO raw → processed `om_*`; conf `station`/`stations`, `start`/`end`, `process_date`)
+- Phase 6 DAG: `staging_load` (processed Parquet + `stations.csv` → PostgreSQL `staging`; default `Wanshouxigong`; conf `station`/`stations`, `skip_reference`)
 - Chi tiết Airflow: `config/airflow/README.md`
 - Layout Data Lake: `config/minio/bucket_layout.md`
 
@@ -229,6 +230,27 @@ py -3 scripts/openmeteo_fill_rate.py --station Wanshouxigong
 ```
 
 Keys: `raw/openmeteo/historical_weather/...`, `processed/weather/openmeteo/...` (xem `config/minio/bucket_layout.md`).
+
+### Phase 6 – PostgreSQL staging
+
+Host CLI dùng `POSTGRES_HOST` / `POSTGRES_PORT` trong `.env` (thường `localhost:5433`). Airflow trong Compose ghi đè thành `postgres:5432`. Loader tự apply `config/postgres/ddl/staging.sql` (init SQL không chạy lại trên volume cũ).
+
+Bảng: `staging.air_quality_hourly`, `staging.weather_openmeteo_hourly`, `staging.station_reference`, cộng `staging.load_registry`. Không join `weather_final` / không derive RH ở phase này.
+
+Idempotency: skip khi registry khớp `source_sha256` + `schema_version` + `row_count`. Quarantine MinIO không được load.
+
+```powershell
+py scripts/load_staging.py --station Wanshouxigong
+py scripts/load_staging.py --all
+py scripts/verify_staging_load.py --all
+```
+
+dbt chỉ khai báo source (chưa có model). Image `dbt-postgres:1.9` vì dbt 1.9 không import được trên Python 3.14:
+
+```powershell
+docker run --rm --network air-quality-network --env-file .env -e POSTGRES_HOST=postgres -e POSTGRES_PORT=5432 -v "${PWD}/dbt:/dbt" ghcr.io/dbt-labs/dbt-postgres:1.9.0 debug --project-dir /dbt/air_quality_dbt --profiles-dir /dbt
+docker run --rm --network air-quality-network --env-file .env -e POSTGRES_HOST=postgres -e POSTGRES_PORT=5432 -v "${PWD}/dbt:/dbt" ghcr.io/dbt-labs/dbt-postgres:1.9.0 parse --project-dir /dbt/air_quality_dbt --profiles-dir /dbt
+```
 
 ### Recreate checklist (2 thành viên)
 

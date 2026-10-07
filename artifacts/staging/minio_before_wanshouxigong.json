@@ -1,0 +1,17 @@
+{
+  "bucket": "air-quality-lake",
+  "objects": [
+    {
+      "object_key": "processed/uci/air_quality/station=Wanshouxigong/process_date=2026-10-07/wanshouxigong_hourly.parquet",
+      "size": 961268,
+      "etag": "02e19336b5f5b3e495c738728cd19075",
+      "last_modified": "2026-10-07T10:45:58+00:00"
+    },
+    {
+      "object_key": "processed/weather/openmeteo/station=Wanshouxigong/process_date=2026-10-07/wanshouxigong_hourly.parquet",
+      "size": 568882,
+      "etag": "738d5c1488d75cd693ab41eaa1713660",
+      "last_modified": "2026-10-07T12:26:08+00:00"
+    }
+  ]
+}
