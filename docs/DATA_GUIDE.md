@@ -861,7 +861,7 @@ Working preference khi build cột analytical:
 ```text
 weather_final = UCI          nếu UCI không missing
               = Open-Meteo   nếu UCI missing và API có giá trị
-              = null/impute  nếu cả hai thiếu
+              = null         nếu cả hai thiếu (không impute)
 ```
 
 Nên giữ:
@@ -935,7 +935,7 @@ surface_pressure
 pressure_msl
 ```
 
-Không mặc định `PRES` bằng một trong hai cho tới khi semantics được kiểm tra.
+Fact điền `pressure_hpa` từ `om_surface_pressure_hpa` khi UCI null. Trên toàn bộ station-hour, corr(PRES, surface_pressure) = 0.976. Không dùng `pressure_msl`.
 
 ---
 
@@ -965,7 +965,7 @@ om_cloud_cover_pct
 Cột analytical đã resolve (`weather_final` / tương đương) và flag nguồn được tạo **sau** bước này, theo rule §24.3:
 
 ```text
-UCI → Open-Meteo fill khi UCI missing → impute/flag nếu cả hai thiếu
+UCI → Open-Meteo fill khi UCI missing → null nếu cả hai thiếu
 ```
 
 `relative_humidity_pct` derive từ TEMP/DEWP **đã resolve**, không lấy từ `om_*` làm mặc định (xem §24.1).

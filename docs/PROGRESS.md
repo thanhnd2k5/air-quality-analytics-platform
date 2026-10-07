@@ -4,6 +4,35 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-07 (Phase 7 – **HOÀN THÀNH** kỹ thuật)
+
+### Current phase
+Phase 7 – Data Warehouse & dbt (**DONE** trên `feature/data-warehouse`)
+
+### Completed
+- dbt 1.9: 4 view `staging` (`stg_*`, `int_station_hour`) + 4 table `dwh` + 3 table `mart`
+- Fact `dwh.fact_air_quality_hourly` = 420.768; `dim_station` = 12; `dim_date` = 1.461; `dim_time` = 24
+- Marts: daily 17.532, monthly 576, pollution-weather 17.532
+- `dbt test` 52/52 pass (not_null, unique, relationships, accepted_values, grain, row count, resolved DQ, weather fill, mart coverage)
+- OLAP: top station-month theo PM2.5, PM2.5 theo mùa (4 mùa), PM2.5 theo bin nhiệt độ
+
+### Decisions
+- Một fact station-hour; weather resolve trên fact (UCI trước, Open-Meteo fill, null nếu cả hai thiếu)
+- Cờ chất lượng trên fact tính sau khi resolve; cờ UCI gốc giữ ở staging
+- Mart `hour_count` là giờ lịch; `*_hour_count` là số giờ không null trong từng average
+- RH derive từ TEMP+DEWP đã resolve; `cloud_cover_pct` chỉ Open-Meteo
+- `mart_pm25_episodes` chưa làm — ngưỡng episode thuộc Phase 8
+
+### Evidence
+- `artifacts/dwh/olap_checks.json`
+- dbt run + test trong image `ghcr.io/dbt-labs/dbt-postgres:1.9.0`
+
+### Next
+- Commit / PR Phase 7 khi được yêu cầu
+- Phase 8 – episode thresholds, rồi `mart_pm25_episodes`
+
+---
+
 ## 2026-10-07 (Phase 6 – **HOÀN THÀNH** kỹ thuật; PR)
 
 ### Current phase

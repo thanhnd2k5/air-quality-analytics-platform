@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: dim_station
+    description: One row per monitoring station. station_key is the seed station_id.
+    columns:
+      - name: station_key
+        tests: [not_null, unique]
+      - name: station_name
+        tests: [not_null, unique]
+      - name: latitude
+        tests: [not_null]
+      - name: longitude
+        tests: [not_null]
+  - name: dim_date
+    description: >
+      One row per calendar day in the observed range. Season is meteorological (DJF/MAM/JJA/SON).
+      week_of_year is the ISO week and pairs with iso_year, not the calendar year.
+    columns:
+      - name: date_key
+        tests: [not_null, unique]
+      - name: season
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['winter', 'spring', 'summer', 'autumn']
+  - name: dim_time
+    description: 24 hours. time_key is the hour 0-23.
+    columns:
+      - name: time_key
+        tests:
+          - not_null
+          - unique
+          - accepted_values:
+              values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+      - name: day_part
+        tests:
+          - accepted_values:
+              values: ['night', 'morning', 'afternoon', 'evening']
+  - name: fact_air_quality_hourly
+    description: >
+      Grain is one station-hour. Pollutants stay null when missing.
+      Weather uses UCI when present and Open-Meteo only to fill UCI nulls.
+      relative_humidity_pct is derived from the resolved temperature and dew point.
+      cloud_cover_pct comes from Open-Meteo only.
+      has_missing_pollutant, has_missing_weather, and data_quality_status describe this resolved row.
+      UCI flags before the fill stay on staging.air_quality_hourly.
+      SUSPECT_CAP still wins over MISSING_MEASUREMENT.
+    columns:
+      - name: station_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_station')
+              field: station_key
+      - name: date_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: time_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_time')
+              field: time_key
+      - name: event_time_local
+        tests: [not_null]
+      - name: temperature_source
+        tests:
+          - accepted_values:
+              values: ['uci', 'openmeteo']
+      - name: data_quality_status
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['OK', 'MISSING_MEASUREMENT', 'SUSPECT_CAP']

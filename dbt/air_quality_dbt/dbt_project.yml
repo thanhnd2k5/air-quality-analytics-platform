@@ -14,3 +14,18 @@ clean-targets:
   - target
   - dbt_packages
   - logs
+
+models:
+  air_quality_dbt:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: staging
+      +materialized: view
+    warehouse:
+      +schema: dwh
+      +materialized: table
+    marts:
+      +schema: mart
+      +materialized: table
