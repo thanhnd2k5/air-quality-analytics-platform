@@ -25,6 +25,14 @@ x-airflow-common: &airflow-common
     MINIO_SECURE: ${MINIO_SECURE:-false}
     UCI_RAW_DIR: /opt/airflow/data/raw/uci
     UCI_INVENTORY_PATH: /opt/airflow/data/raw/reference/file_inventory.csv
+    # Warehouse (not airflow_db). Host .env uses localhost:5433; inside compose use DNS.
+    POSTGRES_HOST: postgres
+    POSTGRES_PORT: "5432"
+    POSTGRES_DB: ${POSTGRES_DB:-air_quality_dw}
+    POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    STATIONS_CSV: /opt/airflow/data/raw/reference/stations.csv
+    STAGING_DDL_PATH: /opt/airflow/config/postgres/ddl/staging.sql
     # Install minio only on long-running services (not airflow-init which runs as root)
     _PIP_ADDITIONAL_REQUIREMENTS: ""
   volumes:
@@ -34,6 +42,8 @@ x-airflow-common: &airflow-common
     - ./src:/opt/airflow/src
     # Phase 3 (P3-03): local UCI CSVs + inventory for ingestion (read-only)
     - ./data/raw:/opt/airflow/data/raw:ro
+    # Phase 6: staging DDL applied by the loader (init scripts do not re-run)
+    - ./config/postgres/ddl:/opt/airflow/config/postgres/ddl:ro
   user: "${AIRFLOW_UID:-50000}:0"
   networks:
     - air_quality_network
@@ -141,7 +151,7 @@ services:
     command: webserver
     environment:
       <<: *airflow-common-env
-      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-minio>=7.1.15}
+      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-minio>=7.1.15 pyarrow==25.0.1}
     ports:
       - "${AIRFLOW_WEBSERVER_PORT:-8080}:8080"
     healthcheck:
@@ -149,7 +159,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 180s
     restart: unless-stopped
     depends_on:
       <<: *airflow-common-depends-on
@@ -165,13 +175,13 @@ services:
     command: scheduler
     environment:
       <<: *airflow-common-env
-      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-minio>=7.1.15}
+      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-minio>=7.1.15 pyarrow==25.0.1}
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 180s
     restart: unless-stopped
     depends_on:
       <<: *airflow-common-depends-on

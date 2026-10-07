@@ -54,3 +54,13 @@ Phase 5 DAG: `openmeteo_ingest_raw` — tasks `ingest_raw` → `process_weather`
 - Writes `raw/openmeteo/historical_weather/...` then `processed/weather/openmeteo/...`
 - Process reads only the `ingestion_date` partition from conf, or the latest partition when omitted (does not mix older raw batches)
 - Idempotency: raw skip by `request_fingerprint`; processed skip by combined `source_sha256` + `schema_version`
+
+Phase 6 DAG: `staging_load` — tasks `ensure_schema` → `load_station_reference` → `load_air_quality` → `load_openmeteo` → `reconcile`.
+
+- Default station: `Wanshouxigong`
+- Conf: `{"station":"..."}` or `{"stations":[...]}`; optional `{"skip_reference": true}`
+- Reads latest processed Parquet (not `processed/quarantine/`) and `stations.csv`
+- Writes PostgreSQL `staging.*` on `air_quality_dw`. Does not mutate MinIO.
+- In-container Postgres is `postgres:5432` (host CLI stays on `POSTGRES_PORT`, usually 5433)
+- Idempotency: `staging.load_registry` matches `source_sha256` + `schema_version` + `row_count` → `skipped_identical`
+- Webserver/scheduler pip default upgrades `pyarrow` to `25.0.1` (the image ships 19, which cannot read Parquet written by 25). `pandas` and `psycopg2` come with the Airflow image.

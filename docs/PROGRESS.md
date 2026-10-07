@@ -4,6 +4,37 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-07 (Phase 6 – **HOÀN THÀNH** kỹ thuật; PR)
+
+### Current phase
+Phase 6 – PostgreSQL Staging (**K6-01 → K6-05 DONE**)
+
+### Completed
+- DDL `config/postgres/ddl/staging.sql` applied by the loader (existing volume)
+- Loaded 12 stations: `air_quality_hourly` and `weather_openmeteo_hourly` = 420,768 rows each (35,064 × 12); `station_reference` = 12
+- Idempotent rerun: 25/25 `skipped_identical` (reference + 12 × 2 hourly)
+- Reconcile: source count = target count, 0 duplicate keys, date range `2013-03-01 00:00` → `2017-02-28 23:00`, MinIO etag unchanged
+- DAG `staging_load` `manual__2026-10-07T14:28:35+00:00` success (reload Wanshouxigong air slice); rerun `manual__2026-10-07T14:31:18+00:00` success (`skipped_identical`)
+- dbt 1.9 sources smoke: `dbt debug` connection ok, `dbt parse` ok (image `ghcr.io/dbt-labs/dbt-postgres:1.9.0`; host Python 3.14 cannot import dbt 1.9)
+
+### Decisions
+- Staging columns mirror processed Parquet; no `weather_final` / RH (Phase 7)
+- `event_time_local` is `timestamp without time zone`
+- Replace-by-station in one transaction; skip via `staging.load_registry`
+- Quarantine objects are not loaded
+- Airflow image pyarrow 19 cannot read Parquet written by pyarrow 25; compose pins `pyarrow==25.0.1`
+
+### Evidence
+- `artifacts/staging/` (load JSONL, reconcile, MinIO fingerprints)
+- Unit tests: `tests/unit/test_staging_load.py` (10 passed)
+- DAG runs: `manual__2026-10-07T14:28:35+00:00`, `manual__2026-10-07T14:31:18+00:00`
+
+### Next
+- Review / merge PR Phase 6
+- Phase 7 – Data Warehouse & dbt models (`weather_final`, RH, dims/facts)
+
+---
+
 ## 2026-10-07 (Phase 5 – **HOÀN THÀNH** kỹ thuật; PR)
 
 ### Current phase

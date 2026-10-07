@@ -893,48 +893,100 @@ Postgres staging `weather_openmeteo_hourly`, dbt join `weather_final`, RH derive
 
 ## Mục tiêu
 
-Load processed data vào relational staging.
+Load processed data vào relational staging trên DB `air_quality_dw`, schema `staging`.
 
-Candidate schema:
+Volume Postgres đã init từ Phase 2 nên **DDL do loader apply** (`config/postgres/ddl/staging.sql`), không dựa vào `docker-entrypoint-initdb.d`.
 
-```text
-staging
-```
-
-Candidate tables:
+Bảng:
 
 ```text
-air_quality_hourly
-weather_openmeteo_hourly
-station_reference
+staging.air_quality_hourly          -- 1:1 Parquet UCI processed
+staging.weather_openmeteo_hourly    -- 1:1 Parquet Open-Meteo processed
+staging.station_reference           -- 1:1 data/raw/reference/stations.csv
+staging.load_registry               -- vận hành: idempotency (không phải fact)
 ```
+
+Không làm ở Phase 6 (để Phase 7): `weather_final`, derive RH, model `stg_*` / dim / fact. “dbt có thể đọc staging” = project dbt tối thiểu + `sources.yml` + `dbt debug` / `dbt parse`.
+
+## Quyết định load
+
+- Cột hourly = cột Parquet canonical. Weather UCI nằm trong `air_quality_hourly`. Không join, không impute.
+- `event_time_local` là `timestamp without time zone` (wall clock Asia/Shanghai).
+- Unique `(station_name, event_time_local)`. `station_reference` unique `station_id` và `station_name`.
+- Chọn object processed có `process_date` mới nhất. Không đọc `processed/quarantine/`.
+- Hourly: một transaction `DELETE` theo `station_name` rồi `COPY`. Reference: `TRUNCATE` + `COPY`.
+- Skip khi `load_registry` khớp sidecar `source_sha256` + `schema_version` + `row_count` (reference: SHA-256 file CSV).
+- Đổi checksum hoặc schema → replace slice trạm đó (không fail kiểu no-overwrite của MinIO).
 
 ## Kiểm tra
 
 Sau load:
 
 ```text
-source count
+source count (sidecar row_count)
 vs
 target count
 ```
 
 Kiểm tra:
 
-- duplicates;
+- duplicates trên natural key;
 - station count;
-- date range;
-- NULL;
-- type.
+- date range `2013-03-01 00:00` → `2017-02-28 23:00` khi đủ 35 064 giờ;
+- NULL trên natural key;
+- type cột khớp DDL.
+
+Artifact: `artifacts/staging/`.
+
+## Milestones
+
+```text
+K6-01  Spec & DDL
+K6-02  Library (DDL apply + loaders + CLI + tests)
+K6-03  Slice 1 trạm Wanshouxigong qua CLI/Airflow
+K6-04  Scale 12 trạm + idempotent rerun + đối soát
+K6-05  Docs, dbt sources smoke, đóng DoD
+```
+
+## WBS
+
+### K6-01 Spec
+
+- Ghi quyết định load + WBS vào mục này và kickoff `docs/PROGRESS.md`
+- DDL `config/postgres/ddl/staging.sql` (4 bảng, PK/unique)
+
+### K6-02 Library
+
+- `src/staging/` resolve latest Parquet + sidecar, load UCI, load Open-Meteo, load `station_reference`, ghi registry
+- CLI `scripts/load_staging.py` (`--station` / `--all`)
+- Unit tests: skip-if-same, replace-on-change, không đụng quarantine
+
+### K6-03 One-station slice
+
+- DAG `staging_load` — `ensure_schema` → `load_station_reference` → `load_air_quality` → `load_openmeteo` → `reconcile`
+- Default station `Wanshouxigong`; conf `station` / `stations`
+- Verify 35 064 hàng mỗi bảng hourly, unique key, MinIO không đổi, rerun → `skipped_identical`
+
+### K6-04 Scale 12
+
+- `--all` / conf 12 stations
+- Rerun full → skip
+- `scripts/verify_staging_load.py` → `artifacts/staging/`
+
+### K6-05 Close
+
+- README + Airflow README
+- `dbt/air_quality_dbt/` sources cho 3 bảng nghiệp vụ; smoke parse/debug
+- Tick DoD; PROGRESS; PR `feature/postgres-staging`
 
 ## Definition of Done
 
 ```text
-[ ] Processed → PostgreSQL load reproducible
-[ ] Row count reconciled
-[ ] Key uniqueness kiểm tra
-[ ] Schema rõ
-[ ] dbt có thể đọc staging
+[x] Processed → PostgreSQL load reproducible
+[x] Row count reconciled
+[x] Key uniqueness kiểm tra
+[x] Schema rõ
+[x] dbt có thể đọc staging
 ```
 
 ---

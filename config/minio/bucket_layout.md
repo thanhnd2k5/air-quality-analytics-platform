@@ -154,7 +154,8 @@ processed/weather/openmeteo/station=<Station>/process_date=YYYY-MM-DD/<station>_
 ```
 
 - Combines yearly chunks from the **latest** `ingestion_date` partition into one hourly Parquet (older partitions are ignored).
-- Does **not** overwrite UCI weather; no `weather_final` join here (Phase 6+).
+- Does **not** overwrite UCI weather; no `weather_final` join here (Phase 7).
+- Phase 6 loads these Parquet files into PostgreSQL `staging` (not a new MinIO prefix). Quarantine objects stay out of staging.
 - Idempotency: same combined `source_sha256` + `schema_version` → skip.
 
 ## Image note (2026-09)

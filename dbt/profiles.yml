@@ -1,0 +1,14 @@
+# Local profile. Passwords come from the environment (.env), never from this file.
+#   py -m dbt debug --project-dir dbt/air_quality_dbt --profiles-dir dbt
+air_quality_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      port: "{{ env_var('POSTGRES_PORT', '5433') | int }}"
+      user: "{{ env_var('POSTGRES_USER', 'postgres') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD') }}"
+      dbname: "{{ env_var('POSTGRES_DB', 'air_quality_dw') }}"
+      schema: staging
+      threads: 1

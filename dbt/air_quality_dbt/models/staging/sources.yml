@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: staging
+    description: PostgreSQL staging loaded from processed Parquet and stations.csv (Phase 6). Not the dimensional warehouse.
+    schema: staging
+    tables:
+      - name: air_quality_hourly
+        description: 1:1 UCI processed hourly. Grain is station_name + event_time_local. UCI weather stays on this table.
+      - name: weather_openmeteo_hourly
+        description: 1:1 Open-Meteo processed hourly (om_* columns, including cloud cover).
+      - name: station_reference
+        description: Station seed from data/raw/reference/stations.csv.
