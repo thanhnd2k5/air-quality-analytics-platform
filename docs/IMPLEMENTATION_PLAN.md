@@ -565,31 +565,53 @@ Không chia kiểu “A code, B chỉ viết docs”. Thành viên B phải trig
 
 Chuyển Raw thành dữ liệu chuẩn hóa có thể đưa vào relational staging.
 
+Không impute mặc định; không đụng Open-Meteo / Postgres staging (Phase 5–6).
+
+## Development strategy
+
+Trước tiên:
+
+```text
+Wanshouxigong
+```
+
+Sau khi ổn:
+
+```text
+12 stations
+```
+
+Branch:
+
+```text
+feature/data-processing
+```
+
 ## Flow
 
 ```text
-MinIO Raw
-↓
-Python/Pandas
-↓
-Validation
-↓
-Standardization
-↓
-MinIO Processed
+MinIO Raw (UCI CSV + .meta.json)
+      ↓
+Resolve latest raw object
+      ↓
+Python / Pandas (canonical + DQ flags)
+      ↓
+Parquet (+ sidecar .meta.json)
+      ↓
+MinIO Processed (+ quarantine nếu cần)
 ```
 
 ## Xử lý chính
 
-- parse timestamp;
-- canonical column names;
+- parse timestamp → `event_time_local`;
+- canonical column names (DATA_GUIDE §5);
 - datatype conversion;
-- station normalization;
-- unit validation;
-- duplicate check;
-- missing profiling;
-- data quality flags;
-- format conversion.
+- station normalization (`station_name`);
+- unit validation (tên cột + range);
+- duplicate check trên `station_name + event_time_local`;
+- missing flags (không impute);
+- `SUSPECT_CAP` cho extreme kiểu 999 / 10000;
+- format conversion → Parquet.
 
 Output ưu tiên:
 
@@ -597,9 +619,27 @@ Output ưu tiên:
 Parquet
 ```
 
-## Missing
+## Quyết định kỹ thuật (chốt 2026-10-07)
 
-Ở phase này mới chốt strategy chi tiết sau khi Phase 1 hoàn tất.
+| Mục | Quyết định |
+|---|---|
+| Object key (processed) | `processed/uci/air_quality/station=<Station>/process_date=YYYY-MM-DD/<station>_hourly.parquet` |
+| Quarantine key | `processed/quarantine/uci/air_quality/station=<Station>/process_date=YYYY-MM-DD/...` |
+| Immutability | Không overwrite object cùng key |
+| Idempotency | Cùng `source_sha256` + `schema_version` tại key → skip; khác source/schema cùng key → fail rõ |
+| Checksum | SHA-256 của bytes Parquet (ghi trong sidecar); `process_ts` deterministic = `process_dateT00:00:00Z` |
+| Metadata | Sidecar `.meta.json` cạnh Parquet (`run_ts` = wall-clock audit) |
+| Timestamp | `event_time_local` từ year/month/day/hour; giả định wall time `Asia/Shanghai` (DATA_GUIDE §8) |
+| Missing | Giữ `NULL`; chỉ flag (`has_missing_pollutant`, `has_missing_weather`, …) |
+| Imputation | **Không** impute pollutant/weather trong Phase 4 |
+| Extremes | Giữ giá trị; đánh `suspect_cap` / `SUSPECT_CAP`; không xóa / winsorize |
+| Negatives (pollutant/RAIN/WSPM) | Quarantine row (hoặc fail nếu schema-critical); không sửa thầm |
+| Duplicates | Fail + evidence nếu trùng natural key; không `drop_duplicates` im lặng |
+| Raw | Chỉ đọc từ MinIO; không mutate local `data/raw` hay raw objects |
+
+Canonical rename: DATA_GUIDE §5. Chi tiết path: `config/minio/bucket_layout.md`.
+
+## Missing
 
 Không mặc định phải impute toàn bộ.
 
@@ -611,18 +651,92 @@ historical_clean
 
 vẫn chứa `NULL`.
 
-ML imputation có thể nằm downstream.
+ML imputation / short-gap interpolate deferred downstream (Phase 5/10).
+
+## Milestones
+
+```text
+K4-01  Spec & layout
+K4-02  Library (schema + transform + DQ + write + CLI + tests)
+K4-03  Slice 1 trạm Wanshouxigong qua CLI/Airflow
+K4-04  Scale 12 trạm + idempotent rerun
+K4-05  Docs, evidence, đóng DoD
+```
+
+## WBS (P4-01 → P4-20)
+
+### K4-01 Spec
+
+- **P4-01** Xác nhận Phase 3 gate đã đóng (PR #4 merged); dùng branch `feature/data-processing`
+- **P4-02** Chốt object key processed/quarantine + metadata schema (bucket_layout + IMPLEMENTATION_PLAN)
+- **P4-03** Chốt canonical map + DQ flag set + no-impute policy; entry PROGRESS kickoff
+
+### K4-02 Library
+
+- **P4-04** `src/processing/schema.py` — UCI→canonical rename, dtypes, lineage columns
+- **P4-05** `src/processing/transform.py` — CSV bytes → DataFrame; `event_time_local`; cast types
+- **P4-06** `src/processing/dq.py` — duplicate key; non-neg ranges; missing flags; `SUSPECT_CAP`; quarantine split
+- **P4-07** `src/processing/uci_to_processed.py` — resolve raw → transform/DQ → Parquet + sidecar → MinIO; skip-if-same-checksum
+- **P4-08** `scripts/process_uci_station.py` — CLI `--station` / `--all`
+- **P4-09** Tests trong `tests/unit/test_uci_process.py` (schema + timestamp + DQ + key builder)
+
+### K4-03 One-station slice
+
+- **P4-10** DAG `uci_process_raw` — param `station` (default `Wanshouxigong`); tasks `resolve_raw` → `transform_and_dq` → `write_processed`
+- **P4-11** Trigger manual 1 lần → Parquet + `.meta.json` đúng path
+- **P4-12** Verify canonical columns; row count ≈ raw; raw không đổi; flags/quarantine hợp lý
+- **P4-13** Rerun cùng station → skip/idempotent success, không overwrite sai
+
+### K4-04 Scale 12
+
+- **P4-14** Mở rộng DAG/CLI nhận list 12 stations từ inventory / conf
+- **P4-15** Process đủ 12; list prefix đủ 12 station folders
+- **P4-16** Rerun full 12 → skip/success không ghi đè
+- **P4-17** Manifest run → `artifacts/processing/` (station, raw_key, processed_key, sha256, status, quarantine_rows)
+
+### K4-05 Close
+
+- **P4-18** Cập nhật README / bucket_layout / Airflow README (cách chạy DAG, path, flags)
+- **P4-19** Evidence: list objects + mẫu meta + DAG run logs; tick DoD; PROGRESS đóng phase
+- **P4-20** PR merge `feature/data-processing` → `main`
+
+## Phân chia Phase 4
+
+### Thành viên A (primary – pipeline)
+
+- P4-04 / P4-07 schema write path + orchestrator
+- P4-10 DAG
+- P4-14 scale orchestration
+- Lead merge PR
+
+### Thành viên B (primary – DQ / verify / docs)
+
+- P4-02 / P4-03 key + policy spec
+- P4-05 / P4-06 transform + dq
+- P4-08 CLI + P4-09 tests
+- P4-12 / P4-15 / P4-16 verify + manifest artifacts
+- P4-18 docs
+
+### Shared
+
+- P4-01 kickoff
+- P4-11 lần chạy đầu
+- P4-13 idempotent check
+- P4-19 → P4-20 đóng gate
+
+Không chia kiểu “A code, B chỉ viết docs”. Thành viên B phải trigger được DAG và giải thích được processed key.
 
 ## Definition of Done
 
 ```text
-[ ] Canonical schema hoạt động
-[ ] Timestamp chuẩn hóa
-[ ] Units thống nhất
-[ ] Duplicate policy hoạt động
-[ ] Invalid records được phát hiện
-[ ] Processed output reproducible
-[ ] Không phá raw data
+[x] Canonical schema hoạt động
+[x] Timestamp chuẩn hóa (event_time_local)
+[x] Units thống nhất (tên cột + range check)
+[x] Duplicate policy hoạt động (fail nếu trùng key)
+[x] Invalid records được phát hiện (quarantine / flags)
+[x] Processed output reproducible + idempotent
+[x] Không phá raw data
+[x] 12 stations processed trên MinIO
 ```
 
 ---

@@ -4,6 +4,129 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-07 (Phase 4 – **HOÀN THÀNH** kỹ thuật; PR)
+
+### Current phase
+Phase 4 – Processing & Data Quality (**P4-01 → P4-20 DONE** — PR)
+
+### Completed
+- **K4-01 → K4-04:** Spec, library, 1-station slice, scale 12 (xem entries bên dưới)
+- **P4-18:** README + `config/airflow/README.md` + bucket_layout (processed keys / flags)
+- **P4-19:** Evidence `artifacts/processing/`; tick DoD Phase 4 trong `IMPLEMENTATION_PLAN.md` §9
+- **P4-20:** PR `feature/data-processing` → `main`
+
+### Decisions (tóm tắt)
+- Processed key: `processed/uci/air_quality/station=<Station>/process_date=YYYY-MM-DD/<slug>_hourly.parquet`
+- No impute; NULL + DQ flags; `SUSPECT_CAP`; quarantine negatives
+- Idempotency: `source_sha256` + `schema_version`; `process_ts` = `process_dateT00:00:00Z`
+
+### Evidence
+- `artifacts/processing/` (verify, manifests, DAG runs, list 12 stations)
+- Unit tests: `tests/unit/test_uci_process.py` (7 passed)
+
+### Next
+- Review / merge PR Phase 4
+- Sau đó Phase 5 – Open-Meteo Investigation & Integration
+
+---
+
+## 2026-10-07 (Phase 4 – K4-04 Scale 12)
+
+### Current phase
+Phase 4 – Processing & Data Quality (**K4-01 → K4-04 DONE**; tiếp K4-05)
+
+### Completed
+- **P4-14:** CLI `--all` / DAG conf `stations` (đã có từ K4-02/03)
+- **P4-15:** Process đủ 12 trạm (`process_date=2026-10-07`); MinIO list = 12 stations / 12 Parquet
+- **P4-16:** Rerun full 12 → toàn bộ `skipped_identical`
+- **P4-17:** Manifest → `artifacts/processing/process_all_p4-15.jsonl`, `process_all_rerun_p4-16.jsonl`, `list_processed_uci_p4-15.json`
+
+### Evidence
+- First pass: 11 `uploaded` + Wanshouxigong `skipped_identical` (đã có từ K4-03)
+- Rerun: 12/12 `skipped_identical`
+- Mỗi station `row_count=35064`, `quarantine_row_count=0`
+
+### Next
+- **K4-05:** README / docs / tick DoD / PR
+
+---
+
+## 2026-10-07 (Phase 4 – K4-03 One-station slice)
+
+### Current phase
+Phase 4 – Processing & Data Quality (**K4-01 → K4-03 DONE**; tiếp K4-04)
+
+### Completed
+- **P4-10:** DAG `uci_process_raw` — `resolve_raw` → `transform_and_dq` → `write_processed`
+- **P4-11:** CLI upload Wanshouxigong + DAG run `manual__2026-10-07T10:49:37+00:00` → **success** (3 tasks)
+- **P4-12:** Verify canonical cols, row_count=35064 = raw, raw untouched, sidecar sha match
+- **P4-13:** Rerun CLI → `skipped_identical` (source_sha256 + schema_version)
+- Scripts: `verify_uci_processed.py`, `list_uci_processed_objects.py`
+
+### Decisions
+- Idempotency: skip khi cùng `source_sha256` + `schema_version` (không so Parquet bytes thuần — tránh lệch `process_time`)
+- `process_ts` deterministic = `process_dateT00:00:00Z`; sidecar thêm `run_ts` wall-clock
+- Host `.env`: align `MINIO_SECRET_KEY` = `MINIO_ROOT_PASSWORD` (tránh SignatureDoesNotMatch)
+
+### Evidence
+- `artifacts/processing/verify_wanshouxigong_p4-12.json`
+- `artifacts/processing/rerun_wanshouxigong_p4-13.jsonl`
+- `artifacts/processing/list_processed_uci_p4-11.json`
+- `artifacts/processing/dag_runs_uci_process_raw.txt`, `compose_ps_p4.txt`
+
+### Next
+- **K4-04:** Process đủ 12 stations + manifest + full rerun skip
+
+---
+
+## 2026-10-07 (Phase 4 – K4-02 Library)
+
+### Current phase
+Phase 4 – Processing & Data Quality (**K4-01 + K4-02 DONE**; tiếp K4-03)
+
+### Completed
+- **K4-01:** WBS + object key + PROGRESS (P4-01 → P4-03)
+- **P4-04:** `src/processing/schema.py` — rename map, DQ/lineage constants, `SCHEMA_VERSION`
+- **P4-05:** `src/processing/transform.py` — CSV bytes → canonical + `event_time_local` + Parquet bytes
+- **P4-06:** `src/processing/dq.py` — duplicate fail; missing flags; `SUSPECT_CAP`; quarantine negatives
+- **P4-07:** `src/processing/uci_to_processed.py` — resolve latest raw → process → MinIO + sidecar + idempotent skip
+- **P4-08:** `scripts/process_uci_station.py` — CLI `--station` / `--all`
+- **P4-09:** `tests/unit/test_uci_process.py` — 7 tests passed (cùng ingest: 11 passed)
+
+### Decisions
+- Meta key = `.meta.json` cạnh Parquet (không append `.parquet.meta.json`)
+- `data_quality_status`: `OK` | `MISSING_MEASUREMENT` | `SUSPECT_CAP` (priority: suspect > missing)
+- Quarantine row status: `QUARANTINED_NEGATIVE`
+
+### Next
+- **K4-03:** DAG `uci_process_raw` + smoke 1 trạm + verify + idempotent rerun
+
+---
+
+## 2026-10-07 (Phase 4 – Kickoff / K4-01 Spec)
+
+### Current phase
+Phase 4 – Processing & Data Quality (**K4-01 DONE**; WBS P4-01 → P4-20)
+
+### Completed
+- **P4-01:** Phase 3 gate đóng (PR #4 merged); branch `feature/data-processing`
+- **P4-02:** Chốt processed/quarantine object key + sidecar trong `config/minio/bucket_layout.md` + `IMPLEMENTATION_PLAN.md` §9
+- **P4-03:** Chốt canonical map (DATA_GUIDE §5), DQ flags / no-impute / `SUSPECT_CAP` / quarantine negatives; WBS K4-01→K4-05 trong plan
+
+### Decisions
+- Key: `processed/uci/air_quality/station=<Station>/process_date=YYYY-MM-DD/<station>_hourly.parquet`
+- Quarantine: `processed/quarantine/uci/air_quality/station=<Station>/process_date=YYYY-MM-DD/...`
+- Không overwrite; cùng checksum → skip; khác checksum cùng key → fail
+- Missing → giữ NULL + flags; **không impute** trong Phase 4
+- Extremes 999/10000 → giữ + `SUSPECT_CAP`; negatives pollutant/RAIN/WSPM → quarantine
+- Duplicate natural key → fail + evidence (không silent drop)
+- `event_time_local` giả định wall time Asia/Shanghai (DATA_GUIDE §8)
+
+### Next
+- **K4-02:** `schema` / `transform` / `dq` / `uci_to_processed` + CLI + unit tests
+
+---
+
 ## 2026-10-06 (Phase 3 – **HOÀN THÀNH** kỹ thuật; chờ PR)
 
 ### Current phase
@@ -30,8 +153,7 @@ Phase 3 – UCI Ingestion → Data Lake (**P3-01 → P3-20 DONE** — PR #4)
 - PR: https://github.com/thanhnd2k5/air-quality-analytics-platform/pull/4
 
 ### Next
-- Review / merge PR #4
-- Sau đó Phase 4 – Processing & Data Quality
+- ~~Review / merge PR #4~~ → merged; chuyển Phase 4 (xem entry 2026-10-07)
 
 ---
 

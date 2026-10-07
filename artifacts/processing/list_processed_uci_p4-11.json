@@ -1,0 +1,13 @@
+﻿{
+  "bucket": "air-quality-lake",
+  "object_count": 2,
+  "parquet_count": 1,
+  "stations": [
+    "Wanshouxigong"
+  ],
+  "station_count": 1,
+  "objects": [
+    "processed/uci/air_quality/station=Wanshouxigong/process_date=2026-10-07/wanshouxigong_hourly.meta.json",
+    "processed/uci/air_quality/station=Wanshouxigong/process_date=2026-10-07/wanshouxigong_hourly.parquet"
+  ]
+}

@@ -40,3 +40,9 @@ docker compose up -d airflow-webserver airflow-scheduler
 Sample DAG: `sample_hello` (trigger manually in UI; starts paused).
 
 Phase 3 DAG (K3-03+): `uci_ingest_raw` — param `station` (default `Wanshouxigong`).
+
+Phase 4 DAG (K4-03+): `uci_process_raw` — tasks `resolve_raw` → `transform_and_dq` → `write_processed`.
+
+- Default station: `Wanshouxigong`
+- Conf: `{"station":"..."}` or `{"stations":[...]}`; optional `{"process_date":"YYYY-MM-DD"}`
+- Reads MinIO raw; writes `processed/uci/air_quality/...` (+ sidecar). Does not mutate raw.
