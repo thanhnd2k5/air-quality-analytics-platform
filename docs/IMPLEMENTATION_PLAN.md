@@ -1181,6 +1181,22 @@ Phạm vi phân tích gồm theo trạm, đa-trạm và điều kiện thời ti
 Phân tích trên lịch sử DWH; không xây detector vận hành realtime.  
 Definition of Done Phase 8 bao gồm các mục episode bên dưới trước khi chuyển Phase 9.
 
+## Quyết định làm việc (kickoff Phase 8)
+
+Phạm vi **Full DoD** (temporal + station + đủ pollutant + weather + episodes + ML candidates).
+
+| Hạng mục | Chốt working |
+|----------|----------------|
+| Nguồn đọc | `dwh.fact_air_quality_hourly` + dims / mart hiện có — không CSV raw |
+| Ngưỡng ứng viên | Cố định **75** và **115**; thêm **P90/P95** toàn mạng (có bảng P90/P95 theo trạm để so) |
+| Min độ dài | Chính **3h**; sensitivity **1h** và **6h** |
+| Null PM2.5 giữa chuỗi | **Cắt** episode (không nối qua thiếu số) |
+| Đa-trạm K | Report **K=3,6,9**; chốt 1 K sau notebook (fallback **K=3**) |
+| Mart | `mart_pm25_episodes` (1 station × 1 episode) + `mart_pm25_multi_station_events` |
+| Branch | `feature/phase-8-eda` (từ tip Phase 7) |
+
+**Gate trước dbt mart:** `artifacts/eda/episode_definition.md` (bộ `(threshold, min_hours, K)` + lý do).
+
 ## Output
 
 ```text
@@ -1190,7 +1206,58 @@ reusable analytical queries
 +
 candidate insights
 +
-mart_pm25_episodes (+ tài liệu ngưỡng và định nghĩa episode)
+mart_pm25_episodes (+ mart đa-trạm + tài liệu ngưỡng và định nghĩa episode)
+```
+
+## WBS (P8-01 → P8-24)
+
+### P8a – Kickoff
+
+- **P8-01** Branch `feature/phase-8-eda`; smoke fact (420768 rows / 12 stations)
+- **P8-02** Skeleton `notebooks/eda/`, `artifacts/eda/`, `sql/eda/`; WBS + PROGRESS kickoff
+- **P8-03** Helper đọc DWH `src/eda/db.py` + `scripts/smoke_dwh_fact.py`
+
+### P8b – Full EDA
+
+- **P8-04** Temporal (hourly / daily / monthly / seasonal)
+- **P8-05** Station (mean / median / variance / peaks / ranking)
+- **P8-06** Pollutant suite (PM2.5, PM10, SO₂, NO₂, CO, O₃)
+- **P8-07** Weather ↔ pollution (pattern, không causal)
+- **P8-08** Data issues + `artifacts/eda/eda_findings.md`
+
+### P8c – Episodes
+
+- **P8-09** Prototype island detection (SQL/Python)
+- **P8-10** Sensitivity threshold × min_hours
+- **P8-11** Concurrent stations + K grid
+- **P8-12** Lock → `artifacts/eda/episode_definition.md`
+- **P8-13** Stats theo trạm (duration, season/year)
+- **P8-14** Multi-station analysis
+- **P8-15** Weather-in-episode analysis
+
+### P8d – Marts
+
+- **P8-16** dbt vars + `mart_pm25_episodes`
+- **P8-17** `mart_pm25_multi_station_events`
+- **P8-18** YAML / sanity tests
+- **P8-19** `dbt run` + `dbt test` + `artifacts/eda/mart_episode_checks.json`
+
+### P8e – Close
+
+- **P8-20** `artifacts/eda/ml_feature_candidates.md`
+- **P8-21** Docs sync (PLAN / CONTEXT / ARCH / PROGRESS)
+- **P8-22** Tick DoD Phase 8
+- **P8-23** Evidence bundle review
+- **P8-24** PR khi được yêu cầu
+
+## Phân chia Phase 8
+
+```text
+P8a  Kickoff + smoke DWH
+P8b  Full EDA notebooks
+P8c  Episode sensitivity → lock definition
+P8d  dbt marts + tests
+P8e  ML candidates + đóng DoD
 ```
 
 ## Definition of Done

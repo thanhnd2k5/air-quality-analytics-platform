@@ -4,6 +4,32 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-08 (Phase 8 – **P8a DONE**; sẵn sàng P8b)
+
+### Current phase
+Phase 8 – Exploratory & Analytical Analysis (**P8a complete** trên `feature/phase-8-eda`)
+
+### Completed
+- Branch `feature/phase-8-eda` từ tip Phase 7 (`feature/data-warehouse`)
+- WBS P8-01 → P8-24 + quyết định Full DoD ghi vào `IMPLEMENTATION_PLAN.md` § Phase 8
+- Skeleton: `notebooks/eda/`, `sql/eda/`, `artifacts/eda/`
+- Read helper: `src/eda/db.py`; CLI smoke: `scripts/smoke_dwh_fact.py`
+- **P8-01 smoke OK:** fact 420768 rows / 12 stations; span `2013-03-01 00:00` → `2017-02-28 23:00`; PM2.5 non-null 412029
+
+### Decisions (working)
+- Full DoD EDA (không chỉ PM2.5-led)
+- Episode: sensitivity 75/115 + P90/P95; min_hours 1/3/6; null cắt chuỗi; K ∈ {3,6,9} rồi chốt
+- Marts: `mart_pm25_episodes` + `mart_pm25_multi_station_events`
+- Gate trước dbt: `artifacts/eda/episode_definition.md`
+
+### Evidence
+- `artifacts/eda/smoke_fact.json`
+
+### Next
+- P8b – notebooks EDA (`01_temporal` → `04_weather` + findings)
+
+---
+
 ## 2026-10-07 (Phase 7 – **HOÀN THÀNH** kỹ thuật)
 
 ### Current phase
