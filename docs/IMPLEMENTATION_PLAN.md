@@ -1066,7 +1066,8 @@ Ví dụ:
 mart_station_daily
 mart_station_monthly
 mart_pollution_weather
-mart_pm25_episodes   # logic + ngưỡng chốt Phase 8; mart nên có trước khi dashboard Phase 11
+mart_pm25_episodes              # Phase 8d — lock 115 / 3h
+mart_pm25_multi_station_events  # Phase 8d — K=6
 ```
 
 ## Definition of Done

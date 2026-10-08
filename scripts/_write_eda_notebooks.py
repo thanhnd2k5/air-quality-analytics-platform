@@ -54,6 +54,40 @@ def nb(cells: list[tuple[str, str]]) -> dict:
 
 
 NOTEBOOKS = {
+    "05_episodes_sensitivity.ipynb": [
+        (
+            "markdown",
+            "# P8c – Episode sensitivity\n\n"
+            "Prefer batch: `py -3 scripts/run_eda_phase8c.py` → "
+            "`artifacts/eda/episode_definition.md`.",
+        ),
+        (
+            "code",
+            SETUP
+            + "\nfrom src.eda import episodes as ep\n"
+            "df = ep.load_hourly_frame()\ngrid = ep.sensitivity_grid(df)\ngrid",
+        ),
+    ],
+    "06_episodes_analysis.ipynb": [
+        (
+            "markdown",
+            "# P8c – Locked episode analysis\n\n"
+            "Locked rule: see `artifacts/eda/episode_definition.md` "
+            "(115 µg/m³, min 3h, multi-station K=6).",
+        ),
+        (
+            "code",
+            SETUP
+            + "\nimport pandas as pd\n"
+            "from pathlib import Path\n"
+            "ROOT = Path.cwd() if (Path.cwd() / 'artifacts').exists() else Path.cwd().parents[1]\n"
+            "pd.read_csv(ROOT / 'artifacts/eda/episodes_station_stats_locked.csv')",
+        ),
+        (
+            "code",
+            "pd.read_csv(ROOT / 'artifacts/eda/episodes_multi_station_locked.csv').head(20)",
+        ),
+    ],
     "01_temporal.ipynb": [
         ("markdown", "# P8b – Temporal EDA\n\nPM2.5 by hour / month / season / year from `dwh.fact_air_quality_hourly`."),
         ("code", SETUP + "\nfrom src.eda import analysis as eda\nimport matplotlib.pyplot as plt\n"),

@@ -249,7 +249,7 @@ py scripts/verify_staging_load.py --all
 
 ### Phase 7 – Data warehouse (dbt)
 
-Một fact `dwh.fact_air_quality_hourly` (station × giờ). Weather: UCI trước, Open-Meteo khi UCI null, null nếu cả hai thiếu. RH derive từ nhiệt độ và điểm sương đã resolve. `cloud_cover_pct` chỉ từ Open-Meteo. Cờ `data_quality_status` trên fact mô tả dòng đã resolve; cờ UCI gốc nằm ở staging. Mart: `mart.mart_station_daily`, `mart.mart_station_monthly`, `mart.mart_pollution_weather`. `hour_count` là số giờ lịch; `pm25_hour_count` (và các `*_hour_count` khác) là số giờ không null trong trung bình.
+Một fact `dwh.fact_air_quality_hourly` (station × giờ). Weather: UCI trước, Open-Meteo khi UCI null, null nếu cả hai thiếu. RH derive từ nhiệt độ và điểm sương đã resolve. `cloud_cover_pct` chỉ từ Open-Meteo. Cờ `data_quality_status` trên fact mô tả dòng đã resolve; cờ UCI gốc nằm ở staging. Mart: `mart.mart_station_daily`, `mart.mart_station_monthly`, `mart.mart_pollution_weather`, cộng Phase 8 `mart.mart_pm25_episodes` / `mart.mart_pm25_multi_station_events` (ngưỡng 115 µg/m³, min 3h, đa-trạm K=6 — xem `artifacts/eda/episode_definition.md`). `hour_count` là số giờ lịch; `pm25_hour_count` (và các `*_hour_count` khác) là số giờ không null trong trung bình.
 
 Image `dbt-postgres:1.9` vì dbt 1.9 không import được trên Python 3.14. Trong container, host Postgres là `postgres:5432`:
 

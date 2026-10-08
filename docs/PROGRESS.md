@@ -4,37 +4,25 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-10-08 (Phase 8 – **P8a + P8b DONE**)
+## 2026-10-08 (Phase 8 – **P8a–P8d DONE**; sẵn sàng P8e)
 
 ### Current phase
-Phase 8 – Exploratory & Analytical Analysis (**P8b complete** trên `feature/phase-8-eda`)
+Phase 8 – Exploratory & Analytical Analysis (**P8d complete** trên `feature/phase-8-eda`)
 
 ### Completed
-- P8a: branch, skeleton, `src/eda/db.py`, smoke fact OK
-- P8b Full DoD EDA từ DWH:
-  - `src/eda/analysis.py` + `scripts/run_eda_phase8b.py`
-  - Notebooks `01_temporal` … `04_weather`
-  - Findings: `artifacts/eda/eda_findings.md` + `eda_summary.json` + CSV/PNG
-
-### Key findings (short)
-- PM2.5 global: mean 79.8; P90 **185**; P95 **242** (n=412029)
-- Season: winter highest (mean 95.5); summer lowest (64.7)
-- Diurnal: peak ~22:00, trough ~07:00 (swing < season)
-- Stations: Dongsi highest mean; Dingling lowest
-- Pollutant corr vs PM2.5: PM10 0.89, CO 0.80, NO2 0.67; O3 −0.15
-- Weather corr: RH +0.38, wind −0.27, temp −0.13 (pattern only)
-- DQ: ~91% OK; weather missing ~0% after resolve; temp mostly UCI (+0.09% Open-Meteo)
-
-### Decisions (working)
-- Full DoD EDA; episode sensitivity vẫn theo plan (75/115 + P90/P95; min 1/3/6h; K 3/6/9)
-- Marts: `mart_pm25_episodes` + `mart_pm25_multi_station_events`
+- P8a–P8c: EDA + episode lock (115 / 3h / K=6)
+- P8d dbt marts:
+  - `mart.mart_pm25_episodes` = **6318** (khớp Python)
+  - `mart.mart_pm25_multi_station_events` = **487**
+  - vars trong `dbt_project.yml`; 20/20 tests liên quan PASS
+  - Evidence: `artifacts/eda/mart_episode_checks.json`
 
 ### Evidence
-- `artifacts/eda/smoke_fact.json`
-- `artifacts/eda/eda_findings.md`, `eda_summary.json`, `figures/`
+- `artifacts/eda/episode_definition.md`, `mart_episode_checks.json`
+- dbt: `SELECT 6318` / `SELECT 487`
 
 ### Next
-- P8c – episode sensitivity → `episode_definition.md`
+- P8e – ML feature candidates + docs sync + tick DoD
 
 ---
 

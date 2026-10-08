@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "expected_station_episodes": 6318,
+  "expected_multi_events": 487,
+  "mart_pm25_episodes": {
+    "episode_count": 6318,
+    "station_count": 12,
+    "min_duration": 3,
+    "duration_median": 9.0,
+    "threshold_ug_m3": 115.0,
+    "min_hours": 3
+  },
+  "mart_pm25_multi_station_events": {
+    "event_count": 487,
+    "min_duration": 1,
+    "duration_median": 10.0,
+    "multi_station_k": 6,
+    "min_peak": 6
+  }
+}

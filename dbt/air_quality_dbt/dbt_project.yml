@@ -15,6 +15,12 @@ clean-targets:
   - dbt_packages
   - logs
 
+# Phase 8c locked episode definition (see artifacts/eda/episode_definition.md)
+vars:
+  pm25_episode_threshold: 115
+  pm25_episode_min_hours: 3
+  pm25_multi_station_k: 6
+
 models:
   air_quality_dbt:
     staging:
