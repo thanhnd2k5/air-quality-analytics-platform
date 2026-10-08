@@ -1,0 +1,8 @@
+,corr_with_pm25
+wind_speed_m_s,-0.265
+temperature_c,-0.133
+rain_mm,-0.016
+pressure_hpa,0.022
+cloud_cover_pct,0.1
+dew_point_c,0.111
+relative_humidity_pct,0.376

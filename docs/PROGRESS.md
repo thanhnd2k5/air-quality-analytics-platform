@@ -4,6 +4,37 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-08 (Phase 8 – **HOÀN THÀNH** kỹ thuật)
+
+### Current phase
+Phase 8 – Exploratory & Analytical Analysis (**DONE** trên `feature/phase-8-eda`)
+
+### Completed
+- P8a: smoke DWH + skeleton EDA
+- P8b: Full DoD EDA → `eda_findings.md`
+- P8c: sensitivity + lock → `episode_definition.md` (115 / 3h / K=6)
+- P8d: dbt marts 6318 + 487; tests PASS; `mart_episode_checks.json`
+- P8e: `ml_feature_candidates.md`; sync PROJECT_CONTEXT / ARCHITECTURE / IMPLEMENTATION_PLAN DoD; đóng phase
+
+### Decisions
+- Episode: threshold **115**, min_hours **3**, multi_station **K=6**, null cắt
+- Marts queryable từ SQL; candidate features cho Phase 10 (lags, calendar, weather, station, episode flags có kiểm soát leakage)
+
+### Evidence
+- `artifacts/eda/` (findings, definition, sensitivity, mart checks, ML candidates, figures)
+- dbt models under `dbt/air_quality_dbt/models/marts/mart_pm25_*.sql`
+
+### Hardening (sau review)
+- Unit tests `tests/unit/test_episodes.py` (8 passed) — island / null cut / min_hours / K / choose_locked_rule
+- `check_mart_episodes.py` đọc expected từ `episode_lock_summary.json` (không hard-code)
+- `_island_ids` vectorized; document giả định lưới giờ đầy đủ
+
+### Next
+- Commit / PR Phase 8 khi được yêu cầu
+- Phase 9 – Station Clustering
+
+---
+
 ## 2026-10-07 (Phase 7 – **HOÀN THÀNH** kỹ thuật)
 
 ### Current phase

@@ -1424,10 +1424,15 @@ Các vấn đề sau cố tình để mở cho tới khi có đủ dữ liệu.
 
 ### Analytics depth
 
-- ngưỡng episode PM2.5 cuối (chốt ở Phase 8 sau EDA);
-- schema chi tiết `mart_pm25_episodes` (sau khi định nghĩa episode ổn định).
-
-Các quyết định này phải dựa trên kết quả thực nghiệm, không chốt theo cảm tính.
+- ngưỡng episode PM2.5 cuối — **đã chốt Phase 8c** (2026-10-08):
+  - dirty: `pm25_ug_m3 >= 115` (null cắt chuỗi);
+  - station episode: ≥ **3** giờ liên tiếp;
+  - multi-station event: ≥ **K=6** trạm cùng trong episode;
+  - chi tiết: `artifacts/eda/episode_definition.md`.
+- schema mart episodes — **đã materialize Phase 8d**:
+  - `mart.mart_pm25_episodes` — grain 1 station × 1 episode (`episode_id`, start/end, duration, pm25 mean/max, season/year, weather summary, threshold/min_hours);
+  - `mart.mart_pm25_multi_station_events` — grain 1 multi-station window (`event_id`, start/end, duration, peak/mean station count, K);
+  - dbt vars: `pm25_episode_threshold`, `pm25_episode_min_hours`, `pm25_multi_station_k`.
 
 ---
 

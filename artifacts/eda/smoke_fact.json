@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "expected_row_count": 420768,
+  "expected_station_count": 12,
+  "row_count": 420768,
+  "station_count": 12,
+  "min_event_time": "2013-03-01 00:00:00",
+  "max_event_time": "2017-02-28 23:00:00",
+  "pm25_non_null": 412029
+}

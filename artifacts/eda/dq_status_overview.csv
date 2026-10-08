@@ -1,0 +1,4 @@
+data_quality_status,row_count,pct
+OK,383924,91.24
+MISSING_MEASUREMENT,36784,8.74
+SUSPECT_CAP,60,0.01

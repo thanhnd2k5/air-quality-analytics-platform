@@ -1,0 +1,53 @@
+{
+  "pm25_global_percentiles": {
+    "p50": 55.0,
+    "p75": 111.0,
+    "p90": 185.0,
+    "p95": 242.0,
+    "mean_val": 79.79,
+    "n": 412029
+  },
+  "season_highest_pm25": {
+    "season": "winter",
+    "pm25_avg": 95.48,
+    "pm25_p90": 241.0
+  },
+  "hour_peak": {
+    "hour_of_day": 22,
+    "n": 17196,
+    "pm25_avg": 88.89,
+    "pm25_p50": 62.0
+  },
+  "hour_trough": {
+    "hour_of_day": 7,
+    "n": 17231,
+    "pm25_avg": 73.27,
+    "pm25_p50": 52.0
+  },
+  "dirtiest_station": {
+    "station_name": "Dongsi",
+    "pm25_mean": 86.19,
+    "pm25_p95": 260.0
+  },
+  "cleanest_station": {
+    "station_name": "Dingling",
+    "pm25_mean": 65.99,
+    "pm25_p95": 215.0
+  },
+  "weather_corr_with_pm25": {
+    "wind_speed_m_s": -0.265,
+    "temperature_c": -0.133,
+    "rain_mm": -0.016,
+    "pressure_hpa": 0.022,
+    "cloud_cover_pct": 0.1,
+    "dew_point_c": 0.111,
+    "relative_humidity_pct": 0.376
+  },
+  "pollutant_corr_pm25": {
+    "pm10_ug_m3": 0.888,
+    "so2_ug_m3": 0.483,
+    "no2_ug_m3": 0.667,
+    "co_ug_m3": 0.795,
+    "o3_ug_m3": -0.147
+  }
+}

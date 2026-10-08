@@ -31,7 +31,7 @@ models:
         tests: [not_null]
   - name: mart_pollution_weather
     description: >
-      Station-day PM2.5, PM10, O3 beside resolved weather. Episode logic stays in Phase 8.
+      Station-day PM2.5, PM10, O3 beside resolved weather.
       hour_count is calendar hours. *_hour_count is non-null hours inside each average or rain sum.
     columns:
       - name: station_key
@@ -41,4 +41,47 @@ models:
       - name: hour_count
         tests: [not_null]
       - name: pm25_hour_count
+        tests: [not_null]
+  - name: mart_pm25_episodes
+    description: >
+      One row per station PM2.5 episode. Locked Phase 8c rule: pm25 >= var pm25_episode_threshold
+      (default 115), consecutive hours, null breaks the run, duration >= pm25_episode_min_hours
+      (default 3). Weather columns are averages (rain is sum) over episode hours.
+    columns:
+      - name: episode_id
+        tests: [not_null, unique]
+      - name: station_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_station')
+              field: station_key
+      - name: station_name
+        tests: [not_null]
+      - name: start_time
+        tests: [not_null]
+      - name: end_time
+        tests: [not_null]
+      - name: duration_hours
+        tests: [not_null]
+      - name: threshold_ug_m3
+        tests: [not_null]
+      - name: min_hours
+        tests: [not_null]
+  - name: mart_pm25_multi_station_events
+    description: >
+      Windows where at least pm25_multi_station_k stations (default 6) are inside a qualifying
+      station episode at the same hour. Uses the same threshold / min_hours vars as mart_pm25_episodes.
+    columns:
+      - name: event_id
+        tests: [not_null, unique]
+      - name: start_time
+        tests: [not_null]
+      - name: end_time
+        tests: [not_null]
+      - name: duration_hours
+        tests: [not_null]
+      - name: peak_station_count
+        tests: [not_null]
+      - name: multi_station_k
         tests: [not_null]
