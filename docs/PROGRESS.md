@@ -24,6 +24,11 @@ Phase 8 – Exploratory & Analytical Analysis (**DONE** trên `feature/phase-8-e
 - `artifacts/eda/` (findings, definition, sensitivity, mart checks, ML candidates, figures)
 - dbt models under `dbt/air_quality_dbt/models/marts/mart_pm25_*.sql`
 
+### Hardening (sau review)
+- Unit tests `tests/unit/test_episodes.py` (8 passed) — island / null cut / min_hours / K / choose_locked_rule
+- `check_mart_episodes.py` đọc expected từ `episode_lock_summary.json` (không hard-code)
+- `_island_ids` vectorized; document giả định lưới giờ đầy đủ
+
 ### Next
 - Commit / PR Phase 8 khi được yêu cầu
 - Phase 9 – Station Clustering

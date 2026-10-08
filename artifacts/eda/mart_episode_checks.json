@@ -1,7 +1,13 @@
 {
   "ok": true,
-  "expected_station_episodes": 6318,
-  "expected_multi_events": 487,
+  "expected_from": "artifacts/eda/episode_lock_summary.json",
+  "expected": {
+    "threshold_ug_m3": 115.0,
+    "min_hours": 3,
+    "multi_station_k": 6,
+    "station_episodes": 6318,
+    "multi_events": 487
+  },
   "mart_pm25_episodes": {
     "episode_count": 6318,
     "station_count": 12,

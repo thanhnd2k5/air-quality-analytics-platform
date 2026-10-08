@@ -4,12 +4,15 @@ Rules (working):
 - dirty hour: pm25_ug_m3 >= threshold; null is not dirty and breaks a run
 - station episode: consecutive dirty hours with length >= min_hours
 - multi-station: consecutive hours where count of stations in a qualifying episode >= K
+
+Assumption: within each station, fact rows form a complete hourly timeline
+(no missing calendar hours). Island ids use row adjacency = time adjacency.
 """
 
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Any, Iterable
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -78,16 +81,11 @@ def threshold_candidates(df: pd.DataFrame) -> list[tuple[str, float]]:
 
 def _island_ids(dirty: np.ndarray) -> np.ndarray:
     """Assign positive island ids to consecutive True runs; 0 elsewhere."""
-    ids = np.zeros(len(dirty), dtype=np.int64)
-    current = 0
-    prev = False
-    for i, flag in enumerate(dirty):
-        if flag:
-            if not prev:
-                current += 1
-            ids[i] = current
-        prev = bool(flag)
-    return ids
+    flags = np.asarray(dirty, dtype=bool)
+    if flags.size == 0:
+        return np.zeros(0, dtype=np.int64)
+    starts = flags & np.concatenate(([True], ~flags[:-1]))
+    return np.where(flags, np.cumsum(starts), 0).astype(np.int64)
 
 
 def mark_in_episode(station_df: pd.DataFrame, threshold: float, min_hours: int) -> pd.Series:
