@@ -4,25 +4,29 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-10-08 (Phase 8 – **P8a–P8d DONE**; sẵn sàng P8e)
+## 2026-10-08 (Phase 8 – **HOÀN THÀNH** kỹ thuật)
 
 ### Current phase
-Phase 8 – Exploratory & Analytical Analysis (**P8d complete** trên `feature/phase-8-eda`)
+Phase 8 – Exploratory & Analytical Analysis (**DONE** trên `feature/phase-8-eda`)
 
 ### Completed
-- P8a–P8c: EDA + episode lock (115 / 3h / K=6)
-- P8d dbt marts:
-  - `mart.mart_pm25_episodes` = **6318** (khớp Python)
-  - `mart.mart_pm25_multi_station_events` = **487**
-  - vars trong `dbt_project.yml`; 20/20 tests liên quan PASS
-  - Evidence: `artifacts/eda/mart_episode_checks.json`
+- P8a: smoke DWH + skeleton EDA
+- P8b: Full DoD EDA → `eda_findings.md`
+- P8c: sensitivity + lock → `episode_definition.md` (115 / 3h / K=6)
+- P8d: dbt marts 6318 + 487; tests PASS; `mart_episode_checks.json`
+- P8e: `ml_feature_candidates.md`; sync PROJECT_CONTEXT / ARCHITECTURE / IMPLEMENTATION_PLAN DoD; đóng phase
+
+### Decisions
+- Episode: threshold **115**, min_hours **3**, multi_station **K=6**, null cắt
+- Marts queryable từ SQL; candidate features cho Phase 10 (lags, calendar, weather, station, episode flags có kiểm soát leakage)
 
 ### Evidence
-- `artifacts/eda/episode_definition.md`, `mart_episode_checks.json`
-- dbt: `SELECT 6318` / `SELECT 487`
+- `artifacts/eda/` (findings, definition, sensitivity, mart checks, ML candidates, figures)
+- dbt models under `dbt/air_quality_dbt/models/marts/mart_pm25_*.sql`
 
 ### Next
-- P8e – ML feature candidates + docs sync + tick DoD
+- Commit / PR Phase 8 khi được yêu cầu
+- Phase 9 – Station Clustering
 
 ---
 

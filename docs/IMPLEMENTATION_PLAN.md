@@ -1041,7 +1041,7 @@ mart.mart_station_monthly        table   576 (12 × 48), avg từ fact
 mart.mart_pollution_weather      table   station-day PM2.5/PM10/O3 + weather
 ```
 
-`mart_pm25_episodes` để Phase 8 (ngưỡng episode). Macro `generate_schema_name` dùng schema `staging` / `dwh` / `mart` đúng tên, không prefix `staging_`.
+`mart_pm25_episodes` (+ multi-station) đã làm ở Phase 8. Macro `generate_schema_name` dùng schema `staging` / `dwh` / `mart` đúng tên, không prefix `staging_`.
 
 ## dbt tests
 
@@ -1264,16 +1264,18 @@ P8e  ML candidates + đóng DoD
 ## Definition of Done
 
 ```text
-[ ] Seasonal patterns được hiểu
-[ ] Station differences được hiểu
-[ ] Weather relationships được kiểm tra
-[ ] PM2.5 episodes theo trạm: ngưỡng, độ dài, phân bố mùa/năm được document
-[ ] Episode đa-trạm (overlapping / số trạm đồng thời) được phân tích
-[ ] Episode gắn tóm tắt weather trong khoảng episode được phân tích
-[ ] mart_pm25_episodes (hoặc tương đương) dùng được từ SQL
-[ ] Data issues mới được document
-[ ] Candidate ML features được xác định
+[x] Seasonal patterns được hiểu
+[x] Station differences được hiểu
+[x] Weather relationships được kiểm tra
+[x] PM2.5 episodes theo trạm: ngưỡng, độ dài, phân bố mùa/năm được document
+[x] Episode đa-trạm (overlapping / số trạm đồng thời) được phân tích
+[x] Episode gắn tóm tắt weather trong khoảng episode được phân tích
+[x] mart_pm25_episodes (hoặc tương đương) dùng được từ SQL
+[x] Data issues mới được document
+[x] Candidate ML features được xác định
 ```
+
+Evidence: `artifacts/eda/eda_findings.md`, `episode_definition.md`, `ml_feature_candidates.md`, `mart_episode_checks.json`; marts `mart.mart_pm25_episodes` (6318), `mart.mart_pm25_multi_station_events` (487).
 
 ---
 

@@ -876,12 +876,13 @@ Có thể xây:
 ```text
 mart_station_daily
 mart_station_monthly
-mart_pollution_summary
-mart_weather_pollution
+mart_pollution_weather
 mart_pm25_episodes
+mart_pm25_multi_station_events
 ```
 
-`mart_pm25_episodes` phục vụ phân tích đợt PM2.5 cao: theo trạm, đa-trạm, gắn weather tóm tắt — chi tiết trong `IMPLEMENTATION_PLAN.md` Phase 8. Ngưỡng chốt ở Phase 8; mart cần sẵn trước Phase 11 dashboard.
+`mart_pm25_episodes` / `mart_pm25_multi_station_events` phục vụ phân tích đợt PM2.5 cao (theo trạm, đa-trạm, weather tóm tắt).  
+**Đã chốt Phase 8:** ngưỡng **115** µg/m³, min **3** giờ, đa-trạm **K=6** — xem `artifacts/eda/episode_definition.md`. Mart sẵn cho dashboard Phase 11.
 
 Mục tiêu:
 
