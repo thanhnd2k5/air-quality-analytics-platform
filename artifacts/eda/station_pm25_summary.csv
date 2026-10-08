@@ -1,0 +1,13 @@
+station_name,district,n,pm25_mean,pm25_median,pm25_std,pm25_max,pm25_p95
+Dongsi,Dongcheng,34314,86.19,61.00,86.58,737.00,260.00
+Wanshouxigong,Xicheng,34368,85.02,60.00,85.98,999.00,256.00
+Nongzhanguan,Chaoyang,34436,84.84,59.00,86.23,844.00,260.00
+Gucheng,Shijingshan,34418,83.85,60.00,82.80,770.00,247.00
+Wanliu,Haidian,34682,83.37,59.00,81.91,957.00,247.00
+Guanyuan,Xicheng,34448,82.93,59.00,80.93,680.00,243.00
+Aotizhongxin,Chaoyang,34139,82.77,58.00,82.14,898.00,248.00
+Tiantan,Dongcheng,34387,82.16,59.00,80.92,821.00,243.70
+Shunyi,Shunyi,34151,79.49,55.00,81.23,941.00,242.00
+Changping,Changping,34290,71.10,46.00,72.33,882.00,222.00
+Huairou,Huairou,34111,69.63,47.00,71.22,762.00,216.00
+Dingling,Changping,34285,65.99,41.00,72.27,881.00,215.00

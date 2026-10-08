@@ -4,29 +4,37 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-10-08 (Phase 8 – **P8a DONE**; sẵn sàng P8b)
+## 2026-10-08 (Phase 8 – **P8a + P8b DONE**)
 
 ### Current phase
-Phase 8 – Exploratory & Analytical Analysis (**P8a complete** trên `feature/phase-8-eda`)
+Phase 8 – Exploratory & Analytical Analysis (**P8b complete** trên `feature/phase-8-eda`)
 
 ### Completed
-- Branch `feature/phase-8-eda` từ tip Phase 7 (`feature/data-warehouse`)
-- WBS P8-01 → P8-24 + quyết định Full DoD ghi vào `IMPLEMENTATION_PLAN.md` § Phase 8
-- Skeleton: `notebooks/eda/`, `sql/eda/`, `artifacts/eda/`
-- Read helper: `src/eda/db.py`; CLI smoke: `scripts/smoke_dwh_fact.py`
-- **P8-01 smoke OK:** fact 420768 rows / 12 stations; span `2013-03-01 00:00` → `2017-02-28 23:00`; PM2.5 non-null 412029
+- P8a: branch, skeleton, `src/eda/db.py`, smoke fact OK
+- P8b Full DoD EDA từ DWH:
+  - `src/eda/analysis.py` + `scripts/run_eda_phase8b.py`
+  - Notebooks `01_temporal` … `04_weather`
+  - Findings: `artifacts/eda/eda_findings.md` + `eda_summary.json` + CSV/PNG
+
+### Key findings (short)
+- PM2.5 global: mean 79.8; P90 **185**; P95 **242** (n=412029)
+- Season: winter highest (mean 95.5); summer lowest (64.7)
+- Diurnal: peak ~22:00, trough ~07:00 (swing < season)
+- Stations: Dongsi highest mean; Dingling lowest
+- Pollutant corr vs PM2.5: PM10 0.89, CO 0.80, NO2 0.67; O3 −0.15
+- Weather corr: RH +0.38, wind −0.27, temp −0.13 (pattern only)
+- DQ: ~91% OK; weather missing ~0% after resolve; temp mostly UCI (+0.09% Open-Meteo)
 
 ### Decisions (working)
-- Full DoD EDA (không chỉ PM2.5-led)
-- Episode: sensitivity 75/115 + P90/P95; min_hours 1/3/6; null cắt chuỗi; K ∈ {3,6,9} rồi chốt
+- Full DoD EDA; episode sensitivity vẫn theo plan (75/115 + P90/P95; min 1/3/6h; K 3/6/9)
 - Marts: `mart_pm25_episodes` + `mart_pm25_multi_station_events`
-- Gate trước dbt: `artifacts/eda/episode_definition.md`
 
 ### Evidence
 - `artifacts/eda/smoke_fact.json`
+- `artifacts/eda/eda_findings.md`, `eda_summary.json`, `figures/`
 
 ### Next
-- P8b – notebooks EDA (`01_temporal` → `04_weather` + findings)
+- P8c – episode sensitivity → `episode_definition.md`
 
 ---
 
