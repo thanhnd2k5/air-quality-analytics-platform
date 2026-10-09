@@ -4,10 +4,39 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-09 (Phase 10 – P10b features)
+
+### Current phase
+Phase 10 – PM2.5 Forecasting (**P10b** trên `feature/phase-10-forecasting`)
+
+### Completed
+- P10a: branch + skeleton + smoke → `kickoff_smoke.json`
+- P10b: extract fact+dim_date+cluster → lags/rolls/target/split → train-median weather impute
+- P10b: `feature_matrix` + `feature_qc.json` + `feature_dictionary.md`
+- P10b: unit tests `tests/unit/test_forecasting_features.py` (lag / target / split / impute)
+
+### Decisions (locked)
+- Target: **PM2.5(t+1h)**; global model
+- Window **2013-03 → 2016-12**; Train→2015-12 | Val 2016 H1 | Test 2016 H2; 2017 = sensitivity only
+- Models: Persistence → Linear → HistGB; features v1 + `cluster_id`
+- Persist: artifacts + `mart.pm25_predictions` (P10d)
+- Drop rows thiếu target hoặc bất kỳ PM2.5 lag/roll (cần ≥24h history/station)
+- Weather NaN: missing flag + **train median** only
+
+### Evidence
+- `artifacts/forecasting/` (kickoff_smoke, feature_matrix, feature_qc, feature_dictionary)
+- `src/forecasting/` (extract, features, split, qc)
+- `scripts/run_forecasting_phase10b.py`
+
+### Next
+- P10c – Baseline + Linear + HistGB → model_lock.json
+
+---
+
 ## 2026-10-09 (Phase 9 – **HOÀN THÀNH** kỹ thuật)
 
 ### Current phase
-Phase 9 – Station Clustering (**DONE** trên `feature/phase-9-clustering`)
+Phase 9 – Station Clustering (**DONE**; merged via PR #9)
 
 ### Completed
 - P9a: smoke DWH window + skeleton
@@ -27,8 +56,7 @@ Phase 9 – Station Clustering (**DONE** trên `feature/phase-9-clustering`)
 - `mart.mart_station_cluster`; `dbt/.../seeds/station_cluster_assignment.csv`
 
 ### Next
-- Commit / PR Phase 9 khi được yêu cầu
-- Phase 10 – PM2.5 Forecasting
+- Phase 10 – PM2.5 Forecasting (đã mở P10a)
 
 ---
 

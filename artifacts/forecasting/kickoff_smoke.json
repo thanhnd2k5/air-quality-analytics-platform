@@ -1,0 +1,44 @@
+{
+  "ok": true,
+  "phase": "P10a",
+  "target": "pm25_ug_m3(t+1h)",
+  "ml_window": {
+    "start": "2013-03-01 00:00:00",
+    "end": "2016-12-31 23:00:00"
+  },
+  "split": {
+    "train": {
+      "start": "2013-03-01 00:00:00",
+      "end": "2015-12-31 23:00:00"
+    },
+    "val": {
+      "start": "2016-01-01 00:00:00",
+      "end": "2016-06-30 23:00:00"
+    },
+    "test": {
+      "start": "2016-07-01 00:00:00",
+      "end": "2016-12-31 23:00:00"
+    },
+    "exclude_from_primary": "2017 (partial / winter-biased)"
+  },
+  "expected_station_count": 12,
+  "expected_cluster_id_count": 2,
+  "fact_in_ml_window": {
+    "row_count": 403776,
+    "station_count": 12,
+    "min_event_time": "2013-03-01 00:00:00",
+    "max_event_time": "2016-12-31 23:00:00",
+    "pm25_non_null": 395301
+  },
+  "split_row_counts": {
+    "train_rows": 298368,
+    "val_rows": 52416,
+    "test_rows": 52992
+  },
+  "mart_station_cluster": {
+    "row_count": 12,
+    "station_count": 12,
+    "cluster_id_count": 2
+  },
+  "fact_cluster_join_rows": 403776
+}

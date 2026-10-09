@@ -1376,6 +1376,17 @@ Xây dựng mô hình dự báo PM2.5.
 PM2.5(t+1h)
 ```
 
+## Decisions (locked tại kickoff P10a)
+
+- Horizon: **t+1h** only (multi-horizon = P2)
+- ML window: **2013-03-01 → 2016-12-31**; 2017 excluded from primary eval
+- Split: Train → **2015-12** | Val **2016-01→06** | Test **2016-07→12**
+- Strategy: **global model** (station + `cluster_id` features); không 12 per-station models trong DoD
+- Models: Persistence → LinearRegression → HistGradientBoosting (sklearn)
+- Features v1: calendar; PM2.5 lags 1/2/3/6/12/24 + roll 6h/24h; weather at t + lag1; station; `cluster_id`
+- Persist: artifacts + **`mart.pm25_predictions`** (P10d); model → `models/pm25_forecast/`
+- Metrics: MAE primary; RMSE, R² secondary
+
 ## Bước 1 – Baseline
 
 Persistence:
@@ -1390,50 +1401,35 @@ Machine Learning phải đánh bại baseline hoặc ít nhất giải thích đ
 
 ## Bước 2 – Feature engineering
 
-Candidate:
+Candidate (v1 locked):
 
 ```text
-station
-hour
-day_of_week
-month
-season
-
-PM2.5 lags
-weather
-pollutant lags
-rolling statistics
+station / cluster_id
+hour / month / season
+PM2.5 lags + rolling
+weather at t (+ lag 1)
 ```
 
 Chỉ dùng feature hợp lệ tại prediction time.
 
 ## Bước 3 – Split
 
-Chronological:
+Chronological (locked):
 
 ```text
-Train
-↓
-Validation
-↓
-Test
+Train  2013-03 → 2015-12
+Val    2016-01 → 2016-06
+Test   2016-07 → 2016-12
 ```
 
-Không random split.
+Không random split. 2017 = optional sensitivity only.
 
 ## Bước 4 – Models
 
-Bắt đầu:
-
 ```text
+Persistence
 Linear Regression
-```
-
-Sau đó:
-
-```text
-Random Forest
-Gradient Boosting
+HistGradientBoosting
 ```
 
 Chỉ thêm model khác khi có lý do.
@@ -1453,6 +1449,46 @@ RMSE
 R²
 ```
 
+## WBS (P10-01 → P10-30)
+
+### P10a – Kickoff
+
+- **P10-01** Branch `feature/phase-10-forecasting`
+- **P10-02** Skeleton `artifacts/forecasting/`, `sql/forecasting/`, `src/forecasting/`, `models/pm25_forecast/`
+- **P10-03** Smoke fact ML window + cluster join → `kickoff_smoke.json`
+- **P10-04** PROGRESS + PLAN WBS kickoff
+
+### P10b – Feature pipeline
+
+- **P10-05…P10-12** Extract → lags/rolling/target t+1 → split helpers → leakage QC → feature dictionary
+
+### P10c – Baseline + models → lock
+
+- **P10-13…P10-20** Persistence + Linear + HistGB; Val/Test metrics → `model_lock.json`
+
+### P10d – Artifacts + mart
+
+- **P10-21…P10-25** `models/pm25_forecast/` + `mart.pm25_predictions` + dbt tests + `mart_prediction_checks.json`
+
+### P10e – Close
+
+- **P10-26…P10-28** Error analysis, docs sync; optional episode features / 2017 sensitivity
+
+### P10f – PR
+
+- **P10-29…P10-30** Evidence review + PR khi được yêu cầu
+
+## Phân chia
+
+```text
+P10a  Kickoff + smoke
+P10b  Feature pipeline + leakage QC
+P10c  Baseline + models → lock
+P10d  Model artifacts + mart + tests
+P10e  Error analysis + docs
+P10f  PR (optional)
+```
+
 ## Definition of Done
 
 ```text
@@ -1463,6 +1499,8 @@ R²
 [ ] ≥2 model được so sánh hợp lý
 [ ] Test result được ghi lại
 [ ] Error analysis được thực hiện
+[ ] mart.pm25_predictions queryable; dbt tests PASS
+[ ] PROGRESS + IMPLEMENTATION_PLAN + PROJECT_CONTEXT sync
 ```
 
 ---
