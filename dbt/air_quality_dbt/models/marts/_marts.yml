@@ -112,3 +112,35 @@ models:
         tests: [not_null]
       - name: feature_set_version
         tests: [not_null]
+
+  - name: mart_pm25_predictions
+    description: >
+      Phase 10 locked PM2.5(t+1h) predictions (HistGradientBoosting) for dashboard /
+      evaluation. Loaded from staging.pm25_predictions_raw; grain station × origin hour.
+      Composite uniqueness: tests/mart_pm25_predictions_grain_unique.sql
+    columns:
+      - name: station_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_station')
+              field: station_key
+      - name: station_name
+        tests: [not_null]
+      - name: prediction_origin_time
+        tests: [not_null]
+      - name: target_time
+        tests: [not_null]
+      - name: split
+        tests:
+          - not_null
+          - accepted_values:
+              values: [train, val, test]
+      - name: actual_pm25
+        tests: [not_null]
+      - name: predicted_pm25
+        tests: [not_null]
+      - name: absolute_error
+        tests: [not_null]
+      - name: model_version
+        tests: [not_null]

@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "phase": "P10d",
+  "mart_row_count": 372499,
+  "expected_row_count": 372499,
+  "station_count": 12,
+  "split_counts": {
+    "test": 48781,
+    "train": 276380,
+    "val": 47338
+  },
+  "mae_all": 9.38641346931478,
+  "mae_test": 9.14359009380593,
+  "lock_test_mae": 9.14359009380599,
+  "model_version_count": 1,
+  "issues": []
+}

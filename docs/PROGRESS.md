@@ -4,10 +4,48 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-10 (Phase 10 – **HOÀN THÀNH** kỹ thuật + hotfix baseline)
+
+### Current phase
+Phase 10 – PM2.5 Forecasting (**DONE** trên `feature/phase-10-forecasting`)
+
+### Completed
+- P10a–P10e end-to-end (features, HistGB lock, mart, error analysis)
+- **Hotfix:** persistence = `pm25_ug_m3`(t) (không dùng `pm25_lag_1`); thêm `pm25_ug_m3` vào `FEATURE_COLS`; drop null PM2.5(t); QC hour-grid contiguous; re-lock + re-mart
+
+### Decisions (locked)
+- Target **PM2.5(t+1h)**; global HistGB; chronological split A
+- Features v1 + **`pm25_ug_m3` at t** + `cluster_id`; weather impute = train median
+- Mart via staging COPY (372 499 rows sau hotfix drop)
+- Primary test MAE: HistGB **9.14** vs persistence **9.78** (beats baseline)
+- 2017 sensitivity: HistGB 12.96 vs persistence 12.61 (**không** thắng — ghi rõ; không đổi lock)
+
+### Evidence
+- `artifacts/forecasting/` (lock, metrics, error_analysis, figures, mart checks)
+- `models/pm25_forecast/`; `mart.mart_pm25_predictions`
+
+### Next
+- Commit / PR Phase 10 khi được yêu cầu
+- Phase 11 – Web Dashboard
+
+---
+
+## 2026-10-09 (Phase 10 – P10a/P10b)
+
+### Completed
+- P10a: skeleton + smoke → `kickoff_smoke.json`
+- P10b: feature matrix + QC + dictionary + feature unit tests
+
+### Evidence
+- `artifacts/forecasting/` (kickoff, feature_matrix, feature_qc, feature_dictionary)
+- `src/forecasting/`; `scripts/run_forecasting_phase10b.py`
+
+---
+
 ## 2026-10-09 (Phase 9 – **HOÀN THÀNH** kỹ thuật)
 
 ### Current phase
-Phase 9 – Station Clustering (**DONE** trên `feature/phase-9-clustering`)
+Phase 9 – Station Clustering (**DONE**; merged via PR #9)
 
 ### Completed
 - P9a: smoke DWH window + skeleton
@@ -27,8 +65,7 @@ Phase 9 – Station Clustering (**DONE** trên `feature/phase-9-clustering`)
 - `mart.mart_station_cluster`; `dbt/.../seeds/station_cluster_assignment.csv`
 
 ### Next
-- Commit / PR Phase 9 khi được yêu cầu
-- Phase 10 – PM2.5 Forecasting
+- Phase 10 – PM2.5 Forecasting (đã mở P10a)
 
 ---
 

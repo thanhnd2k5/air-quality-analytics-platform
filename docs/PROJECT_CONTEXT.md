@@ -1438,6 +1438,14 @@ Các vấn đề sau cố tình để mở cho tới khi có đủ dữ liệu.
   - method: **KMeans K=2** (`random_state=42`), Ward agreement 1.0; labels `elevated_core` / `cleaner_outskirts`;
   - mart: `mart.mart_station_cluster` (seed `station_cluster_assignment`);
   - chi tiết: `artifacts/clustering/cluster_lock.json`, `cluster_interpretation.md`.
+- PM2.5 forecasting — **đã chốt Phase 10a–10e** (2026-10-10, hotfix baseline):
+  - target: **PM2.5(t+1h)**; global **HistGradientBoosting**;
+  - baseline persistence = **PM2.5(t)** (`pm25_ug_m3`), không phải lag_1;
+  - test MAE ≈ **9.14** (HistGB) vs **9.78** (persistence); 2017 winter sensitivity không thắng persistence;
+  - split: Train →2015-12 | Val 2016 H1 | Test 2016 H2; 2017 = sensitivity only;
+  - features v1: calendar + **PM2.5(t)** + lags/rolls + weather(+lag1) + station + `cluster_id`;
+  - artifacts: `artifacts/forecasting/` (`model_lock.json`, `error_analysis.md`);
+  - model: `models/pm25_forecast/`; mart: `mart.mart_pm25_predictions`.
 
 ---
 
@@ -1447,16 +1455,16 @@ Cho tới khi có bằng chứng khác:
 
 - một observation tương ứng một station-hour;
 - PM2.5 là prediction target chính;
-- forecast ban đầu là `t+1 hour`;
-- sử dụng một **global model** cho nhiều trạm là hướng ưu tiên khảo sát trước;
-- station sẽ được đưa vào feature/model một cách phù hợp;
-- chronological split được ưu tiên;
+- forecast horizon **đã lock** `t+1 hour` (Phase 10);
+- **global HistGradientBoosting** đã lock (so với Linear + persistence baseline);
+- station + `cluster_id` là features; chronological split bắt buộc;
 - MAE là metric chính;
-- persistence model là baseline;
+- persistence model là baseline bắt buộc;
 - MinIO giữ raw source;
 - PostgreSQL chứa staging + DWH;
 - dbt transform staging → DWH/marts;
 - dashboard đọc primarily từ warehouse/marts, không đọc trực tiếp raw CSV;
+- prediction mart: `mart.mart_pm25_predictions`;
 - **RH được derive từ `TEMP` + `DEWP` trong ETL**, không ưu tiên lấy `relative_humidity_2m` từ Open-Meteo;
 - Open-Meteo ưu tiên enrichment **`cloud_cover`** (+ tối đa 1 biến phụ sau EDA);
 - biến weather trùng: UCI primary; **fill missing bằng Open-Meteo** khi join được; ghi flag/lineage nguồn;

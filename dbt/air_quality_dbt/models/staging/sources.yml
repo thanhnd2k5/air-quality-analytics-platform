@@ -11,3 +11,9 @@ sources:
         description: 1:1 Open-Meteo processed hourly (om_* columns, including cloud cover).
       - name: station_reference
         description: Station seed from data/raw/reference/stations.csv.
+      - name: pm25_predictions_raw
+        description: >
+          Phase 10d locked-model predictions loaded by
+          scripts/run_forecasting_phase10d.py (COPY from
+          artifacts/forecasting/predictions_locked.parquet). Grain:
+          station_key + prediction_origin_time.
