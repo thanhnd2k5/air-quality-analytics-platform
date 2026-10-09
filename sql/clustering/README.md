@@ -9,4 +9,9 @@ Read-only against `dwh` / `mart`. Grain for clustering is **one row per station*
 ## Starter files
 
 - `smoke_clustering_window.sql` — P9a gate (fact span + station count in window)
-- `station_pollution_profile.sql` — P9b (to be added)
+- `station_pollution_profile.sql` — P9b one-row-per-station pollution profile
+
+## Python
+
+- `scripts/run_clustering_phase9b.py` → `artifacts/clustering/station_profiles.csv` + `profile_qc.json`
+- Feature dictionary: `artifacts/clustering/profile_feature_dictionary.md`

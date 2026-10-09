@@ -4,28 +4,32 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-10-09 (Phase 9 – P9a kickoff)
+## 2026-10-09 (Phase 9 – P9a + P9b)
 
 ### Current phase
-Phase 9 – Station Clustering (**P9a DONE** trên `feature/phase-9-clustering`)
+Phase 9 – Station Clustering (**P9a–P9b** trên `feature/phase-9-clustering`)
 
 ### Completed
 - P9-01 Branch `feature/phase-9-clustering`
 - P9-02 Skeleton: `artifacts/clustering/`, `sql/clustering/`, `src/clustering/`
 - P9-03 Smoke: `src/clustering/smoke.py` + `scripts/smoke_clustering_phase9.py` → `kickoff_smoke.json`
-- P9-04 PROGRESS kickoff (mục này)
+- P9-04 PROGRESS kickoff
+- P9-05…P9-11 Profiles: `station_pollution_profile.sql`, `src/clustering/profiles.py`, `run_clustering_phase9b.py`, `profile_feature_dictionary.md`
 
 ### Decisions (Phase 9 — từ plan)
 - Profile window: **2013-03-01 → 2016-12-31** (bỏ 2017 partial)
 - Clustering grain: **station profile**, không hourly KMeans
+- Features v1: pollutant + 4 mùa PM2.5 + pct ≥75/115 + episode stats; **không** lat/lon/district/weather vào KMeans
 - Lock target: KMeans + hierarchical đối chiếu; mart `mart_station_cluster` ở P9d
 
 ### Evidence
-- `sql/clustering/smoke_clustering_window.sql`
-- `artifacts/clustering/kickoff_smoke.json` (re-run smoke khi Postgres/DWH sẵn sàng)
+- `sql/clustering/smoke_clustering_window.sql`, `station_pollution_profile.sql`
+- `artifacts/clustering/profile_feature_dictionary.md`
+- `artifacts/clustering/station_profiles.csv` + `profile_qc.json` — **chạy lại** khi Postgres/DWH sẵn sàng:
+  `py -3 scripts/run_clustering_phase9b.py`
 
 ### Next
-- P9b: `station_pollution_profile.sql` + `station_profiles.csv`
+- P9c: KMeans / Hierarchical → `cluster_lock.json`
 
 ---
 
