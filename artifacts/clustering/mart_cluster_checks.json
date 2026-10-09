@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "expected_from": "artifacts/clustering/cluster_lock.json",
+  "expected": {
+    "method": "kmeans",
+    "k": 2,
+    "feature_set_version": "v1_pollutant_season_episode",
+    "n_stations": 12
+  },
+  "mart_row_count": 12,
+  "issues": []
+}

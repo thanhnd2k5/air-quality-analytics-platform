@@ -1,0 +1,31 @@
+version: 2
+
+seeds:
+  - name: station_cluster_assignment
+    description: >
+      Phase 9c locked station → cluster assignment (KMeans K=2 on 2013–2016 profiles).
+      Source of truth mirrored from artifacts/clustering/cluster_lock.json.
+      Refresh seed after re-locking clustering.
+    config:
+      schema: mart
+      column_types:
+        station_key: integer
+        cluster_id: integer
+        cluster_label: text
+        method: text
+        k: integer
+        feature_set_version: text
+        locked_at: text
+    columns:
+      - name: station_key
+        tests: [not_null, unique]
+      - name: cluster_id
+        tests: [not_null]
+      - name: cluster_label
+        tests: [not_null]
+      - name: method
+        tests: [not_null]
+      - name: k
+        tests: [not_null]
+      - name: feature_set_version
+        tests: [not_null]

@@ -1,0 +1,13 @@
+station_key,station_name,district,cluster_id,cluster_label,method,k,feature_set_version
+4,Dongsi,Dongcheng,0,elevated_core,kmeans,2,v1_pollutant_season_episode
+8,Nongzhanguan,Chaoyang,0,elevated_core,kmeans,2,v1_pollutant_season_episode
+12,Wanshouxigong,Xicheng,0,elevated_core,kmeans,2,v1_pollutant_season_episode
+6,Gucheng,Shijingshan,0,elevated_core,kmeans,2,v1_pollutant_season_episode
+11,Wanliu,Haidian,0,elevated_core,kmeans,2,v1_pollutant_season_episode
+5,Guanyuan,Xicheng,0,elevated_core,kmeans,2,v1_pollutant_season_episode
+1,Aotizhongxin,Chaoyang,0,elevated_core,kmeans,2,v1_pollutant_season_episode
+10,Tiantan,Dongcheng,0,elevated_core,kmeans,2,v1_pollutant_season_episode
+9,Shunyi,Shunyi,0,elevated_core,kmeans,2,v1_pollutant_season_episode
+2,Changping,Changping,1,cleaner_outskirts,kmeans,2,v1_pollutant_season_episode
+7,Huairou,Huairou,1,cleaner_outskirts,kmeans,2,v1_pollutant_season_episode
+3,Dingling,Changping,1,cleaner_outskirts,kmeans,2,v1_pollutant_season_episode

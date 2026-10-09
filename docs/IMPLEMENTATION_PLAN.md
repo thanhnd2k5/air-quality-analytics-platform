@@ -1297,52 +1297,70 @@ rồi nói đó là cluster station.
 
 ## Hướng chính
 
-Xây station profiles.
+Xây station profiles → standardize → cluster → evaluate → interpret.
 
-Ví dụ:
+## Decisions (locked)
+
+- Window: **2013-03-01 → 2016-12-31** (bỏ 2017 partial)
+- Features v1: pollutant stats + seasonal PM2.5 + pct ≥75/115 + episode stats; **không** lat/lon/district/weather trong model
+- Method: **KMeans K=2**, `random_state=42`; Ward hierarchical đối chiếu (agreement 1.0)
+- Labels: `elevated_core` (9) / `cleaner_outskirts` (3)
+- Persist: dbt seed `station_cluster_assignment` → `mart.mart_station_cluster` (không sửa `dim_station`)
+
+## WBS (P9-01 → P9-30)
+
+### P9a – Kickoff
+
+- **P9-01** Branch `feature/phase-9-clustering`
+- **P9-02** Skeleton `artifacts/clustering/`, `sql/clustering/`, `src/clustering/`
+- **P9-03** Smoke window + episode mart → `kickoff_smoke.json`
+- **P9-04** PROGRESS kickoff
+
+### P9b – Station profiles
+
+- **P9-05…P9-11** `station_pollution_profile.sql` → `station_profiles.csv` + feature dictionary + QC
+
+### P9c – Clustering → lock
+
+- **P9-12…P9-19** KMeans grid + Ward + figures → `cluster_lock.json`
+
+### P9d – Mart
+
+- **P9-20…P9-23** seed + `mart_station_cluster` + dbt tests + `mart_cluster_checks.json`
+
+### P9e – Close
+
+- **P9-24…P9-28** interpretation, cluster vs district, ML candidates, PLAN/CONTEXT sync
+
+### P9f – PR
+
+- **P9-29…P9-30** Evidence review + PR khi được yêu cầu
+
+## Phân chia
 
 ```text
-mean_pm25
-median_pm25
-pm25_std
-mean_pm10
-mean_no2
-mean_o3
-high_pollution_ratio
-seasonal indicators
-...
+P9a  Kickoff + smoke
+P9b  Station profiles
+P9c  Clustering experiments → lock
+P9d  dbt seed + mart + tests
+P9e  Interpretation + docs
+P9f  PR (optional)
 ```
 
-Sau đó:
+## Definition of Done
 
 ```text
-standardize
-↓
-cluster
-↓
-evaluate
-↓
-interpret
+[x] Station profiles (1 row/station) documented
+[x] Không cluster grain hourly
+[x] KMeans + hierarchical + K selection documented
+[x] cluster_lock.json + assignment + profiles + figures
+[x] Interpretation + cluster vs district
+[x] mart.mart_station_cluster queryable; dbt tests PASS
+[x] ml_feature_candidates cập nhật cluster_id
+[x] PROGRESS + IMPLEMENTATION_PLAN + PROJECT_CONTEXT sync
 ```
 
-## Evaluation
-
-Có thể sử dụng:
-
-```text
-silhouette score
-elbow method
-cluster interpretability
-```
-
-Không chọn số cluster chỉ dựa vào một metric.
-
-## Output
-
-- station cluster assignment;
-- cluster profile;
-- visualization;
-- interpretation.
+Evidence: `artifacts/clustering/` (profiles, lock, methodology, interpretation, mart checks, figures); `mart.mart_station_cluster`.
 
 ---
 

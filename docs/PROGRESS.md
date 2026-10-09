@@ -4,6 +4,34 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-09 (Phase 9 – **HOÀN THÀNH** kỹ thuật)
+
+### Current phase
+Phase 9 – Station Clustering (**DONE** trên `feature/phase-9-clustering`)
+
+### Completed
+- P9a: smoke DWH window + skeleton
+- P9b: station profiles (12) + feature dictionary + QC
+- P9c: KMeans **K=2** lock (silhouette 0.664, Ward agreement 1.0, seed-stable)
+- P9d: seed → `mart.mart_station_cluster` (12); dbt tests PASS; mart checks ok
+- P9e: `cluster_interpretation.md`; labels `elevated_core` / `cleaner_outskirts`; ML candidates + PLAN/CONTEXT/PROGRESS sync
+
+### Decisions
+- Window **2013-03 → 2016-12**; grain = station profile
+- Lock: KMeans K=2 / `elevated_core` (9) vs `cleaner_outskirts` (3)
+- Shunyi ngoại thành nhưng thuộc elevated_core → cluster bổ sung district
+- Persist: seed + mart (không sửa dim_station)
+
+### Evidence
+- `artifacts/clustering/` (profiles, lock, methodology, interpretation, figures, mart checks)
+- `mart.mart_station_cluster`; `dbt/.../seeds/station_cluster_assignment.csv`
+
+### Next
+- Commit / PR Phase 9 khi được yêu cầu
+- Phase 10 – PM2.5 Forecasting
+
+---
+
 ## 2026-10-08 (Phase 8 – **HOÀN THÀNH** kỹ thuật)
 
 ### Current phase
