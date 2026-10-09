@@ -1438,10 +1438,12 @@ Các vấn đề sau cố tình để mở cho tới khi có đủ dữ liệu.
   - method: **KMeans K=2** (`random_state=42`), Ward agreement 1.0; labels `elevated_core` / `cleaner_outskirts`;
   - mart: `mart.mart_station_cluster` (seed `station_cluster_assignment`);
   - chi tiết: `artifacts/clustering/cluster_lock.json`, `cluster_interpretation.md`.
-- PM2.5 forecasting — **đã chốt Phase 10a–10e** (2026-10-10):
-  - target: **PM2.5(t+1h)**; global **HistGradientBoosting** (beats persistence on test);
+- PM2.5 forecasting — **đã chốt Phase 10a–10e** (2026-10-10, hotfix baseline):
+  - target: **PM2.5(t+1h)**; global **HistGradientBoosting**;
+  - baseline persistence = **PM2.5(t)** (`pm25_ug_m3`), không phải lag_1;
+  - test MAE ≈ **9.14** (HistGB) vs **9.78** (persistence); 2017 winter sensitivity không thắng persistence;
   - split: Train →2015-12 | Val 2016 H1 | Test 2016 H2; 2017 = sensitivity only;
-  - features v1: calendar + PM2.5 lags/rolls + weather(+lag1) + station + `cluster_id`;
+  - features v1: calendar + **PM2.5(t)** + lags/rolls + weather(+lag1) + station + `cluster_id`;
   - artifacts: `artifacts/forecasting/` (`model_lock.json`, `error_analysis.md`);
   - model: `models/pm25_forecast/`; mart: `mart.mart_pm25_predictions`.
 

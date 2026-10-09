@@ -1,25 +1,25 @@
 {
   "ok": true,
   "note": "2017 Jan\u2013Feb only (winter-biased); not primary DoD",
-  "n": 15866,
+  "n": 15813,
   "weather_medians_from": "2016-12 warm-up",
   "weather_medians": {
     "temperature_c": -0.1,
-    "relative_humidity_pct": 52.1673323195967,
+    "relative_humidity_pct": 52.795178286626275,
     "wind_speed_m_s": 1.2,
     "temperature_c_lag_1": -0.1,
-    "relative_humidity_pct_lag_1": 52.1673323195967,
+    "relative_humidity_pct_lag_1": 52.78472453212871,
     "wind_speed_m_s_lag_1": 1.2
   },
   "locked": {
-    "mae": 19.522085882387035,
-    "rmse": 40.4701329177609,
-    "r2": 0.8733501717447161
+    "mae": 12.96031065362697,
+    "rmse": 28.18992735885957,
+    "r2": 0.9386306259537109
   },
   "persistence": {
-    "mae": 20.73181646287659,
-    "rmse": 42.813037682912345,
-    "r2": 0.8582616313531806
+    "mae": 12.608676405489154,
+    "rmse": 27.380826672317074,
+    "r2": 0.9421028891687443
   },
-  "beats_persistence": true
+  "beats_persistence": false
 }

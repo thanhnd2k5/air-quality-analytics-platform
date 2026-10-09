@@ -40,6 +40,8 @@ def qc_feature_matrix(
 
     if final[TARGET_COL].isna().any():
         issues.append("target has nulls after drop")
+    if final["pm25_ug_m3"].isna().any():
+        issues.append("pm25_ug_m3 (t) has nulls after drop")
     if final["pm25_lag_1"].isna().any():
         issues.append("pm25_lag_1 has nulls after drop")
 
@@ -51,7 +53,7 @@ def qc_feature_matrix(
     bad_names = [
         c
         for c in final.columns
-        if c.endswith("_tplus1") and c != TARGET_COL or "future" in c.lower()
+        if (c.endswith("_tplus1") and c != TARGET_COL) or ("future" in c.lower())
     ]
     if bad_names:
         issues.append(f"suspicious future-named columns: {bad_names}")
@@ -81,6 +83,22 @@ def qc_feature_matrix(
             chrono_ok = False
             issues.append(f"station {sk} val overlaps test")
             break
+
+    # Hard-gate: raw extract must be contiguous hourly per station (lag/roll are row-shifts).
+    hour_grid_ok = True
+    if base_for_leakage is not None and not base_for_leakage.empty:
+        for sk, sub in base_for_leakage.groupby("station_key"):
+            times = pd.to_datetime(sub["event_time_local"]).sort_values()
+            if len(times) < 2:
+                continue
+            deltas = times.diff().dropna()
+            bad = int((deltas != pd.Timedelta(hours=1)).sum())
+            if bad > 0:
+                hour_grid_ok = False
+                issues.append(
+                    f"station {sk}: {bad} non-1h gaps in extract (lags assume contiguous hours)"
+                )
+                break
 
     leakage_checks: list[dict[str, Any]] = []
     if base_for_leakage is not None and not base_for_leakage.empty:
@@ -113,6 +131,7 @@ def qc_feature_matrix(
         "split_counts": {k: int(v) for k, v in split_counts.items()},
         "null_rates_features": null_rates,
         "chronological_split_ok": chrono_ok,
+        "hour_grid_contiguous": hour_grid_ok,
         "leakage_spot_checks": leakage_checks,
         "build_meta": build_meta,
     }

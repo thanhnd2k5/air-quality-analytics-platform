@@ -40,8 +40,8 @@ def _feature_frame(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def predict_persistence(df: pd.DataFrame) -> np.ndarray:
-    """y_hat(t+1) = PM2.5(t) == pm25_lag_1 on the engineered row."""
-    return df["pm25_lag_1"].to_numpy(dtype=float)
+    """y_hat(t+1) = PM2.5(t) on the engineered row (prediction origin time)."""
+    return df["pm25_ug_m3"].to_numpy(dtype=float)
 
 
 def build_linear_pipeline() -> Pipeline:

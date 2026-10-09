@@ -2,21 +2,21 @@
 
 **Locked model:** HistGradientBoosting (global, PM2.5 t+1h)  
 **Primary test:** 2016-07-01 → 2016-12-31  
-**Test n:** 48,935
+**Test n:** 48,781
 
 ## Overall (test)
 
 | Model | MAE | RMSE | R² |
 |-------|-----|------|----|
-| Persistence | 15.934 | 28.763 | 0.8720 |
-| **HistGB (locked)** | **13.722** | **23.677** | **0.9133** |
+| Persistence | 9.783 | 18.012 | 0.9498 |
+| **HistGB (locked)** | **9.144** | **16.503** | **0.9579** |
 
-MAE lift vs persistence: **2.212** µg/m³ (13.9% relative).
+MAE lift vs persistence: **0.639** µg/m³ (6.5% relative).
 
 ## By station (test)
 
-- Best MAE: **Dingling** (10.99) — cluster `cleaner_outskirts`
-- Worst MAE: **Dongsi** (15.36) — cluster `elevated_core`
+- Best MAE: **Huairou** (7.34) — cluster `cleaner_outskirts`
+- Worst MAE: **Dongsi** (10.16) — cluster `elevated_core`
 
 Full table: `error_by_station_test.csv`.
 
@@ -26,16 +26,16 @@ Full table: `error_by_station_test.csv`.
 
 | cluster | label | n | MAE | Persistence MAE | Lift |
 |---------|-------|---|-----|-----------------|------|
-| 0 | `elevated_core` | 36754 | 14.45 | 16.86 | 2.41 |
-| 1 | `cleaner_outskirts` | 12181 | 11.51 | 13.13 | 1.61 |
+| 0 | `elevated_core` | 36653 | 9.53 | 10.23 | 0.70 |
+| 1 | `cleaner_outskirts` | 12128 | 7.97 | 8.42 | 0.45 |
 
 ## By season (test)
 
 | season | n | MAE | Persistence MAE |
 |--------|---|-----|-----------------|
-| summer | 16492 | 10.36 | 11.68 |
-| autumn | 23943 | 12.76 | 15.18 |
-| winter | 8500 | 22.95 | 26.32 |
+| summer | 16411 | 6.97 | 7.42 |
+| autumn | 23892 | 8.55 | 9.33 |
+| winter | 8478 | 15.02 | 15.61 |
 
 ![MAE by hour](figures/error_mae_by_hour.png)
 
@@ -52,23 +52,23 @@ Full table: `error_by_station_test.csv`.
 
 | day | station | MAE | max\|err\| | mean actual |
 |-----|---------|-----|-----------|-------------|
-| 2016-12-20 | Wanliu | 105.9 | 295.4 | 355.6 |
-| 2016-12-20 | Wanshouxigong | 103.5 | 551.9 | 409.0 |
-| 2016-12-20 | Gucheng | 88.3 | 419.2 | 476.3 |
-| 2016-12-20 | Guanyuan | 68.3 | 216.5 | 408.2 |
-| 2016-12-16 | Dongsi | 63.9 | 200.2 | 139.8 |
-| 2016-12-30 | Dongsi | 63.2 | 208.3 | 282.9 |
-| 2016-12-04 | Guanyuan | 61.8 | 164.5 | 301.0 |
-| 2016-12-21 | Gucheng | 61.8 | 130.1 | 460.4 |
+| 2016-12-20 | Wanshouxigong | 78.1 | 562.5 | 409.0 |
+| 2016-12-20 | Gucheng | 68.1 | 361.4 | 476.3 |
+| 2016-12-20 | Wanliu | 66.1 | 247.4 | 355.6 |
+| 2016-12-20 | Guanyuan | 55.5 | 183.7 | 408.2 |
+| 2016-07-26 | Wanshouxigong | 54.1 | 233.9 | 53.6 |
+| 2016-12-16 | Dongsi | 46.3 | 169.6 | 139.8 |
+| 2016-12-20 | Dongsi | 46.0 | 182.9 | 405.1 |
+| 2016-12-30 | Dongsi | 44.8 | 174.0 | 282.9 |
 
 ## 2017 sensitivity (optional, not DoD)
 
 2017 Jan–Feb only (winter-biased); not primary DoD
 
-- n = 15,866
-- HistGB MAE = **19.522**
-- Persistence MAE = **20.732**
-- Beats persistence: **True**
+- n = 15,813
+- HistGB MAE = **12.960**
+- Persistence MAE = **12.609**
+- Beats persistence: **False**
 
 Interpret cautiously: Jan–Feb 2017 is winter-only and short.
 

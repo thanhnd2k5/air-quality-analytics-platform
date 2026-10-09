@@ -42,14 +42,16 @@ def _mini_matrix(n: int = 40) -> pd.DataFrame:
                 df[c] = 10.0
             else:
                 df[c] = 0
-    df = df.dropna(subset=[TARGET_COL, "pm25_lag_1"]).reset_index(drop=True)
+    df = df.dropna(subset=[TARGET_COL, "pm25_ug_m3", "pm25_lag_1"]).reset_index(drop=True)
     return df
 
 
-def test_persistence_equals_lag1():
+def test_persistence_equals_pm25_at_t():
     df = _mini_matrix()
     preds = predict_persistence(df)
-    np.testing.assert_allclose(preds, df["pm25_lag_1"].to_numpy(dtype=float))
+    np.testing.assert_allclose(preds, df["pm25_ug_m3"].to_numpy(dtype=float))
+    # Must not silently use lag_1 (PM2.5 at t-1)
+    assert not np.allclose(preds, df["pm25_lag_1"].to_numpy(dtype=float))
 
 
 def test_choose_lock_picks_lower_val_mae():

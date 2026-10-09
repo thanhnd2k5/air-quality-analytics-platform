@@ -1383,7 +1383,8 @@ PM2.5(t+1h)
 - Split: Train → **2015-12** | Val **2016-01→06** | Test **2016-07→12**
 - Strategy: **global model** (station + `cluster_id` features); không 12 per-station models trong DoD
 - Models: Persistence → LinearRegression → HistGradientBoosting (sklearn)
-- Features v1: calendar; PM2.5 lags 1/2/3/6/12/24 + roll 6h/24h; weather at t + lag1; station; `cluster_id`
+- Features v1: calendar; **PM2.5 at t**; lags 1/2/3/6/12/24 + roll 6h/24h; weather at t + lag1; station; `cluster_id`
+- Persistence baseline: `y_hat(t+1) = PM2.5(t)` (`pm25_ug_m3`), not `pm25_lag_1`
 - Persist: artifacts + **`mart.pm25_predictions`** (P10d); model → `models/pm25_forecast/`
 - Metrics: MAE primary; RMSE, R² secondary
 

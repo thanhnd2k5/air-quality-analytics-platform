@@ -61,9 +61,10 @@ def add_target(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def drop_unusable_rows(df: pd.DataFrame) -> pd.DataFrame:
-    """Drop rows without target or any PM2.5 lag/roll feature (need 24h history)."""
+    """Drop rows without target, current PM2.5(t), or any lag/roll (need 24h history)."""
     required = [
         TARGET_COL,
+        "pm25_ug_m3",
         *(f"pm25_lag_{k}" for k in PM25_LAGS),
         *(f"pm25_roll_mean_{w}" for w in PM25_ROLL_WINDOWS),
     ]

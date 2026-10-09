@@ -26,6 +26,7 @@ WEATHER_COLS = (
 WEATHER_LAG = 1
 
 # Columns used as model inputs after impute (P10c may one-hot season/station).
+# pm25_ug_m3 = value at prediction origin t (valid nowcast input; also persistence baseline).
 FEATURE_COLS = (
     "hour",
     "month",
@@ -33,6 +34,7 @@ FEATURE_COLS = (
     "season_code",
     "station_key",
     "cluster_id",
+    "pm25_ug_m3",
     *(f"pm25_lag_{k}" for k in PM25_LAGS),
     *(f"pm25_roll_mean_{w}" for w in PM25_ROLL_WINDOWS),
     *WEATHER_COLS,

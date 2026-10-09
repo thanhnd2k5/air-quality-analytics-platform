@@ -4,23 +4,21 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-10-10 (Phase 10 – **HOÀN THÀNH** kỹ thuật)
+## 2026-10-10 (Phase 10 – **HOÀN THÀNH** kỹ thuật + hotfix baseline)
 
 ### Current phase
 Phase 10 – PM2.5 Forecasting (**DONE** trên `feature/phase-10-forecasting`)
 
 ### Completed
-- P10a: kickoff + smoke
-- P10b: feature matrix + leakage QC + unit tests
-- P10c: Persistence / Linear / HistGB → lock **HistGB** (test MAE 13.72 vs 15.93)
-- P10d: `mart.mart_pm25_predictions` (373 706); dbt tests PASS
-- P10e: error analysis (station/hour/season/cluster/bins) + figures; 2017 sensitivity; docs sync
+- P10a–P10e end-to-end (features, HistGB lock, mart, error analysis)
+- **Hotfix:** persistence = `pm25_ug_m3`(t) (không dùng `pm25_lag_1`); thêm `pm25_ug_m3` vào `FEATURE_COLS`; drop null PM2.5(t); QC hour-grid contiguous; re-lock + re-mart
 
 ### Decisions (locked)
 - Target **PM2.5(t+1h)**; global HistGB; chronological split A
-- Features v1 + `cluster_id`; weather impute = train median
-- Mart via staging COPY (không dbt seed 370k rows)
-- 2017 sensitivity: HistGB MAE 19.52 vs persistence 20.73 (winter-only; không đổi lock)
+- Features v1 + **`pm25_ug_m3` at t** + `cluster_id`; weather impute = train median
+- Mart via staging COPY (372 499 rows sau hotfix drop)
+- Primary test MAE: HistGB **9.14** vs persistence **9.78** (beats baseline)
+- 2017 sensitivity: HistGB 12.96 vs persistence 12.61 (**không** thắng — ghi rõ; không đổi lock)
 
 ### Evidence
 - `artifacts/forecasting/` (lock, metrics, error_analysis, figures, mart checks)

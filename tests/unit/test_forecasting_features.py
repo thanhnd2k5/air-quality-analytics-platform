@@ -85,12 +85,13 @@ def test_assign_split_chronological():
     assert list(splits) == ["train", "val", "test", pd.NA]
 
 
-def test_drop_requires_target_and_all_pm25_lags():
+def test_drop_requires_target_current_pm25_and_lags():
     df = _toy_station([float(i) for i in range(30)])
     df = add_pm25_lags_and_rolls(df)
     df = add_target(df)
     kept = drop_unusable_rows(df)
     assert TARGET_COL in kept.columns
+    assert kept["pm25_ug_m3"].notna().all()
     assert kept["pm25_lag_1"].notna().all()
     assert kept["pm25_lag_24"].notna().all()
     assert kept[TARGET_COL].notna().all()
