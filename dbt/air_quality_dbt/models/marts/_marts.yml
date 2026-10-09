@@ -85,3 +85,30 @@ models:
         tests: [not_null]
       - name: multi_station_k
         tests: [not_null]
+  - name: mart_station_cluster
+    description: >
+      One row per station with Phase 9c locked cluster assignment (KMeans on 2013–2016
+      pollution profiles). Seeded from station_cluster_assignment; joined to dim_station.
+    columns:
+      - name: station_key
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('dim_station')
+              field: station_key
+      - name: station_name
+        tests: [not_null]
+      - name: cluster_id
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: cluster_label
+        tests: [not_null]
+      - name: method
+        tests: [not_null]
+      - name: k
+        tests: [not_null]
+      - name: feature_set_version
+        tests: [not_null]

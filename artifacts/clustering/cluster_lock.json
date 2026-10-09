@@ -55,74 +55,78 @@
       "station_key": 4,
       "station_name": "Dongsi",
       "cluster_id": 0,
-      "cluster_label": "cluster_0"
+      "cluster_label": "elevated_core"
     },
     {
       "station_key": 8,
       "station_name": "Nongzhanguan",
       "cluster_id": 0,
-      "cluster_label": "cluster_0"
+      "cluster_label": "elevated_core"
     },
     {
       "station_key": 12,
       "station_name": "Wanshouxigong",
       "cluster_id": 0,
-      "cluster_label": "cluster_0"
+      "cluster_label": "elevated_core"
     },
     {
       "station_key": 6,
       "station_name": "Gucheng",
       "cluster_id": 0,
-      "cluster_label": "cluster_0"
+      "cluster_label": "elevated_core"
     },
     {
       "station_key": 11,
       "station_name": "Wanliu",
       "cluster_id": 0,
-      "cluster_label": "cluster_0"
+      "cluster_label": "elevated_core"
     },
     {
       "station_key": 5,
       "station_name": "Guanyuan",
       "cluster_id": 0,
-      "cluster_label": "cluster_0"
+      "cluster_label": "elevated_core"
     },
     {
       "station_key": 1,
       "station_name": "Aotizhongxin",
       "cluster_id": 0,
-      "cluster_label": "cluster_0"
+      "cluster_label": "elevated_core"
     },
     {
       "station_key": 10,
       "station_name": "Tiantan",
       "cluster_id": 0,
-      "cluster_label": "cluster_0"
+      "cluster_label": "elevated_core"
     },
     {
       "station_key": 9,
       "station_name": "Shunyi",
       "cluster_id": 0,
-      "cluster_label": "cluster_0"
+      "cluster_label": "elevated_core"
     },
     {
       "station_key": 2,
       "station_name": "Changping",
       "cluster_id": 1,
-      "cluster_label": "cluster_1"
+      "cluster_label": "cleaner_outskirts"
     },
     {
       "station_key": 7,
       "station_name": "Huairou",
       "cluster_id": 1,
-      "cluster_label": "cluster_1"
+      "cluster_label": "cleaner_outskirts"
     },
     {
       "station_key": 3,
       "station_name": "Dingling",
       "cluster_id": 1,
-      "cluster_label": "cluster_1"
+      "cluster_label": "cleaner_outskirts"
     }
   ],
-  "selection_notes": "K chosen by max KMeans silhouette among {2,3,4}; ties prefer smaller K. Primary method KMeans; Ward hierarchical for cross-check."
+  "selection_notes": "K chosen by max KMeans silhouette among {2,3,4}; ties prefer smaller K. Primary method KMeans; Ward hierarchical for cross-check.",
+  "cluster_labels": {
+    "0": "elevated_core",
+    "1": "cleaner_outskirts"
+  }
 }

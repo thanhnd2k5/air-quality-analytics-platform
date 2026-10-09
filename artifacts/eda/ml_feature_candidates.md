@@ -51,8 +51,8 @@ P8c episodes: colder, higher RH, weaker wind inside episodes vs baseline.
 | Feature | Notes |
 |---------|--------|
 | `station_key` / station embedding / one-hot | Dongsi high vs Dingling low — station effect is real |
-| District | If useful after Phase 9 clustering |
-| Cluster id (Phase 9 output) | Deferred until clustering exists |
+| District | Optional; overlaps but does not replace cluster (e.g. Shunyi → elevated_core) |
+| `cluster_id` / `cluster_label` | **Phase 9 locked** — join `mart.mart_station_cluster` (KMeans K=2: `elevated_core` vs `cleaner_outskirts`). Station-level, time-invariant → no temporal leakage |
 
 ## F. Episode-derived (use with care)
 
@@ -71,7 +71,6 @@ Do **not** attach future episode end time or full-episode mean to row t during t
 
 - Imputed PM2.5 as if observed (keep missingness flags instead)
 - Raw CSV features that bypass DWH
-- Clustering features before Phase 9
 - Multi-horizon targets beyond t+1 until Phase 10 scope expands
 
 ## Suggested Phase 10 starter set
@@ -80,6 +79,6 @@ Do **not** attach future episode end time or full-episode mean to row t during t
 2. PM2.5 lags 1, 2, 3, 6, 12, 24 + rolling 6h/24h mean  
 3. Weather at t: temp, RH, wind (+ lag 1)  
 4. Station id  
-5. Optional: PM10/NO2 lag 1; `in_episode_flag` / `hours_into_episode`
+5. Optional: `cluster_id` from `mart.mart_station_cluster`; PM10/NO2 lag 1; `in_episode_flag` / `hours_into_episode`
 
 Evaluate with time-based split (e.g. last months / last year held out), not random rows.

@@ -167,7 +167,10 @@ def remapped_labels_by_size(labels: np.ndarray) -> np.ndarray:
 
 
 def cluster_labels_readable(k: int) -> dict[int, str]:
-    """Placeholder labels; interpretation pass may rename."""
+    """Semantic labels for locked K=2; generic fallback otherwise."""
+    if k == 2:
+        # Remapped by size: 0 = larger elevated group, 1 = smaller cleaner group
+        return {0: "elevated_core", 1: "cleaner_outskirts"}
     return {i: f"cluster_{i}" for i in range(k)}
 
 

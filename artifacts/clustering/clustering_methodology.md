@@ -22,8 +22,8 @@
 
 ## Locked assignment
 
-- cluster_0: Aotizhongxin, Dongsi, Guanyuan, Gucheng, Nongzhanguan, Shunyi, Tiantan, Wanliu, Wanshouxigong
-- cluster_1: Changping, Dingling, Huairou
+- `elevated_core` (id 0): Aotizhongxin, Dongsi, Guanyuan, Gucheng, Nongzhanguan, Shunyi, Tiantan, Wanliu, Wanshouxigong
+- `cleaner_outskirts` (id 1): Changping, Dingling, Huairou
 
 ## Artifacts
 
@@ -32,9 +32,10 @@
 - `cluster_profiles.csv`
 - `cluster_lock.json`
 - `figures/elbow.png`, `silhouette.png`, `pca_clusters.png`, `dendrogram.png`
+- `cluster_interpretation.md` (P9e)
+- `mart.mart_station_cluster` (P9d)
 
 ## Notes
 
 - Not clustering hourly fact rows.
-- District / lat-lon / weather not in the model (baseline in P9e).
-- Interpretation narrative: P9e `cluster_interpretation.md`.
+- District / lat-lon / weather not in the model; district baseline in `cluster_interpretation.md`.

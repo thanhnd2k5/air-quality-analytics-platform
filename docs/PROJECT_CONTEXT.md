@@ -1433,6 +1433,11 @@ Các vấn đề sau cố tình để mở cho tới khi có đủ dữ liệu.
   - `mart.mart_pm25_episodes` — grain 1 station × 1 episode (`episode_id`, start/end, duration, pm25 mean/max, season/year, weather summary, threshold/min_hours);
   - `mart.mart_pm25_multi_station_events` — grain 1 multi-station window (`event_id`, start/end, duration, peak/mean station count, K);
   - dbt vars: `pm25_episode_threshold`, `pm25_episode_min_hours`, `pm25_multi_station_k`.
+- clustering features — **đã chốt Phase 9c–9e** (2026-10-09):
+  - grain: station profile (không hourly KMeans); window **2013-03 → 2016-12**;
+  - method: **KMeans K=2** (`random_state=42`), Ward agreement 1.0; labels `elevated_core` / `cleaner_outskirts`;
+  - mart: `mart.mart_station_cluster` (seed `station_cluster_assignment`);
+  - chi tiết: `artifacts/clustering/cluster_lock.json`, `cluster_interpretation.md`.
 
 ---
 

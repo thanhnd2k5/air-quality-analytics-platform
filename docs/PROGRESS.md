@@ -4,36 +4,31 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-10-09 (Phase 9 – P9a–P9c)
+## 2026-10-09 (Phase 9 – **HOÀN THÀNH** kỹ thuật)
 
 ### Current phase
-Phase 9 – Station Clustering (**P9a–P9c DONE** trên `feature/phase-9-clustering`)
+Phase 9 – Station Clustering (**DONE** trên `feature/phase-9-clustering`)
 
 ### Completed
-- P9-01 Branch `feature/phase-9-clustering`
-- P9-02 Skeleton: `artifacts/clustering/`, `sql/clustering/`, `src/clustering/`
-- P9-03 Smoke: `kickoff_smoke.json` (ok — 403776 rows / 12 stations in window)
-- P9-04 PROGRESS kickoff
-- P9-05…P9-11 Profiles: `station_profiles.csv` (12 rows, QC ok)
-- P9-12…P9-19 Clustering lock: `run_clustering_phase9.py` → KMeans **K=2**, silhouette **0.664**, Ward agreement **1.0**, seed-stable
+- P9a: smoke DWH window + skeleton
+- P9b: station profiles (12) + feature dictionary + QC
+- P9c: KMeans **K=2** lock (silhouette 0.664, Ward agreement 1.0, seed-stable)
+- P9d: seed → `mart.mart_station_cluster` (12); dbt tests PASS; mart checks ok
+- P9e: `cluster_interpretation.md`; labels `elevated_core` / `cleaner_outskirts`; ML candidates + PLAN/CONTEXT/PROGRESS sync
 
-### Decisions (Phase 9)
-- Profile window: **2013-03-01 → 2016-12-31**
-- Clustering grain: **station profile**, không hourly KMeans
-- Features v1: pollutant + 4 mùa PM2.5 + pct ≥75/115 + episode stats
-- **Lock:** method=`kmeans`, **K=2**, `random_state=42`, `feature_set_version=v1_pollutant_season_episode`
-  - cluster_0 (9): Dongsi, Nongzhanguan, Wanshouxigong, Gucheng, Wanliu, Guanyuan, Aotizhongxin, Tiantan, Shunyi — mean PM2.5 ~82.8
-  - cluster_1 (3): Changping, Huairou, Dingling — mean PM2.5 ~68.7
-- Mart `mart_station_cluster` còn ở P9d; interpretation/labels ở P9e
+### Decisions
+- Window **2013-03 → 2016-12**; grain = station profile
+- Lock: KMeans K=2 / `elevated_core` (9) vs `cleaner_outskirts` (3)
+- Shunyi ngoại thành nhưng thuộc elevated_core → cluster bổ sung district
+- Persist: seed + mart (không sửa dim_station)
 
 ### Evidence
-- `artifacts/clustering/station_profiles.csv`, `profile_qc.json`, `profile_feature_dictionary.md`
-- `cluster_lock.json`, `cluster_assignment.csv`, `cluster_profiles.csv`, `k_selection_metrics.csv`
-- `clustering_methodology.md`
-- `figures/elbow.png`, `silhouette.png`, `pca_clusters.png`, `dendrogram.png`
+- `artifacts/clustering/` (profiles, lock, methodology, interpretation, figures, mart checks)
+- `mart.mart_station_cluster`; `dbt/.../seeds/station_cluster_assignment.csv`
 
 ### Next
-- P9d: dbt seed + `mart_station_cluster` + tests
+- Commit / PR Phase 9 khi được yêu cầu
+- Phase 10 – PM2.5 Forecasting
 
 ---
 
