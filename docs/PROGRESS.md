@@ -4,6 +4,31 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-09 (Phase 9 – P9a kickoff)
+
+### Current phase
+Phase 9 – Station Clustering (**P9a DONE** trên `feature/phase-9-clustering`)
+
+### Completed
+- P9-01 Branch `feature/phase-9-clustering`
+- P9-02 Skeleton: `artifacts/clustering/`, `sql/clustering/`, `src/clustering/`
+- P9-03 Smoke: `src/clustering/smoke.py` + `scripts/smoke_clustering_phase9.py` → `kickoff_smoke.json`
+- P9-04 PROGRESS kickoff (mục này)
+
+### Decisions (Phase 9 — từ plan)
+- Profile window: **2013-03-01 → 2016-12-31** (bỏ 2017 partial)
+- Clustering grain: **station profile**, không hourly KMeans
+- Lock target: KMeans + hierarchical đối chiếu; mart `mart_station_cluster` ở P9d
+
+### Evidence
+- `sql/clustering/smoke_clustering_window.sql`
+- `artifacts/clustering/kickoff_smoke.json` (re-run smoke khi Postgres/DWH sẵn sàng)
+
+### Next
+- P9b: `station_pollution_profile.sql` + `station_profiles.csv`
+
+---
+
 ## 2026-10-08 (Phase 8 – **HOÀN THÀNH** kỹ thuật)
 
 ### Current phase

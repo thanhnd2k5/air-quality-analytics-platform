@@ -1,0 +1,6 @@
+{
+  "ok": false,
+  "phase": "P9a",
+  "error": "connection to server at \"localhost\" (::1), port 5433 failed: Connection refused (0x0000274D/10061)\n\tIs the server running on that host and accepting TCP/IP connections?\nconnection to server at \"localhost\" (127.0.0.1), port 5433 failed: Connection refused (0x0000274D/10061)\n\tIs the server running on that host and accepting TCP/IP connections?\n",
+  "hint": "Start Postgres (docker compose up -d postgres) and re-run."
+}
