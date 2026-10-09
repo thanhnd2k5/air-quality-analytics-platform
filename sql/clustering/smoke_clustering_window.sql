@@ -1,4 +1,5 @@
--- Phase 9a: smoke fact grain in profile window (read-only)
+-- Phase 9a: smoke fact grain in profile window (read-only reference SQL).
+-- Runtime gate uses src.clustering.smoke.PROFILE_START / PROFILE_END (params).
 select
     count(*)::bigint as row_count,
     count(distinct station_key)::int as station_count,

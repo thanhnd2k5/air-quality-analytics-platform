@@ -4,6 +4,28 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-10 (Hotfix – P9 harden v1_1_1 + P10 v1.1 + P8)
+
+### Completed
+- **P8:** parity CSV↔lock↔mart + duration-span dbt tests PASS
+- **P9:** episode overlap+clip; **label remap by mean_pm25** (not size); auto-sync seed; unit tests (`test_clustering.py`); feature set `v1_1_1_label_by_pm25`
+- Assignment **không đổi** (9/3) → **P10 không retrain**
+- **P10 v1.1:** causal episode + pollutant lags (test MAE 9.01)
+
+### Results (better)
+| Metric | v1 (trước) | v1.1 (nay) |
+|--------|------------|------------|
+| Test MAE HistGB | 9.14 | **9.01** |
+| Val MAE HistGB | 8.95 | **8.87** |
+| vs persistence (test) | 9.78 | 9.78 (baseline giữ) |
+| 2017 Jan–Feb MAE | 12.96 (thua pers. 12.61) | **12.55** (thắng pers. 12.61) |
+
+### Evidence
+- `artifacts/forecasting/model_lock.json`, `feature_dictionary.md`, `error_analysis.md`
+- `mart.mart_pm25_predictions` (372 499); dbt tests PASS
+
+---
+
 ## 2026-10-10 (Phase 10 – **HOÀN THÀNH** kỹ thuật + hotfix baseline)
 
 ### Current phase
@@ -12,13 +34,14 @@ Phase 10 – PM2.5 Forecasting (**DONE** trên `feature/phase-10-forecasting`)
 ### Completed
 - P10a–P10e end-to-end (features, HistGB lock, mart, error analysis)
 - **Hotfix:** persistence = `pm25_ug_m3`(t) (không dùng `pm25_lag_1`); thêm `pm25_ug_m3` vào `FEATURE_COLS`; drop null PM2.5(t); QC hour-grid contiguous; re-lock + re-mart
+- **v1.1 (cùng ngày):** episode + pollutant lags — xem entry hotfix phía trên
 
 ### Decisions (locked)
 - Target **PM2.5(t+1h)**; global HistGB; chronological split A
-- Features v1 + **`pm25_ug_m3` at t** + `cluster_id`; weather impute = train median
-- Mart via staging COPY (372 499 rows sau hotfix drop)
-- Primary test MAE: HistGB **9.14** vs persistence **9.78** (beats baseline)
-- 2017 sensitivity: HistGB 12.96 vs persistence 12.61 (**không** thắng — ghi rõ; không đổi lock)
+- Features **`v1_1_episode_pollutant`**; weather/pollutant impute = train median
+- Mart via staging COPY (372 499 rows)
+- Primary test MAE: HistGB **9.01** vs persistence **9.78** (beats baseline)
+- 2017 sensitivity: HistGB **12.55** vs persistence 12.61 (**thắng** — winter-biased, không phải primary DoD)
 
 ### Evidence
 - `artifacts/forecasting/` (lock, metrics, error_analysis, figures, mart checks)

@@ -52,6 +52,57 @@ from src.clustering.fit import (  # noqa: E402
 OUT = ROOT / "artifacts" / "clustering"
 FIGS = OUT / "figures"
 PROFILES_CSV = OUT / "station_profiles.csv"
+SEED_DBT = ROOT / "dbt" / "air_quality_dbt" / "seeds" / "station_cluster_assignment.csv"
+SEED_DATA = ROOT / "data" / "clustering" / "station_cluster_assignment.csv"
+
+
+def sync_assignment_seeds(lock: dict, assignment: pd.DataFrame) -> dict[str, str]:
+    """Mirror lock into dbt seed + data/clustering CSV (P9d source of truth)."""
+    locked_at = lock["locked_at"]
+    method = lock["method"]
+    k = int(lock["k"])
+    fsv = lock["feature_set_version"]
+
+    seed_rows = []
+    data_rows = []
+    for row in lock["assignment"]:
+        sk = int(row["station_key"])
+        district = str(
+            assignment.loc[assignment["station_key"] == sk, "district"].iloc[0]
+        )
+        seed_rows.append(
+            {
+                "station_key": sk,
+                "cluster_id": int(row["cluster_id"]),
+                "cluster_label": row["cluster_label"],
+                "method": method,
+                "k": k,
+                "feature_set_version": fsv,
+                "locked_at": locked_at,
+            }
+        )
+        data_rows.append(
+            {
+                "station_key": sk,
+                "station_name": row["station_name"],
+                "district": district,
+                "cluster_id": int(row["cluster_id"]),
+                "cluster_label": row["cluster_label"],
+                "method": method,
+                "k": k,
+                "feature_set_version": fsv,
+                "locked_at": locked_at,
+            }
+        )
+
+    SEED_DBT.parent.mkdir(parents=True, exist_ok=True)
+    SEED_DATA.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(seed_rows).to_csv(SEED_DBT, index=False)
+    pd.DataFrame(data_rows).to_csv(SEED_DATA, index=False)
+    return {
+        "dbt_seed": str(SEED_DBT.relative_to(ROOT)).replace("\\", "/"),
+        "data_csv": str(SEED_DATA.relative_to(ROOT)).replace("\\", "/"),
+    }
 
 
 def _save_fig(name: str) -> Path:
@@ -146,8 +197,14 @@ def write_methodology(
         "## Locked assignment",
         "",
     ]
+    label_by_id = (
+        assignment.drop_duplicates("cluster_id")
+        .set_index("cluster_id")["cluster_label"]
+        .to_dict()
+    )
     for cid, names in sorted(stations_by_cluster.items()):
-        lines.append(f"- cluster_{cid}: {names}")
+        label = label_by_id.get(cid, f"cluster_{cid}")
+        lines.append(f"- `{label}` (id {cid}): {names}")
     lines.extend(
         [
             "",
@@ -158,11 +215,14 @@ def write_methodology(
             "- `cluster_profiles.csv`",
             "- `cluster_lock.json`",
             "- `figures/elbow.png`, `silhouette.png`, `pca_clusters.png`, `dendrogram.png`",
+            "- seed sync: `dbt/.../seeds/station_cluster_assignment.csv`, "
+            "`data/clustering/station_cluster_assignment.csv`",
             "",
             "## Notes",
             "",
             "- Not clustering hourly fact rows.",
             "- District / lat-lon / weather not in the model (baseline in P9e).",
+            "- Cluster ids remapped by descending mean_pm25 (0 = elevated).",
             "- Interpretation narrative: P9e `cluster_interpretation.md`.",
             "",
         ]
@@ -202,7 +262,13 @@ def main() -> int:
     stability = seed_stability(matrix.X, k)
     hier_agree = agreement_rate(labels_km, labels_hier)
 
-    assignment = assignment_frame(matrix, labels_km, method="kmeans", k=k)
+    assignment = assignment_frame(
+        matrix,
+        labels_km,
+        method="kmeans",
+        k=k,
+        mean_pm25=profiles["mean_pm25"].to_numpy(dtype=float),
+    )
     assignment_path = OUT / "cluster_assignment.csv"
     assignment.to_csv(assignment_path, index=False)
 
@@ -221,6 +287,8 @@ def main() -> int:
     )
     lock_path = OUT / "cluster_lock.json"
     lock_path.write_text(json.dumps(lock, indent=2) + "\n", encoding="utf-8")
+
+    seed_paths = sync_assignment_seeds(lock, assignment)
 
     plot_elbow(metrics)
     plot_silhouette(metrics)
@@ -245,6 +313,7 @@ def main() -> int:
         "seed_stability": stability,
         "lock": str(lock_path),
         "assignment": str(assignment_path),
+        "seeds": seed_paths,
     }
     print(json.dumps(summary, ensure_ascii=False))
     return 0

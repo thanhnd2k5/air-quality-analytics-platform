@@ -26,6 +26,7 @@
     "pm25_lag_24": 0.0,
     "pm25_roll_mean_6": 0.0,
     "pm25_roll_mean_24": 0.0,
+    "pm25_delta_1": 0.0,
     "temperature_c": 0.0,
     "relative_humidity_pct": 0.0,
     "wind_speed_m_s": 0.0,
@@ -34,7 +35,16 @@
     "wind_speed_m_s_lag_1": 0.0,
     "temperature_c_missing": 0.0,
     "relative_humidity_pct_missing": 0.0,
-    "wind_speed_m_s_missing": 0.0
+    "wind_speed_m_s_missing": 0.0,
+    "pm10_ug_m3_lag_1": 0.0,
+    "no2_ug_m3_lag_1": 0.0,
+    "co_ug_m3_lag_1": 0.0,
+    "pm10_ug_m3_lag_1_missing": 0.0,
+    "no2_ug_m3_lag_1_missing": 0.0,
+    "co_ug_m3_lag_1_missing": 0.0,
+    "hours_into_dirty_run": 0.0,
+    "in_episode_flag": 0.0,
+    "hours_since_last_episode": 0.0
   },
   "chronological_split_ok": true,
   "hour_grid_contiguous": true,
@@ -68,7 +78,11 @@
       "wind_speed_m_s": 1.3,
       "temperature_c_lag_1": 15.5,
       "relative_humidity_pct_lag_1": 54.83074392221252,
-      "wind_speed_m_s_lag_1": 1.3
+      "wind_speed_m_s_lag_1": 1.3,
+      "pm10_ug_m3_lag_1": 87.0,
+      "no2_ug_m3_lag_1": 45.0,
+      "co_ug_m3_lag_1": 900.0,
+      "hours_since_last_episode": 31.0
     },
     "feature_cols": [
       "hour",
@@ -86,6 +100,7 @@
       "pm25_lag_24",
       "pm25_roll_mean_6",
       "pm25_roll_mean_24",
+      "pm25_delta_1",
       "temperature_c",
       "relative_humidity_pct",
       "wind_speed_m_s",
@@ -94,7 +109,16 @@
       "wind_speed_m_s_lag_1",
       "temperature_c_missing",
       "relative_humidity_pct_missing",
-      "wind_speed_m_s_missing"
+      "wind_speed_m_s_missing",
+      "pm10_ug_m3_lag_1",
+      "no2_ug_m3_lag_1",
+      "co_ug_m3_lag_1",
+      "pm10_ug_m3_lag_1_missing",
+      "no2_ug_m3_lag_1_missing",
+      "co_ug_m3_lag_1_missing",
+      "hours_into_dirty_run",
+      "in_episode_flag",
+      "hours_since_last_episode"
     ],
     "target_col": "y_pm25_tplus1",
     "meta_cols": [
@@ -105,7 +129,8 @@
       "cluster_label",
       "pm25_ug_m3",
       "season"
-    ]
+    ],
+    "feature_set_version": "v1_1_episode_pollutant"
   },
   "matrix": "artifacts/forecasting/feature_matrix.parquet",
   "preview": "artifacts/forecasting/feature_matrix_preview.csv",

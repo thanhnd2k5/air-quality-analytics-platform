@@ -1,5 +1,6 @@
 {
   "ok": true,
+  "issues": [],
   "expected_from": "artifacts/eda/episode_lock_summary.json",
   "expected": {
     "threshold_ug_m3": 115.0,
@@ -7,6 +8,10 @@
     "multi_station_k": 6,
     "station_episodes": 6318,
     "multi_events": 487
+  },
+  "python_csv_counts": {
+    "episodes_station_locked_csv": 6318,
+    "episodes_multi_station_locked_csv": 487
   },
   "mart_pm25_episodes": {
     "episode_count": 6318,
@@ -22,5 +27,9 @@
     "duration_median": 10.0,
     "multi_station_k": 6,
     "min_peak": 6
+  },
+  "duration_span_check": {
+    "station_mismatches": 0,
+    "multi_mismatches": 0
   }
 }

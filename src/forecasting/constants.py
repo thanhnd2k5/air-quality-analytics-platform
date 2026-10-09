@@ -25,8 +25,21 @@ WEATHER_COLS = (
 )
 WEATHER_LAG = 1
 
+# Co-pollutant lags (Phase 8 correlations); lag-1 only to limit leakage surface.
+POLLUTANT_LAG_COLS = (
+    "pm10_ug_m3",
+    "no2_ug_m3",
+    "co_ug_m3",
+)
+POLLUTANT_LAG = 1
+
+# Locked Phase 8c episode rule — used causally (history ≤ t only).
+EPISODE_THRESHOLD_UG_M3 = 115.0
+EPISODE_MIN_HOURS = 3
+
 # Columns used as model inputs after impute (P10c may one-hot season/station).
 # pm25_ug_m3 = value at prediction origin t (valid nowcast input; also persistence baseline).
+# Feature set v1.1: + causal episode flags, pm25_delta_1, co-pollutant lag-1.
 FEATURE_COLS = (
     "hour",
     "month",
@@ -37,9 +50,15 @@ FEATURE_COLS = (
     "pm25_ug_m3",
     *(f"pm25_lag_{k}" for k in PM25_LAGS),
     *(f"pm25_roll_mean_{w}" for w in PM25_ROLL_WINDOWS),
+    "pm25_delta_1",
     *WEATHER_COLS,
     *(f"{c}_lag_{WEATHER_LAG}" for c in WEATHER_COLS),
     *(f"{c}_missing" for c in WEATHER_COLS),
+    *(f"{c}_lag_{POLLUTANT_LAG}" for c in POLLUTANT_LAG_COLS),
+    *(f"{c}_lag_{POLLUTANT_LAG}_missing" for c in POLLUTANT_LAG_COLS),
+    "hours_into_dirty_run",
+    "in_episode_flag",
+    "hours_since_last_episode",
 )
 
 TARGET_COL = "y_pm25_tplus1"

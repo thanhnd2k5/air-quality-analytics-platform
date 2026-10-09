@@ -7,6 +7,10 @@ Rules (working):
 
 Assumption: within each station, fact rows form a complete hourly timeline
 (no missing calendar hours). Island ids use row adjacency = time adjacency.
+
+Calendar fields on station episodes (`year`, `season`) are taken from the
+**first hour** of the episode (start_time). Episodes that cross a year or
+season boundary are attributed to the start only — intentional for reporting.
 """
 
 from __future__ import annotations
@@ -320,17 +324,17 @@ def weather_episode_vs_baseline(
 
 
 def choose_locked_rule(concurrent_dist: pd.DataFrame) -> EpisodeRule:
-    """Pick a primary rule after sensitivity.
+    """Lock multi-station K given the preferred threshold / min_hours.
 
-    Preference (documented in episode_definition.md):
-    1. threshold 115 (near global P75≈111 — elevated, not everyday mean≈80)
-    2. min_hours 3 (filter single-hour spikes)
-    3. multi-station K:
-       - If pollution is highly spatially coherent (hours with n>=3 already common,
-         and a large share of active hours are near network-wide), lock **K=6**
-         (half of 12 stations) as the regional-event definition.
-       - Else use the smallest K∈{3,6,9} with ≤~15% of all hours having n>=K.
-       - Fallback K=3.
+    Threshold (115) and min_hours (3) are fixed by Phase 8c policy — this
+    helper only chooses ``multi_station_k`` from the concurrent distribution
+    at that preferred rule (documented in episode_definition.md):
+
+    - If pollution is highly spatially coherent (hours with n>=3 already common,
+      and a large share of active hours are near network-wide), lock **K=6**
+      (half of 12 stations) as the regional-event definition.
+    - Else use the smallest K∈{3,6,9} with ≤~15% of all hours having n>=K.
+    - Fallback K=3.
     """
     threshold = 115.0
     min_hours = 3

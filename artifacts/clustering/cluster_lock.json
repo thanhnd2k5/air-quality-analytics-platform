@@ -1,11 +1,11 @@
 {
   "phase": "P9c",
-  "locked_at": "2026-10-09T07:34:17.966923+00:00",
+  "locked_at": "2026-10-09T20:29:23.785282+00:00",
   "method": "kmeans",
   "k": 2,
   "random_state": 42,
   "n_init": 10,
-  "feature_set_version": "v1_pollutant_season_episode",
+  "feature_set_version": "v1_1_1_label_by_pm25",
   "feature_cols": [
     "mean_pm25",
     "median_pm25",
@@ -29,8 +29,8 @@
     "start": "2013-03-01 00:00:00",
     "end": "2016-12-31 23:00:00"
   },
-  "silhouette": 0.663653697101863,
-  "inertia": 44.445155555267654,
+  "silhouette": 0.6633670387427738,
+  "inertia": 44.53936704943062,
   "seed_stability": {
     "k": 2,
     "seeds": [
@@ -124,9 +124,9 @@
       "cluster_label": "cleaner_outskirts"
     }
   ],
-  "selection_notes": "K chosen by max KMeans silhouette among {2,3,4}; ties prefer smaller K. Primary method KMeans; Ward hierarchical for cross-check.",
   "cluster_labels": {
     "0": "elevated_core",
     "1": "cleaner_outskirts"
-  }
+  },
+  "selection_notes": "K chosen by max KMeans silhouette among {2,3,4}; ties prefer smaller K. Primary method KMeans; Ward hierarchical for cross-check. Cluster ids remapped by descending mean_pm25 (0=elevated_core)."
 }

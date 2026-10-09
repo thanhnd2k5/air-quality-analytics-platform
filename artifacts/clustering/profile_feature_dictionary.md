@@ -36,9 +36,11 @@ Season labels come from `dwh.dim_date.season` (same as Phase 8):
 | `mean_pm25_winter` | Mean PM2.5 in winter hours |
 | `pct_hours_pm25_ge_75` | % of non-null PM2.5 hours ≥ 75 |
 | `pct_hours_pm25_ge_115` | % of non-null PM2.5 hours ≥ 115 (episode dirty threshold) |
-| `episode_count` | Episodes with `start_time` in window (`mart.mart_pm25_episodes`) |
-| `mean_episode_duration_h` | Mean episode duration (hours); `0` if no episodes in window |
-| `total_episode_hours` | Sum of episode duration hours in window |
+| `episode_count` | Episodes overlapping the window (`mart.mart_pm25_episodes`) |
+| `mean_episode_duration_h` | Mean **clipped** duration (hours inside window only); `0` if none |
+| `total_episode_hours` | Sum of clipped episode hours inside the window |
+
+Feature-set version: `v1_1_1_label_by_pm25` (episode overlap + clip; cluster ids by mean_pm25).
 
 ## Explicitly excluded from KMeans v1
 

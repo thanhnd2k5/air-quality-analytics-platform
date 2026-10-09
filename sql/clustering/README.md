@@ -4,7 +4,9 @@ Read-only against `dwh` / `mart`. Grain for clustering is **one row per station*
 
 ## Profile window
 
-- `2013-03-01 00:00:00` → `2016-12-31 23:00:00` (exclude partial 2017)
+- Canonical bounds: `src.clustering.smoke.PROFILE_START` / `PROFILE_END`
+- Default: `2013-03-01 00:00:00` → `2016-12-31 23:00:00` (exclude partial 2017)
+- `station_pollution_profile.sql` uses `__PROFILE_*__` placeholders injected by `load_profile_sql()`
 
 ## Starter files
 

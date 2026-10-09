@@ -19,9 +19,17 @@ from src.forecasting.metrics import regression_metrics
 RANDOM_STATE = 42
 
 # Linear: one-hot categoricals; scale remaining numerics.
-LINEAR_CAT_COLS = ("station_key", "season_code", "cluster_id")
+LINEAR_CAT_COLS = ("station_key", "season_code", "cluster_id", "in_episode_flag")
 # HistGB: native categorical handling for low-cardinality ids.
-HISTGB_CAT_COLS = ("station_key", "season_code", "cluster_id", "hour", "month", "day_of_week")
+HISTGB_CAT_COLS = (
+    "station_key",
+    "season_code",
+    "cluster_id",
+    "hour",
+    "month",
+    "day_of_week",
+    "in_episode_flag",
+)
 
 
 @dataclass

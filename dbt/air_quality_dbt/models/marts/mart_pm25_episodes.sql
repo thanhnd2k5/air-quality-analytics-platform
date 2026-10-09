@@ -1,5 +1,6 @@
 -- Grain: one station × one PM2.5 episode (locked Phase 8c definition).
 -- dirty: pm25 >= threshold (null breaks run); episode length >= min_hours.
+-- year / season = first hour of the episode (start_time), not modal season.
 {% set threshold = var('pm25_episode_threshold', 115) %}
 {% set min_hours = var('pm25_episode_min_hours', 3) %}
 

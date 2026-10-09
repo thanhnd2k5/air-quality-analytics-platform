@@ -49,7 +49,13 @@ EXPECTED_LOW_PM25 = "Dingling"
 
 
 def load_profile_sql() -> str:
-    return SQL_PATH.read_text(encoding="utf-8")
+    """Load profile SQL with PROFILE_START / PROFILE_END injected (single source)."""
+    raw = SQL_PATH.read_text(encoding="utf-8")
+    return (
+        raw.replace("__PROFILE_START__", PROFILE_START).replace(
+            "__PROFILE_END__", PROFILE_END
+        )
+    )
 
 
 def fetch_station_profiles() -> pd.DataFrame:

@@ -9,17 +9,21 @@
     "wind_speed_m_s": 1.2,
     "temperature_c_lag_1": -0.1,
     "relative_humidity_pct_lag_1": 52.78472453212871,
-    "wind_speed_m_s_lag_1": 1.2
+    "wind_speed_m_s_lag_1": 1.2,
+    "pm10_ug_m3_lag_1": 124.0,
+    "no2_ug_m3_lag_1": 78.0,
+    "co_ug_m3_lag_1": 2100.0,
+    "hours_since_last_episode": 4.0
   },
   "locked": {
-    "mae": 12.96031065362697,
-    "rmse": 28.18992735885957,
-    "r2": 0.9386306259537109
+    "mae": 12.551812840358075,
+    "rmse": 27.485718358670756,
+    "r2": 0.9416584498624087
   },
   "persistence": {
     "mae": 12.608676405489154,
     "rmse": 27.380826672317074,
     "r2": 0.9421028891687443
   },
-  "beats_persistence": false
+  "beats_persistence": true
 }

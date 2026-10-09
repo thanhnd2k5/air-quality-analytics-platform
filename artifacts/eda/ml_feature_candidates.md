@@ -83,9 +83,9 @@ Do **not** attach future episode end time or full-episode mean to row t during t
 
 Evaluate with time-based split (e.g. last months / last year held out), not random rows.
 
-## Phase 10 lock (2026-10-10, hotfix)
+## Phase 10 lock (2026-10-10, v1.1)
 
-- Starter set **+ `pm25_ug_m3` at t + `cluster_id`** in locked HistGB (`artifacts/forecasting/model_lock.json`)
+- Feature set **`v1_1_episode_pollutant`**: starter + `pm25_ug_m3` + `cluster_id` + `pm25_delta_1` + causal episode flags + PM10/NO2/CO lag-1
 - Persistence baseline = PM2.5(t), not lag_1
-- Episode flags / extra pollutant lags **not** in v1 (deferred)
-- Test MAE: HistGB **~9.14** vs persistence **~9.78**; see `artifacts/forecasting/error_analysis.md`
+- Episode features are **causal** (no look-ahead to future dirty hours); see `artifacts/forecasting/feature_dictionary.md`
+- Metrics: `artifacts/forecasting/model_lock.json` / `error_analysis.md`

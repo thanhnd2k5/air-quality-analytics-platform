@@ -1,12 +1,15 @@
 -- Phase 9b: one row per station — pollution profile for clustering.
 -- Window: 2013-03-01 00:00 → 2016-12-31 23:00 (exclude partial 2017).
 -- Grain: station_key. Season from dwh.dim_date (same as Phase 8).
--- Episode stats from mart.mart_pm25_episodes with start_time in window.
+-- Episode stats: overlap profile window; duration clipped to [start_ts, end_ts]
+-- (feature set v1_1_episode_window_clip).
 
+-- Bounds injected from src.clustering.smoke PROFILE_START / PROFILE_END
+-- via load_profile_sql() placeholders (keep in sync — do not hardcode elsewhere).
 with bounds as (
     select
-        timestamp '2013-03-01 00:00:00' as start_ts,
-        timestamp '2016-12-31 23:00:00' as end_ts
+        timestamp '__PROFILE_START__' as start_ts,
+        timestamp '__PROFILE_END__' as end_ts
 ),
 fact_w as (
     select
@@ -96,12 +99,26 @@ episodes as (
     select
         ep.station_key,
         count(*)::integer as episode_count,
-        round(avg(ep.duration_hours)::numeric, 4) as mean_episode_duration_h,
-        sum(ep.duration_hours)::integer as total_episode_hours
+        round(avg(clipped.hours_in_window)::numeric, 4) as mean_episode_duration_h,
+        sum(clipped.hours_in_window)::integer as total_episode_hours
     from mart.mart_pm25_episodes as ep
     cross join bounds
-    where ep.start_time >= bounds.start_ts
-      and ep.start_time <= bounds.end_ts
+    cross join lateral (
+        select
+            (
+                extract(
+                    epoch from (
+                        least(ep.end_time, bounds.end_ts)
+                        - greatest(ep.start_time, bounds.start_ts)
+                    )
+                )
+                / 3600
+            )::integer
+            + 1 as hours_in_window
+    ) as clipped
+    where ep.start_time <= bounds.end_ts
+      and ep.end_time >= bounds.start_ts
+      and clipped.hours_in_window > 0
     group by ep.station_key
 )
 select

@@ -8,10 +8,14 @@ import numpy as np
 import pandas as pd
 
 from src.forecasting.constants import (
+    EPISODE_MIN_HOURS,
+    EPISODE_THRESHOLD_UG_M3,
     FEATURE_COLS,
     META_COLS,
     PM25_LAGS,
     PM25_ROLL_WINDOWS,
+    POLLUTANT_LAG,
+    POLLUTANT_LAG_COLS,
     SEASON_TO_CODE,
     TARGET_COL,
     WEATHER_COLS,
@@ -41,6 +45,8 @@ def add_pm25_lags_and_rolls(df: pd.DataFrame) -> pd.DataFrame:
         out[f"pm25_roll_mean_{w}"] = (
             g.rolling(window=w, min_periods=max(1, w // 2)).mean().reset_index(level=0, drop=True)
         )
+    # Short-term change at t (needs lag_1).
+    out["pm25_delta_1"] = out["pm25_ug_m3"] - out["pm25_lag_1"]
     return out
 
 
@@ -49,6 +55,69 @@ def add_weather_lags_and_missing_flags(df: pd.DataFrame) -> pd.DataFrame:
     for col in WEATHER_COLS:
         out[f"{col}_missing"] = out[col].isna().astype(np.int8)
         out[f"{col}_lag_{WEATHER_LAG}"] = _groupby_station(out)[col].shift(WEATHER_LAG)
+    return out
+
+
+def add_pollutant_lags_and_missing_flags(df: pd.DataFrame) -> pd.DataFrame:
+    """Lag-1 co-pollutants + missing flags (nulls filled later from train)."""
+    out = df.copy()
+    for col in POLLUTANT_LAG_COLS:
+        if col not in out.columns:
+            out[col] = np.nan
+        lag_name = f"{col}_lag_{POLLUTANT_LAG}"
+        miss_name = f"{lag_name}_missing"
+        out[lag_name] = _groupby_station(out)[col].shift(POLLUTANT_LAG)
+        out[miss_name] = out[lag_name].isna().astype(np.int8)
+    return out
+
+
+def _causal_episode_arrays(
+    pm25: np.ndarray,
+    *,
+    threshold: float = EPISODE_THRESHOLD_UG_M3,
+    min_hours: int = EPISODE_MIN_HOURS,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Per-station causal episode stats from PM2.5 history ≤ t only.
+
+    - dirty hour: pm25 >= threshold and not null (null breaks the run)
+    - hours_into_dirty_run: consecutive dirty hours ending at t
+    - in_episode_flag: 1 iff streak >= min_hours (no look-ahead to future hours)
+    - hours_since_last_episode: hours since last in_episode hour (NaN before first)
+    """
+    dirty = (pm25 >= threshold) & ~np.isnan(pm25)
+    n = len(dirty)
+    streak = np.zeros(n, dtype=np.int32)
+    run = 0
+    for i, is_dirty in enumerate(dirty):
+        run = run + 1 if is_dirty else 0
+        streak[i] = run
+    in_ep = (streak >= min_hours).astype(np.int8)
+    since = np.full(n, np.nan, dtype=np.float64)
+    last = -1
+    for i in range(n):
+        if in_ep[i]:
+            last = i
+            since[i] = 0.0
+        elif last >= 0:
+            since[i] = float(i - last)
+    return streak, in_ep, since
+
+
+def add_episode_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Causal episode features aligned with Phase 8c rule (no future leakage)."""
+    out = df.copy()
+    out["hours_into_dirty_run"] = np.int32(0)
+    out["in_episode_flag"] = np.int8(0)
+    out["hours_since_last_episode"] = np.nan
+    for _, idx in out.groupby("station_key", sort=False).groups.items():
+        station_df = out.loc[idx].sort_values("event_time_local")
+        pm = station_df["pm25_ug_m3"].to_numpy(dtype=float)
+        streak, in_ep, since = _causal_episode_arrays(pm)
+        ordered = station_df.index
+        out.loc[ordered, "hours_into_dirty_run"] = streak
+        out.loc[ordered, "in_episode_flag"] = in_ep
+        out.loc[ordered, "hours_since_last_episode"] = since
+    out["in_episode_flag"] = out["in_episode_flag"].astype(np.int8)
     return out
 
 
@@ -67,17 +136,25 @@ def drop_unusable_rows(df: pd.DataFrame) -> pd.DataFrame:
         "pm25_ug_m3",
         *(f"pm25_lag_{k}" for k in PM25_LAGS),
         *(f"pm25_roll_mean_{w}" for w in PM25_ROLL_WINDOWS),
+        "pm25_delta_1",
     ]
     return df.dropna(subset=required).reset_index(drop=True)
 
 
 def impute_weather_from_train(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, float]]:
-    """Fill weather NaNs with train-split medians (leakage-safe)."""
+    """Fill weather / pollutant-lag / episode-since NaNs with train medians (leakage-safe)."""
     out = df.copy()
     train_mask = out["split"] == "train"
     medians: dict[str, float] = {}
-    cols = list(WEATHER_COLS) + [f"{c}_lag_{WEATHER_LAG}" for c in WEATHER_COLS]
+    cols = (
+        list(WEATHER_COLS)
+        + [f"{c}_lag_{WEATHER_LAG}" for c in WEATHER_COLS]
+        + [f"{c}_lag_{POLLUTANT_LAG}" for c in POLLUTANT_LAG_COLS]
+        + ["hours_since_last_episode"]
+    )
     for col in cols:
+        if col not in out.columns:
+            continue
         med = float(out.loc[train_mask, col].median(skipna=True))
         if np.isnan(med):
             med = 0.0
@@ -88,8 +165,8 @@ def impute_weather_from_train(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str,
 
 def build_feature_matrix(base: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]:
     """
-    Full P10b transform: calendar → lags/rolls → weather flags → target → split
-    → drop unusable → weather impute from train.
+    Full P10b transform: calendar → lags/rolls → weather/pollutant → episode
+    → target → split → drop unusable → train-median impute.
     """
     if base.empty:
         raise ValueError("Empty forecast base frame")
@@ -100,6 +177,8 @@ def build_feature_matrix(base: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, An
     df = add_calendar_codes(df)
     df = add_pm25_lags_and_rolls(df)
     df = add_weather_lags_and_missing_flags(df)
+    df = add_pollutant_lags_and_missing_flags(df)
+    df = add_episode_features(df)
     df = add_target(df)
     df["split"] = assign_split(df["event_time_local"])
 
@@ -122,6 +201,7 @@ def build_feature_matrix(base: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, An
         "feature_cols": list(FEATURE_COLS),
         "target_col": TARGET_COL,
         "meta_cols": list(META_COLS),
+        "feature_set_version": "v1_1_episode_pollutant",
     }
     return df, meta
 

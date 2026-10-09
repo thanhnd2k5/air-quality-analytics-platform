@@ -7,6 +7,7 @@ import pytest
 
 from src.forecasting.constants import TARGET_COL
 from src.forecasting.features import (
+    add_episode_features,
     add_pm25_lags_and_rolls,
     add_target,
     build_feature_matrix,
@@ -32,6 +33,9 @@ def _toy_station(
             "day_of_week": [t.isoweekday() for t in times],
             "season": ["winter"] * n,
             "pm25_ug_m3": pm25,
+            "pm10_ug_m3": [80.0] * n,
+            "no2_ug_m3": [40.0] * n,
+            "co_ug_m3": [1000.0] * n,
             "temperature_c": [10.0] * n,
             "relative_humidity_pct": [50.0] * n,
             "wind_speed_m_s": [2.0] * n,
@@ -129,3 +133,27 @@ def test_lags_isolated_per_station():
     # First row of station 2 must not get station 1's last value as lag1
     b0 = out[out["station_key"] == 2].iloc[0]
     assert pd.isna(b0["pm25_lag_1"])
+
+
+def test_pm25_delta_1_is_current_minus_lag1():
+    df = _toy_station([10.0, 25.0, 20.0])
+    out = add_pm25_lags_and_rolls(df)
+    assert pd.isna(out.loc[0, "pm25_delta_1"])
+    assert out.loc[1, "pm25_delta_1"] == pytest.approx(15.0)
+    assert out.loc[2, "pm25_delta_1"] == pytest.approx(-5.0)
+
+
+def test_episode_features_causal_no_lookahead():
+    # Dirty hours at 200; null and 50 break. min_hours=3 → flag only from 3rd dirty on.
+    df = _toy_station([200.0, 200.0, 200.0, 50.0, 200.0, None, 200.0, 200.0, 200.0])
+    out = add_episode_features(df)
+    assert out["hours_into_dirty_run"].tolist() == [1, 2, 3, 0, 1, 0, 1, 2, 3]
+    assert out["in_episode_flag"].tolist() == [0, 0, 1, 0, 0, 0, 0, 0, 1]
+    # After first episode hour (idx 2), gap hours accumulate since
+    assert out.loc[2, "hours_since_last_episode"] == 0.0
+    assert out.loc[3, "hours_since_last_episode"] == 1.0
+    assert out.loc[4, "hours_since_last_episode"] == 2.0
+    assert pd.isna(out.loc[0, "hours_since_last_episode"])
+    # First two dirty hours are NOT flagged — would require looking ahead to hour 3
+    assert out.loc[0, "in_episode_flag"] == 0
+    assert out.loc[1, "in_episode_flag"] == 0

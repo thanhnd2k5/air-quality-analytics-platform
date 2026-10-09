@@ -1,6 +1,6 @@
 # Phase 9e – Cluster interpretation
 
-**Lock:** KMeans, K=2, `random_state=42`, feature set `v1_pollutant_season_episode`  
+**Lock:** KMeans, K=2, `random_state=42`, feature set `v1_1_1_label_by_pm25`  
 **Window:** 2013-03-01 → 2016-12-31  
 **Nguồn:** `cluster_lock.json`, `cluster_profiles.csv`, `mart.mart_station_cluster`
 

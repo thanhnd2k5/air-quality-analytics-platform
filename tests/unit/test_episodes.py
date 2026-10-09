@@ -67,6 +67,39 @@ def test_min_hours_filters_one_hour_spike():
     assert float(episodes.iloc[0]["pm25_max"]) == 220.0
 
 
+def test_duration_hours_matches_inclusive_hour_span():
+    df = _station_frame([200, 210, 220, 230, 50])
+    episodes = detect_station_episodes(df, threshold=115.0, min_hours=3)
+    assert len(episodes) == 1
+    row = episodes.iloc[0]
+    span = int((row["end_time"] - row["start_time"]) / pd.Timedelta(hours=1)) + 1
+    assert int(row["duration_hours"]) == span == 4
+
+
+def test_year_season_taken_from_episode_start():
+    # Cross year-end: first hour Dec 31 → year/season from start, not Jan 1
+    times = pd.date_range("2015-12-31 22:00:00", periods=4, freq="h")
+    df = pd.DataFrame(
+        {
+            "station_key": 1,
+            "station_name": "Boundary",
+            "event_time_local": times,
+            "pm25_ug_m3": [200.0, 200.0, 200.0, 50.0],
+            "temperature_c": [0.0] * 4,
+            "relative_humidity_pct": [50.0] * 4,
+            "wind_speed_m_s": [1.0] * 4,
+            "rain_mm": [0.0] * 4,
+            "cloud_cover_pct": [40.0] * 4,
+            "year": [t.year for t in times],
+            "season": ["winter", "winter", "winter", "winter"],
+        }
+    )
+    episodes = detect_station_episodes(df, threshold=115.0, min_hours=3)
+    assert len(episodes) == 1
+    assert int(episodes.iloc[0]["year"]) == 2015
+    assert episodes.iloc[0]["start_time"] == times[0]
+
+
 def test_mark_in_episode_only_qualifying_islands():
     df = _station_frame([200, 50, 200, 210, 220])
     marked = mark_in_episode(df, threshold=115.0, min_hours=3)

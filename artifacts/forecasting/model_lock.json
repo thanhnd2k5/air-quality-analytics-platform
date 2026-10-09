@@ -7,13 +7,13 @@
   "beats_persistence_on_test": true,
   "val_mae": {
     "persistence": 9.448307913304323,
-    "linear_regression": 9.385889638380766,
-    "hist_gradient_boosting": 8.947822147397424
+    "linear_regression": 9.397163152634803,
+    "hist_gradient_boosting": 8.87152335298155
   },
   "test_mae": {
     "persistence": 9.78268178184129,
-    "linear_regression": 9.529398022690273,
-    "hist_gradient_boosting": 9.14359009380599
+    "linear_regression": 9.55651040806015,
+    "hist_gradient_boosting": 9.005678940638314
   },
   "metrics_table": "artifacts/forecasting/model_metrics.csv",
   "predictions": "artifacts/forecasting/predictions_locked.parquet",
@@ -49,6 +49,7 @@
     "pm25_lag_24",
     "pm25_roll_mean_6",
     "pm25_roll_mean_24",
+    "pm25_delta_1",
     "temperature_c",
     "relative_humidity_pct",
     "wind_speed_m_s",
@@ -57,7 +58,16 @@
     "wind_speed_m_s_lag_1",
     "temperature_c_missing",
     "relative_humidity_pct_missing",
-    "wind_speed_m_s_missing"
+    "wind_speed_m_s_missing",
+    "pm10_ug_m3_lag_1",
+    "no2_ug_m3_lag_1",
+    "co_ug_m3_lag_1",
+    "pm10_ug_m3_lag_1_missing",
+    "no2_ug_m3_lag_1_missing",
+    "co_ug_m3_lag_1_missing",
+    "hours_into_dirty_run",
+    "in_episode_flag",
+    "hours_since_last_episode"
   ],
   "target_col": "y_pm25_tplus1",
   "per_model_metrics": {
@@ -80,38 +90,38 @@
     },
     "linear_regression": {
       "train": {
-        "mae": 10.554941183051389,
-        "rmse": 18.81136386163233,
-        "r2": 0.9438747560265882
+        "mae": 10.542216304832303,
+        "rmse": 18.791588108831625,
+        "r2": 0.9439926991538027
       },
       "val": {
-        "mae": 9.385889638380766,
-        "rmse": 17.939182232313946,
-        "r2": 0.9333095422920841
+        "mae": 9.397163152634803,
+        "rmse": 17.94341959538425,
+        "r2": 0.9332780330455576
       },
       "test": {
-        "mae": 9.529398022690273,
-        "rmse": 16.722532302544984,
-        "r2": 0.9567579971829077
+        "mae": 9.55651040806015,
+        "rmse": 16.74043192663984,
+        "r2": 0.9566653760618199
       }
     },
     "hist_gradient_boosting": {
       "train": {
-        "mae": 9.504393073763834,
-        "rmse": 16.4364563747865,
-        "r2": 0.9571516545390516
+        "mae": 9.40376331040327,
+        "rmse": 16.191140314274115,
+        "r2": 0.958421142951764
       },
       "val": {
-        "mae": 8.947822147397424,
-        "rmse": 18.347592810728738,
-        "r2": 0.9302383729087638
+        "mae": 8.87152335298155,
+        "rmse": 18.416557263883593,
+        "r2": 0.9297129509223387
       },
       "test": {
-        "mae": 9.14359009380599,
-        "rmse": 16.50295931770892,
-        "r2": 0.9578861087050512
+        "mae": 9.005678940638314,
+        "rmse": 16.246588991108638,
+        "r2": 0.9591844078909149
       }
     }
   },
-  "created_at": "2026-10-09T18:43:33.886609+00:00"
+  "created_at": "2026-10-09T19:22:39.086509+00:00"
 }

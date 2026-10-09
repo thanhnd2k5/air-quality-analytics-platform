@@ -39,7 +39,9 @@ from src.forecasting.error_analysis import (  # noqa: E402
 from src.forecasting.extract import fetch_forecast_base  # noqa: E402
 from src.forecasting.features import (  # noqa: E402
     add_calendar_codes,
+    add_episode_features,
     add_pm25_lags_and_rolls,
+    add_pollutant_lags_and_missing_flags,
     add_target,
     add_weather_lags_and_missing_flags,
     drop_unusable_rows,
@@ -121,6 +123,8 @@ def run_2017_sensitivity() -> dict:
     df = add_calendar_codes(df)
     df = add_pm25_lags_and_rolls(df)
     df = add_weather_lags_and_missing_flags(df)
+    df = add_pollutant_lags_and_missing_flags(df)
+    df = add_episode_features(df)
     df = add_target(df)
     # Dec 2016 = warm-up / train-median only; score Jan–Feb 2017
     df["split"] = np.where(

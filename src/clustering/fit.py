@@ -16,7 +16,9 @@ from sklearn.preprocessing import StandardScaler
 from src.clustering.profiles import CLUSTER_FEATURE_COLS, META_COLS
 from src.clustering.smoke import PROFILE_END, PROFILE_START
 
-FEATURE_SET_VERSION = "v1_pollutant_season_episode"
+# v1_1_1: episode window clip (v1_1) + cluster ids remapped by mean_pm25
+# (not by cluster size). See sql/clustering/station_pollution_profile.sql.
+FEATURE_SET_VERSION = "v1_1_1_label_by_pm25"
 DEFAULT_K_GRID = (2, 3, 4)
 DEFAULT_SEEDS = (42, 0, 123)
 PRIMARY_SEED = 42
@@ -157,11 +159,24 @@ def choose_lock_k(metrics: pd.DataFrame) -> int:
     return int(km.iloc[0]["k"])
 
 
-def remapped_labels_by_size(labels: np.ndarray) -> np.ndarray:
-    """Remap cluster ids so 0 = largest cluster, then descending size."""
+def remapped_labels_by_mean(
+    labels: np.ndarray,
+    mean_values: np.ndarray,
+) -> np.ndarray:
+    """Remap cluster ids so 0 = highest group mean, then descending.
+
+    For pollution profiles, pass ``mean_pm25`` so id 0 is always the elevated
+    group — not the largest group by station count.
+    """
     labels = np.asarray(labels)
-    counts = pd.Series(labels).value_counts()
-    order = list(counts.index)
+    mean_values = np.asarray(mean_values, dtype=float)
+    if len(labels) != len(mean_values):
+        raise ValueError("labels and mean_values length mismatch")
+    cluster_means = {
+        int(lab): float(mean_values[labels == lab].mean())
+        for lab in np.unique(labels)
+    }
+    order = sorted(cluster_means.keys(), key=lambda c: cluster_means[c], reverse=True)
     mapping = {old: new for new, old in enumerate(order)}
     return np.array([mapping[int(x)] for x in labels], dtype=int)
 
@@ -169,7 +184,7 @@ def remapped_labels_by_size(labels: np.ndarray) -> np.ndarray:
 def cluster_labels_readable(k: int) -> dict[int, str]:
     """Semantic labels for locked K=2; generic fallback otherwise."""
     if k == 2:
-        # Remapped by size: 0 = larger elevated group, 1 = smaller cleaner group
+        # After remapped_labels_by_mean(mean_pm25): 0 = elevated, 1 = cleaner
         return {0: "elevated_core", 1: "cleaner_outskirts"}
     return {i: f"cluster_{i}" for i in range(k)}
 
@@ -180,8 +195,13 @@ def assignment_frame(
     *,
     method: str,
     k: int,
+    mean_pm25: np.ndarray | pd.Series | None = None,
 ) -> pd.DataFrame:
-    labels = remapped_labels_by_size(labels)
+    if mean_pm25 is None:
+        # Fallback: feature col index of mean_pm25 in CLUSTER_FEATURE_COLS
+        idx = CLUSTER_FEATURE_COLS.index("mean_pm25")
+        mean_pm25 = matrix.X_raw[:, idx]
+    labels = remapped_labels_by_mean(labels, np.asarray(mean_pm25, dtype=float))
     readable = cluster_labels_readable(k)
     return pd.DataFrame(
         {
@@ -246,8 +266,10 @@ def build_lock_payload(
         "assignment": assignment[
             ["station_key", "station_name", "cluster_id", "cluster_label"]
         ].to_dict(orient="records"),
+        "cluster_labels": cluster_labels_readable(k),
         "selection_notes": (
             "K chosen by max KMeans silhouette among {2,3,4}; "
-            "ties prefer smaller K. Primary method KMeans; Ward hierarchical for cross-check."
+            "ties prefer smaller K. Primary method KMeans; Ward hierarchical for cross-check. "
+            "Cluster ids remapped by descending mean_pm25 (0=elevated_core)."
         ),
     }

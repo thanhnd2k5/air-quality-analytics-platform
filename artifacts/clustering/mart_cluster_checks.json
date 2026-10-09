@@ -4,7 +4,7 @@
   "expected": {
     "method": "kmeans",
     "k": 2,
-    "feature_set_version": "v1_pollutant_season_episode",
+    "feature_set_version": "v1_1_1_label_by_pm25",
     "n_stations": 12
   },
   "mart_row_count": 12,
