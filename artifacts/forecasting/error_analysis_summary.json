@@ -1,0 +1,51 @@
+{
+  "ok": true,
+  "phase": "P10e",
+  "test_metrics": {
+    "n_test": 48935,
+    "locked": {
+      "mae": 13.721684043885334,
+      "rmse": 23.676851285740323,
+      "r2": 0.9132545351380864
+    },
+    "persistence": {
+      "mae": 15.933912332686216,
+      "rmse": 28.76341096178146,
+      "r2": 0.8719794588216522
+    },
+    "mae_lift": 2.2122282888008815
+  },
+  "figures": {
+    "station": "artifacts/forecasting/figures/error_mae_by_station.png",
+    "hour": "artifacts/forecasting/figures/error_mae_by_hour.png",
+    "scatter": "artifacts/forecasting/figures/error_actual_vs_pred.png",
+    "bins": "artifacts/forecasting/figures/error_mae_by_actual_bin.png"
+  },
+  "error_analysis_md": "artifacts/forecasting/error_analysis.md",
+  "sensitivity_2017": {
+    "ok": true,
+    "note": "2017 Jan\u2013Feb only (winter-biased); not primary DoD",
+    "n": 15866,
+    "weather_medians_from": "2016-12 warm-up",
+    "weather_medians": {
+      "temperature_c": -0.1,
+      "relative_humidity_pct": 52.1673323195967,
+      "wind_speed_m_s": 1.2,
+      "temperature_c_lag_1": -0.1,
+      "relative_humidity_pct_lag_1": 52.1673323195967,
+      "wind_speed_m_s_lag_1": 1.2
+    },
+    "locked": {
+      "mae": 19.522085882387035,
+      "rmse": 40.4701329177609,
+      "r2": 0.8733501717447161
+    },
+    "persistence": {
+      "mae": 20.73181646287659,
+      "rmse": 42.813037682912345,
+      "r2": 0.8582616313531806
+    },
+    "beats_persistence": true
+  },
+  "csv_prefix": "artifacts/forecasting/error_"
+}

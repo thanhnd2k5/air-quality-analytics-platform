@@ -1005,25 +1005,28 @@ tạo realtime khi user yêu cầu
 
 Phiên bản đầu ưu tiên đơn giản.
 
-Candidate table:
+Table (Phase 10d):
 
 ```text
-mart.pm25_predictions
+mart.mart_pm25_predictions
 ```
 
-có thể chứa:
+Cột chính:
 
 ```text
-station
+station_key / station_name
 prediction_origin_time
 target_time
+split
 actual_pm25
 predicted_pm25
+predicted_pm25_persistence
 model_version
 absolute_error
+cluster_id
 ```
 
-Dùng tốt cho dashboard so sánh predicted vs actual.
+Nguồn: `staging.pm25_predictions_raw` (COPY từ locked predictions). Dùng cho dashboard so sánh predicted vs actual.
 
 ---
 

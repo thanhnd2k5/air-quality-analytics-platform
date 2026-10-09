@@ -1492,16 +1492,19 @@ P10f  PR (optional)
 ## Definition of Done
 
 ```text
-[ ] Baseline tồn tại
-[ ] No leakage
-[ ] Split đúng thời gian
-[ ] Feature pipeline reproducible
-[ ] ≥2 model được so sánh hợp lý
-[ ] Test result được ghi lại
-[ ] Error analysis được thực hiện
-[ ] mart.pm25_predictions queryable; dbt tests PASS
-[ ] PROGRESS + IMPLEMENTATION_PLAN + PROJECT_CONTEXT sync
+[x] Baseline tồn tại
+[x] No leakage
+[x] Split đúng thời gian
+[x] Feature pipeline reproducible
+[x] ≥2 model được so sánh hợp lý
+[x] Test result được ghi lại
+[x] Error analysis được thực hiện
+[x] mart.mart_pm25_predictions queryable; dbt tests PASS
+[x] PROGRESS + IMPLEMENTATION_PLAN + PROJECT_CONTEXT sync
 ```
+
+Evidence: `artifacts/forecasting/` (kickoff, feature_qc, model_lock, metrics, error_analysis, mart checks, figures);
+`models/pm25_forecast/`; `mart.mart_pm25_predictions`.
 
 ---
 

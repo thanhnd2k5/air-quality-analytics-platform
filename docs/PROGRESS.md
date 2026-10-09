@@ -4,32 +4,31 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-10-10 (Phase 10 – P10c model lock)
+## 2026-10-10 (Phase 10 – **HOÀN THÀNH** kỹ thuật)
 
 ### Current phase
-Phase 10 – PM2.5 Forecasting (**P10c** trên `feature/phase-10-forecasting`)
+Phase 10 – PM2.5 Forecasting (**DONE** trên `feature/phase-10-forecasting`)
 
 ### Completed
 - P10a: kickoff + smoke
 - P10b: feature matrix + leakage QC + unit tests
-- P10c: Persistence vs Linear vs HistGB; lock **hist_gradient_boosting** (min val MAE)
-- P10c: `model_lock.json`, `model_metrics.csv`, `predictions_locked.parquet`
-- P10c: `models/pm25_forecast/model.joblib` + `metadata.json`
-- P10c: unit tests models (persistence / choose_lock)
+- P10c: Persistence / Linear / HistGB → lock **HistGB** (test MAE 13.72 vs 15.93)
+- P10d: `mart.mart_pm25_predictions` (373 706); dbt tests PASS
+- P10e: error analysis (station/hour/season/cluster/bins) + figures; 2017 sensitivity; docs sync
 
 ### Decisions (locked)
-- Target: **PM2.5(t+1h)**; global model
-- Window **2013-03 → 2016-12**; Train→2015-12 | Val 2016 H1 | Test 2016 H2
-- **Locked model:** HistGradientBoosting (val MAE 12.92 < Linear 13.98 < Persistence 14.81)
-- Test MAE: HistGB **13.72** vs Persistence **15.93** → beats baseline
-- Persist: artifacts + `mart.pm25_predictions` (P10d)
+- Target **PM2.5(t+1h)**; global HistGB; chronological split A
+- Features v1 + `cluster_id`; weather impute = train median
+- Mart via staging COPY (không dbt seed 370k rows)
+- 2017 sensitivity: HistGB MAE 19.52 vs persistence 20.73 (winter-only; không đổi lock)
 
 ### Evidence
-- `artifacts/forecasting/model_lock.json`, `model_metrics.csv`, `predictions_locked.parquet`
-- `models/pm25_forecast/`
+- `artifacts/forecasting/` (lock, metrics, error_analysis, figures, mart checks)
+- `models/pm25_forecast/`; `mart.mart_pm25_predictions`
 
 ### Next
-- P10d – `mart.pm25_predictions` + dbt tests
+- Commit / PR Phase 10 khi được yêu cầu
+- Phase 11 – Web Dashboard
 
 ---
 

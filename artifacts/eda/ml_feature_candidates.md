@@ -82,3 +82,9 @@ Do **not** attach future episode end time or full-episode mean to row t during t
 5. Optional: `cluster_id` from `mart.mart_station_cluster`; PM10/NO2 lag 1; `in_episode_flag` / `hours_into_episode`
 
 Evaluate with time-based split (e.g. last months / last year held out), not random rows.
+
+## Phase 10 lock (2026-10-10)
+
+- Starter set **+ `cluster_id`** used in locked HistGB (`artifacts/forecasting/model_lock.json`)
+- Episode flags / extra pollutant lags **not** in v1 (deferred)
+- Test MAE: HistGB **13.72** vs persistence **15.93**; see `artifacts/forecasting/error_analysis.md`

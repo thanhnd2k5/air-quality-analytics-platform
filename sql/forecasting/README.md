@@ -17,3 +17,5 @@ Read-only against `dwh` / `mart` for extract and smoke. Target: **PM2.5(t+1h)**.
 
 - `scripts/smoke_forecasting_phase10.py` → `artifacts/forecasting/kickoff_smoke.json`
 - `scripts/run_forecasting_phase10b.py` → `feature_matrix.parquet` + `feature_qc.json` + `feature_dictionary.md`
+- `scripts/run_forecasting_phase10c.py` → `model_lock.json` + metrics + `models/pm25_forecast/`
+- `scripts/run_forecasting_phase10d.py` → staging COPY + `mart.mart_pm25_predictions` + `mart_prediction_checks.json`
