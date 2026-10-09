@@ -1,6 +1,17 @@
 {
-  "ok": false,
+  "ok": true,
   "phase": "P9a",
-  "error": "connection to server at \"localhost\" (::1), port 5433 failed: Connection refused (0x0000274D/10061)\n\tIs the server running on that host and accepting TCP/IP connections?\nconnection to server at \"localhost\" (127.0.0.1), port 5433 failed: Connection refused (0x0000274D/10061)\n\tIs the server running on that host and accepting TCP/IP connections?\n",
-  "hint": "Start Postgres (docker compose up -d postgres) and re-run."
+  "profile_window": {
+    "start": "2013-03-01 00:00:00",
+    "end": "2016-12-31 23:00:00"
+  },
+  "expected_station_count": 12,
+  "fact_in_window": {
+    "row_count": 403776,
+    "station_count": 12,
+    "min_event_time": "2013-03-01 00:00:00",
+    "max_event_time": "2016-12-31 23:00:00",
+    "pm25_non_null": 395301
+  },
+  "mart_pm25_episodes_row_count": 6318
 }

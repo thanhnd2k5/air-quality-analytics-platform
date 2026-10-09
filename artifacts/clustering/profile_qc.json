@@ -1,6 +1,40 @@
 {
-  "ok": false,
   "phase": "P9b",
-  "error": "connection to server at \"localhost\" (::1), port 5433 failed: Connection refused (0x0000274D/10061)\n\tIs the server running on that host and accepting TCP/IP connections?\nconnection to server at \"localhost\" (127.0.0.1), port 5433 failed: Connection refused (0x0000274D/10061)\n\tIs the server running on that host and accepting TCP/IP connections?\n",
-  "hint": "Start Postgres (docker compose up -d postgres) and re-run."
+  "csv": "artifacts/clustering/station_profiles.csv",
+  "sql": "sql/clustering/station_pollution_profile.sql",
+  "ok": true,
+  "row_count": 12,
+  "station_count": 12,
+  "profile_window": {
+    "start": "2013-03-01 00:00:00",
+    "end": "2016-12-31 23:00:00"
+  },
+  "cluster_feature_cols": [
+    "mean_pm25",
+    "median_pm25",
+    "std_pm25",
+    "mean_pm10",
+    "mean_no2",
+    "mean_co",
+    "mean_so2",
+    "mean_o3",
+    "mean_pm25_spring",
+    "mean_pm25_summer",
+    "mean_pm25_autumn",
+    "mean_pm25_winter",
+    "pct_hours_pm25_ge_75",
+    "pct_hours_pm25_ge_115",
+    "episode_count",
+    "mean_episode_duration_h",
+    "total_episode_hours"
+  ],
+  "meta_cols": [
+    "station_key",
+    "station_name",
+    "district",
+    "hour_count",
+    "pm25_hour_count"
+  ],
+  "ranking_soft_ok": true,
+  "issues": []
 }

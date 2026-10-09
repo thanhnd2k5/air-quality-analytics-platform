@@ -4,32 +4,36 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-10-09 (Phase 9 – P9a + P9b)
+## 2026-10-09 (Phase 9 – P9a–P9c)
 
 ### Current phase
-Phase 9 – Station Clustering (**P9a–P9b** trên `feature/phase-9-clustering`)
+Phase 9 – Station Clustering (**P9a–P9c DONE** trên `feature/phase-9-clustering`)
 
 ### Completed
 - P9-01 Branch `feature/phase-9-clustering`
 - P9-02 Skeleton: `artifacts/clustering/`, `sql/clustering/`, `src/clustering/`
-- P9-03 Smoke: `src/clustering/smoke.py` + `scripts/smoke_clustering_phase9.py` → `kickoff_smoke.json`
+- P9-03 Smoke: `kickoff_smoke.json` (ok — 403776 rows / 12 stations in window)
 - P9-04 PROGRESS kickoff
-- P9-05…P9-11 Profiles: `station_pollution_profile.sql`, `src/clustering/profiles.py`, `run_clustering_phase9b.py`, `profile_feature_dictionary.md`
+- P9-05…P9-11 Profiles: `station_profiles.csv` (12 rows, QC ok)
+- P9-12…P9-19 Clustering lock: `run_clustering_phase9.py` → KMeans **K=2**, silhouette **0.664**, Ward agreement **1.0**, seed-stable
 
-### Decisions (Phase 9 — từ plan)
-- Profile window: **2013-03-01 → 2016-12-31** (bỏ 2017 partial)
+### Decisions (Phase 9)
+- Profile window: **2013-03-01 → 2016-12-31**
 - Clustering grain: **station profile**, không hourly KMeans
-- Features v1: pollutant + 4 mùa PM2.5 + pct ≥75/115 + episode stats; **không** lat/lon/district/weather vào KMeans
-- Lock target: KMeans + hierarchical đối chiếu; mart `mart_station_cluster` ở P9d
+- Features v1: pollutant + 4 mùa PM2.5 + pct ≥75/115 + episode stats
+- **Lock:** method=`kmeans`, **K=2**, `random_state=42`, `feature_set_version=v1_pollutant_season_episode`
+  - cluster_0 (9): Dongsi, Nongzhanguan, Wanshouxigong, Gucheng, Wanliu, Guanyuan, Aotizhongxin, Tiantan, Shunyi — mean PM2.5 ~82.8
+  - cluster_1 (3): Changping, Huairou, Dingling — mean PM2.5 ~68.7
+- Mart `mart_station_cluster` còn ở P9d; interpretation/labels ở P9e
 
 ### Evidence
-- `sql/clustering/smoke_clustering_window.sql`, `station_pollution_profile.sql`
-- `artifacts/clustering/profile_feature_dictionary.md`
-- `artifacts/clustering/station_profiles.csv` + `profile_qc.json` — **chạy lại** khi Postgres/DWH sẵn sàng:
-  `py -3 scripts/run_clustering_phase9b.py`
+- `artifacts/clustering/station_profiles.csv`, `profile_qc.json`, `profile_feature_dictionary.md`
+- `cluster_lock.json`, `cluster_assignment.csv`, `cluster_profiles.csv`, `k_selection_metrics.csv`
+- `clustering_methodology.md`
+- `figures/elbow.png`, `silhouette.png`, `pca_clusters.png`, `dendrogram.png`
 
 ### Next
-- P9c: KMeans / Hierarchical → `cluster_lock.json`
+- P9d: dbt seed + `mart_station_cluster` + tests
 
 ---
 

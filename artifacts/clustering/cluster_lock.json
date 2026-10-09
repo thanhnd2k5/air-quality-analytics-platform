@@ -1,0 +1,128 @@
+{
+  "phase": "P9c",
+  "locked_at": "2026-10-09T07:34:17.966923+00:00",
+  "method": "kmeans",
+  "k": 2,
+  "random_state": 42,
+  "n_init": 10,
+  "feature_set_version": "v1_pollutant_season_episode",
+  "feature_cols": [
+    "mean_pm25",
+    "median_pm25",
+    "std_pm25",
+    "mean_pm10",
+    "mean_no2",
+    "mean_co",
+    "mean_so2",
+    "mean_o3",
+    "mean_pm25_spring",
+    "mean_pm25_summer",
+    "mean_pm25_autumn",
+    "mean_pm25_winter",
+    "pct_hours_pm25_ge_75",
+    "pct_hours_pm25_ge_115",
+    "episode_count",
+    "mean_episode_duration_h",
+    "total_episode_hours"
+  ],
+  "profile_window": {
+    "start": "2013-03-01 00:00:00",
+    "end": "2016-12-31 23:00:00"
+  },
+  "silhouette": 0.663653697101863,
+  "inertia": 44.445155555267654,
+  "seed_stability": {
+    "k": 2,
+    "seeds": [
+      42,
+      0,
+      123
+    ],
+    "all_match_primary_seed": true,
+    "n_matching_primary": 3,
+    "n_seeds": 3
+  },
+  "hierarchical_pairwise_agreement": 1.0,
+  "meta_cols_excluded_from_model": [
+    "station_key",
+    "station_name",
+    "district",
+    "hour_count",
+    "pm25_hour_count"
+  ],
+  "assignment": [
+    {
+      "station_key": 4,
+      "station_name": "Dongsi",
+      "cluster_id": 0,
+      "cluster_label": "cluster_0"
+    },
+    {
+      "station_key": 8,
+      "station_name": "Nongzhanguan",
+      "cluster_id": 0,
+      "cluster_label": "cluster_0"
+    },
+    {
+      "station_key": 12,
+      "station_name": "Wanshouxigong",
+      "cluster_id": 0,
+      "cluster_label": "cluster_0"
+    },
+    {
+      "station_key": 6,
+      "station_name": "Gucheng",
+      "cluster_id": 0,
+      "cluster_label": "cluster_0"
+    },
+    {
+      "station_key": 11,
+      "station_name": "Wanliu",
+      "cluster_id": 0,
+      "cluster_label": "cluster_0"
+    },
+    {
+      "station_key": 5,
+      "station_name": "Guanyuan",
+      "cluster_id": 0,
+      "cluster_label": "cluster_0"
+    },
+    {
+      "station_key": 1,
+      "station_name": "Aotizhongxin",
+      "cluster_id": 0,
+      "cluster_label": "cluster_0"
+    },
+    {
+      "station_key": 10,
+      "station_name": "Tiantan",
+      "cluster_id": 0,
+      "cluster_label": "cluster_0"
+    },
+    {
+      "station_key": 9,
+      "station_name": "Shunyi",
+      "cluster_id": 0,
+      "cluster_label": "cluster_0"
+    },
+    {
+      "station_key": 2,
+      "station_name": "Changping",
+      "cluster_id": 1,
+      "cluster_label": "cluster_1"
+    },
+    {
+      "station_key": 7,
+      "station_name": "Huairou",
+      "cluster_id": 1,
+      "cluster_label": "cluster_1"
+    },
+    {
+      "station_key": 3,
+      "station_name": "Dingling",
+      "cluster_id": 1,
+      "cluster_label": "cluster_1"
+    }
+  ],
+  "selection_notes": "K chosen by max KMeans silhouette among {2,3,4}; ties prefer smaller K. Primary method KMeans; Ward hierarchical for cross-check."
+}
