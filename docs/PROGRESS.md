@@ -4,32 +4,44 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-10-09 (Phase 10 – P10b features)
+## 2026-10-10 (Phase 10 – P10c model lock)
 
 ### Current phase
-Phase 10 – PM2.5 Forecasting (**P10b** trên `feature/phase-10-forecasting`)
+Phase 10 – PM2.5 Forecasting (**P10c** trên `feature/phase-10-forecasting`)
 
 ### Completed
-- P10a: branch + skeleton + smoke → `kickoff_smoke.json`
-- P10b: extract fact+dim_date+cluster → lags/rolls/target/split → train-median weather impute
-- P10b: `feature_matrix` + `feature_qc.json` + `feature_dictionary.md`
-- P10b: unit tests `tests/unit/test_forecasting_features.py` (lag / target / split / impute)
+- P10a: kickoff + smoke
+- P10b: feature matrix + leakage QC + unit tests
+- P10c: Persistence vs Linear vs HistGB; lock **hist_gradient_boosting** (min val MAE)
+- P10c: `model_lock.json`, `model_metrics.csv`, `predictions_locked.parquet`
+- P10c: `models/pm25_forecast/model.joblib` + `metadata.json`
+- P10c: unit tests models (persistence / choose_lock)
 
 ### Decisions (locked)
 - Target: **PM2.5(t+1h)**; global model
-- Window **2013-03 → 2016-12**; Train→2015-12 | Val 2016 H1 | Test 2016 H2; 2017 = sensitivity only
-- Models: Persistence → Linear → HistGB; features v1 + `cluster_id`
+- Window **2013-03 → 2016-12**; Train→2015-12 | Val 2016 H1 | Test 2016 H2
+- **Locked model:** HistGradientBoosting (val MAE 12.92 < Linear 13.98 < Persistence 14.81)
+- Test MAE: HistGB **13.72** vs Persistence **15.93** → beats baseline
 - Persist: artifacts + `mart.pm25_predictions` (P10d)
-- Drop rows thiếu target hoặc bất kỳ PM2.5 lag/roll (cần ≥24h history/station)
-- Weather NaN: missing flag + **train median** only
 
 ### Evidence
-- `artifacts/forecasting/` (kickoff_smoke, feature_matrix, feature_qc, feature_dictionary)
-- `src/forecasting/` (extract, features, split, qc)
-- `scripts/run_forecasting_phase10b.py`
+- `artifacts/forecasting/model_lock.json`, `model_metrics.csv`, `predictions_locked.parquet`
+- `models/pm25_forecast/`
 
 ### Next
-- P10c – Baseline + Linear + HistGB → model_lock.json
+- P10d – `mart.pm25_predictions` + dbt tests
+
+---
+
+## 2026-10-09 (Phase 10 – P10a/P10b)
+
+### Completed
+- P10a: skeleton + smoke → `kickoff_smoke.json`
+- P10b: feature matrix + QC + dictionary + feature unit tests
+
+### Evidence
+- `artifacts/forecasting/` (kickoff, feature_matrix, feature_qc, feature_dictionary)
+- `src/forecasting/`; `scripts/run_forecasting_phase10b.py`
 
 ---
 

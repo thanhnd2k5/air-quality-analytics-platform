@@ -1,0 +1,116 @@
+{
+  "ok": true,
+  "phase": "P10c",
+  "locked_model": "hist_gradient_boosting",
+  "lock_rule": "min val MAE among ML models (exclude persistence)",
+  "random_state": 42,
+  "beats_persistence_on_test": true,
+  "val_mae": {
+    "persistence": 14.81195809627779,
+    "linear_regression": 13.977904124497714,
+    "hist_gradient_boosting": 12.924784414895516
+  },
+  "test_mae": {
+    "persistence": 15.933912332686216,
+    "linear_regression": 14.52792013329496,
+    "hist_gradient_boosting": 13.721684043885334
+  },
+  "metrics_table": "artifacts/forecasting/model_metrics.csv",
+  "predictions": "artifacts/forecasting/predictions_locked.parquet",
+  "model_artifact": "models/pm25_forecast/model.joblib",
+  "metadata": "models/pm25_forecast/metadata.json",
+  "split": {
+    "train": {
+      "start": "2013-03-01 00:00:00",
+      "end": "2015-12-31 23:00:00"
+    },
+    "val": {
+      "start": "2016-01-01 00:00:00",
+      "end": "2016-06-30 23:00:00"
+    },
+    "test": {
+      "start": "2016-07-01 00:00:00",
+      "end": "2016-12-31 23:00:00"
+    }
+  },
+  "feature_cols": [
+    "hour",
+    "month",
+    "day_of_week",
+    "season_code",
+    "station_key",
+    "cluster_id",
+    "pm25_lag_1",
+    "pm25_lag_2",
+    "pm25_lag_3",
+    "pm25_lag_6",
+    "pm25_lag_12",
+    "pm25_lag_24",
+    "pm25_roll_mean_6",
+    "pm25_roll_mean_24",
+    "temperature_c",
+    "relative_humidity_pct",
+    "wind_speed_m_s",
+    "temperature_c_lag_1",
+    "relative_humidity_pct_lag_1",
+    "wind_speed_m_s_lag_1",
+    "temperature_c_missing",
+    "relative_humidity_pct_missing",
+    "wind_speed_m_s_missing"
+  ],
+  "target_col": "y_pm25_tplus1",
+  "per_model_metrics": {
+    "persistence": {
+      "train": {
+        "mae": 17.12833931110133,
+        "rmse": 30.58612075709063,
+        "r2": 0.8516902481274187
+      },
+      "val": {
+        "mae": 14.81195809627779,
+        "rmse": 29.490826663639147,
+        "r2": 0.820062013092074
+      },
+      "test": {
+        "mae": 15.933912332686216,
+        "rmse": 28.76341096178146,
+        "r2": 0.8719794588216522
+      }
+    },
+    "linear_regression": {
+      "train": {
+        "mae": 15.856128155265784,
+        "rmse": 25.927169025562975,
+        "r2": 0.8934309465020472
+      },
+      "val": {
+        "mae": 13.977904124497714,
+        "rmse": 24.93376379847785,
+        "r2": 0.8713752195693045
+      },
+      "test": {
+        "mae": 14.52792013329496,
+        "rmse": 23.87454233696079,
+        "r2": 0.9117999165049836
+      }
+    },
+    "hist_gradient_boosting": {
+      "train": {
+        "mae": 13.665669430234527,
+        "rmse": 22.197503188245157,
+        "r2": 0.9218859483183586
+      },
+      "val": {
+        "mae": 12.924784414895516,
+        "rmse": 24.838115548327103,
+        "r2": 0.8723601601544502
+      },
+      "test": {
+        "mae": 13.721684043885334,
+        "rmse": 23.676851285740323,
+        "r2": 0.9132545351380864
+      }
+    }
+  },
+  "created_at": "2026-10-09T17:10:20.064323+00:00"
+}
