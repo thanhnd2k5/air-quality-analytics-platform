@@ -613,7 +613,7 @@ Kiến trúc định hướng:
         ┌──────┘ └──────┐
         ▼               ▼
  Data Mining       Web Dashboard
- Scikit-learn      Streamlit/Plotly
+ Scikit-learn      FastAPI + React
 ```
 
 ---
@@ -997,56 +997,28 @@ Nếu sau này demo prediction tương lai thực sự cần weather trong tươ
 
 # 30. Web Dashboard
 
-Công nghệ:
+Công nghệ (locked Phase 11a):
 
 ```text
-Streamlit
-+
-Plotly
+FastAPI + PostgreSQL (dwh/mart)
+React (Vite + TS) + Mantine + ECharts + react-leaflet
 ```
 
-Dashboard không chỉ để trang trí.
+Dashboard read-only: khám phá kết quả DWH / Data Mining. UI tiếng Việt. Không auth / CRUD.
 
-Nó phải giúp người dùng khám phá kết quả của Data Warehouse và Data Mining.
+Các trang MVP:
 
-Các trang/view dự kiến:
+### Tổng quan — KPI, xu hướng, filter trạm/ngày
 
-### Overview
+### Trạm — so sánh 12 trạm, ranking, cluster
 
-- KPI tổng quan;
-- mức ô nhiễm theo thời gian;
-- pollutant chính;
-- lựa chọn trạm.
+### Đợt ô nhiễm — episode + multi-station events
 
-### Temporal Analysis
+### Thời tiết — PM2.5 ↔ weather
 
-- năm/tháng/ngày/giờ;
-- seasonality;
-- pollution peaks;
-- pollution episodes (độ dài đợt cao, đa-trạm).
+### Dự báo — actual vs predicted (mart predictions)
 
-### Station Analysis
-
-- so sánh 12 trạm;
-- clustering;
-- ranking;
-- profile của từng trạm.
-
-### Weather & Pollution
-
-- quan hệ pollutant ↔ weather;
-- filter theo điều kiện;
-- correlation/pattern.
-
-### Prediction
-
-- giá trị thật;
-- giá trị dự báo;
-- error;
-- model comparison;
-- feature importance nếu phù hợp.
-
-Map có thể được thêm khi station coordinates đã được xác minh.
+### Bản đồ — 12 marker Leaflet (coords LITERATURE); heatmap nội suy = nice-to-have
 
 ---
 
@@ -1063,8 +1035,8 @@ Map có thể được thêm khi station coordinates đã được xác minh.
 | Data Warehouse | PostgreSQL |
 | Transformation | dbt |
 | Mining / ML | Scikit-learn |
-| Dashboard | Streamlit |
-| Visualization | Plotly |
+| Dashboard | FastAPI + React (Vite) + Mantine |
+| Visualization | ECharts + Leaflet |
 | Version control | Git |
 
 Ưu tiên công nghệ **open-source** và có khả năng tùy chỉnh.

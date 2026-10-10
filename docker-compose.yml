@@ -188,6 +188,45 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
+# --------------------------------------------------------------------------
+  # Dashboard API (Phase 11) — FastAPI read-only over DWH/marts
+  # Web UI: run locally `cd dashboard/web && npm run dev` (proxy /api → :8100)
+  # --------------------------------------------------------------------------
+  dashboard-api:
+    build:
+      context: ./dashboard/api
+      dockerfile: Dockerfile
+    container_name: air_quality_dashboard_api
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-air_quality_dw}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      CORS_ORIGIN_REGEX: ${CORS_ORIGIN_REGEX:-https?://(localhost|127\\.0\\.0\\.1)(:\\d+)?$}
+    ports:
+      # Host 8100 → container 8000 (avoid clash with other apps on :8000)
+      - "${DASHBOARD_API_PORT:-8100}:8000"
+    networks:
+      - air_quality_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
 volumes:
   postgres_data:
     driver: local

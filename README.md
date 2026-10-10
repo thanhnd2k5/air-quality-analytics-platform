@@ -9,7 +9,7 @@ Nền tảng thu thập, lưu trữ, chuyển đổi dữ liệu và phân tích
 - **Ingestion & Data Lake**: Tự động hóa thu thập dữ liệu quan trắc 12 trạm và lưu trữ an toàn trên MinIO S3 Lake.
 - **Staging & Data Warehouse**: Xây dựng kiến trúc kho dữ liệu Star Schema (PostgreSQL + dbt) theo chuẩn `station-hour`.
 - **Data Mining & Machine Learning**: Phân tích khám phá (EDA), phân cụm đặc trưng trạm (K-Means) và dự báo chỉ số ô nhiễm $PM_{2.5}$ thời điểm $t+1$h.
-- **Serving & Dashboard**: Trực quan hóa KPIs chất lượng không khí, bản đồ ô nhiễm và dự báo theo thời gian thực trên Streamlit Dashboard.
+- **Serving & Dashboard**: Trực quan hóa KPIs, bản đồ 12 trạm và dự báo PM2.5 qua web app (FastAPI + React).
 
 ---
 
@@ -19,7 +19,7 @@ Nền tảng thu thập, lưu trữ, chuyển đổi dữ liệu và phân tích
 - **Điều phối (Orchestration)**: Apache Airflow (Docker).
 - **Chuyển đổi dữ liệu (Transformation)**: dbt-core (dbt-postgres).
 - **Xử lý dữ liệu & ML**: Python 3.10+, Pandas, PyArrow/Polars, Scikit-learn, XGBoost/LightGBM.
-- **Giao diện trực quan (BI / Dashboard)**: Streamlit, Plotly.
+- **Giao diện trực quan (BI / Dashboard)**: FastAPI, React (Vite), Mantine, ECharts, Leaflet.
 - **Kiểm thử & Chất lượng (Quality & Testing)**: pytest, Great Expectations / dbt tests.
 - **Hạ tầng (Infrastructure)**: Docker & Docker Compose.
 
@@ -37,7 +37,7 @@ air-quality-analytics-platform/
 ├── artifacts/                    # Kết quả profiling, báo cáo phân tích, đồ thị
 │   └── data_profile/
 │
-├── dashboard/                    # Ứng dụng Web Streamlit
+├── dashboard/                    # Web dashboard (api FastAPI + web React)
 │
 ├── data/                         # Dữ liệu cục bộ phục vụ dev (được .gitignore)
 │   └── raw/
@@ -257,6 +257,22 @@ Image `dbt-postgres:1.9` vì dbt 1.9 không import được trên Python 3.14. T
 docker run --rm --network air-quality-network --env-file .env -e POSTGRES_HOST=postgres -e POSTGRES_PORT=5432 -e DBT_SEND_ANONYMOUS_USAGE_STATS=false -e DO_NOT_TRACK=1 -v "${PWD}/dbt:/dbt" ghcr.io/dbt-labs/dbt-postgres:1.9.0 run --project-dir /dbt/air_quality_dbt --profiles-dir /dbt
 docker run --rm --network air-quality-network --env-file .env -e POSTGRES_HOST=postgres -e POSTGRES_PORT=5432 -e DBT_SEND_ANONYMOUS_USAGE_STATS=false -e DO_NOT_TRACK=1 -v "${PWD}/dbt:/dbt" ghcr.io/dbt-labs/dbt-postgres:1.9.0 test --project-dir /dbt/air_quality_dbt --profiles-dir /dbt
 py scripts/run_olap_checks.py
+```
+
+### Phase 11 – Web Dashboard
+
+Stack: FastAPI + React (Vite) + Mantine + ECharts + Leaflet. Chi tiết: [`dashboard/README.md`](dashboard/README.md).
+
+```powershell
+# API trong Compose (cần Postgres/marts đã có)
+docker compose up -d postgres dashboard-api
+# API: http://localhost:8100/docs  (không dùng :8000 — dễ đụng project khác)
+
+# UI local
+cd dashboard/web
+npm install
+npm run dev
+# → http://localhost:5173 (hoặc 5174/5175 nếu bận)
 ```
 
 ### Recreate checklist (2 thành viên)

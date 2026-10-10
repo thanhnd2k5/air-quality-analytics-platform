@@ -4,6 +4,49 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-10 (Phase 11 – P11a kickoff)
+
+### Current phase
+Phase 11 – Web Dashboard (`feature/phase-11-dashboard`)
+
+### Completed
+- **Stack lock:** FastAPI + Vite/React/TS + Mantine + ECharts + react-leaflet (thay Streamlit)
+- Docs sync: PLAN §18, ARCHITECTURE, CONTEXT, README, `.env.example`
+- Scope: read-only, UI tiếng Việt; không auth/Tailwind/Redux; map = 12 marker (heatmap để mở)
+- Scaffold: `dashboard/api` (FastAPI) + `dashboard/web` (Vite/Mantine shell + trang Trạm)
+- Endpoints: `GET /api/health`, `GET /api/health/db`, `GET /api/stations`
+- Web build PASS; API process OK
+- Smoke (Postgres up): `/api/health/db` ok; `/api/stations` **12** rows + cluster labels
+
+### P11b (cùng ngày)
+- API: `/api/overview/meta|kpis|trends`, `/api/stations/compare`
+- UI: Tổng quan (KPI + ECharts), Trạm (xếp hạng PM2.5 + cluster); web build PASS
+- Smoke API P11b: cần Docker/Postgres đang chạy
+
+### P11c (cùng ngày)
+- Smoke P11b (khi Postgres up): KPI pm25≈105, episodes=405
+- API: `/api/episodes`, `/api/weather` (đã có trong OpenAPI)
+- UI: Đợt ô nhiễm + Thời tiết; web build PASS
+- Smoke P11c (Postgres up): episodes summary=12, list=200, multi=31; weather series/scatter=90
+
+### P11d (cùng ngày / tiếp)
+- API: `/api/predictions`, `/api/predictions/meta`, `/api/map/snapshot`
+- UI: Dự báo (MAE + actual/HistGB/persistence), Bản đồ Leaflet 12 marker
+- Web build PASS
+- Smoke P11d (Postgres up): predictions meta/series OK; map snapshot 12 points
+
+### P11e (cùng đợt)
+- Compose service `dashboard-api` + `dashboard/api/Dockerfile` (**image build OK**)
+- `dashboard/README.md` demo Windows; root README § Phase 11; `.env.example` ghi chú
+- DoD Phase 11 đánh dấu xong trong PLAN §18
+- Note: lần `up` bị chiếm port 8000 (uvicorn host) rồi Docker Desktop ngắt — sau khi Desktop ổn: `docker compose up -d postgres dashboard-api`
+
+### Next
+- P11f: commit / PR khi được yêu cầu
+- (Tuỳ chọn) Phase 12 Integration
+
+---
+
 ## 2026-10-10 (Phase 10 – **HOÀN THÀNH** kỹ thuật + hotfix baseline)
 
 ### Current phase
