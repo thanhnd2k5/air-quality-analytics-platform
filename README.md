@@ -259,6 +259,22 @@ docker run --rm --network air-quality-network --env-file .env -e POSTGRES_HOST=p
 py scripts/run_olap_checks.py
 ```
 
+### Phase 11 – Web Dashboard
+
+Stack: FastAPI + React (Vite) + Mantine + ECharts + Leaflet. Chi tiết: [`dashboard/README.md`](dashboard/README.md).
+
+```powershell
+# API trong Compose (cần Postgres/marts đã có)
+docker compose up -d postgres dashboard-api
+# API: http://localhost:8100/docs  (không dùng :8000 — dễ đụng project khác)
+
+# UI local
+cd dashboard/web
+npm install
+npm run dev
+# → http://localhost:5173 (hoặc 5174/5175 nếu bận)
+```
+
 ### Recreate checklist (2 thành viên)
 
 Trên mỗi máy, chỉ cần repo + `.env` (không commit `.env`):

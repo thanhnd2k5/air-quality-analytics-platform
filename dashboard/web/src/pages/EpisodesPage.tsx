@@ -49,9 +49,10 @@ export function EpisodesPage() {
         setDateFrom(m.default_from)
         setDateTo(m.default_to)
       })
-      .catch((err: unknown) =>
-        setError(err instanceof Error ? err.message : String(err)),
-      )
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err.message : String(err))
+        setLoading(false)
+      })
   }, [])
 
   useEffect(() => {
@@ -153,7 +154,10 @@ export function EpisodesPage() {
 
           <Paper withBorder p="md" radius="sm">
             <Text fw={600} mb="xs">
-              Episode gần đây (tối đa 200)
+              Episode gần đây
+            </Text>
+            <Text size="xs" c="dimmed" mb="xs">
+              Danh sách cắt ở 200 bản ghi mới nhất trong khoảng ngày (API limit).
             </Text>
             <Table striped highlightOnHover withTableBorder>
               <Table.Thead>
@@ -188,6 +192,9 @@ export function EpisodesPage() {
           <Paper withBorder p="md" radius="sm">
             <Text fw={600} mb="xs">
               Sự kiện đa-trạm
+            </Text>
+            <Text size="xs" c="dimmed" mb="xs">
+              Cũng giới hạn 200 sự kiện mới nhất trong khoảng ngày.
             </Text>
             <Table striped highlightOnHover withTableBorder>
               <Table.Thead>

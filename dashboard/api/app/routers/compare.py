@@ -3,6 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.coerce import as_float
 from app.dates import resolve_date_range
 from app.db import fetch_all, get_db
 from app.schemas.compare import StationCompareResponse, StationCompareRow
@@ -62,9 +63,9 @@ def compare_stations(
                 district=r["district"],
                 cluster_id=r["cluster_id"],
                 cluster_label=r["cluster_label"],
-                pm25_avg=float(r["pm25_avg"]) if r["pm25_avg"] is not None else None,
-                pm10_avg=float(r["pm10_avg"]) if r["pm10_avg"] is not None else None,
-                o3_avg=float(r["o3_avg"]) if r["o3_avg"] is not None else None,
+                pm25_avg=as_float(r["pm25_avg"]),
+                pm10_avg=as_float(r["pm10_avg"]),
+                o3_avg=as_float(r["o3_avg"]),
                 day_count=r["day_count"],
                 rank_pm25=r["rank_pm25"],
             )

@@ -46,7 +46,9 @@ function pmColor(pm: number | null): string {
 
 export function MapPage() {
   const [colorMode, setColorMode] = useState<'cluster' | 'pm25'>('cluster')
-  const [dateDay, setDateDay] = useState('')
+  // undefined = API default (latest day); only set when user picks a date
+  const [queryDay, setQueryDay] = useState<string | undefined>(undefined)
+  const [displayDay, setDisplayDay] = useState('')
   const [data, setData] = useState<MapSnapshotResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -54,11 +56,11 @@ export function MapPage() {
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    fetchMapSnapshot(dateDay || undefined)
+    fetchMapSnapshot(queryDay)
       .then((res) => {
         if (!cancelled) {
           setData(res)
-          if (!dateDay) setDateDay(res.date_day)
+          setDisplayDay(res.date_day)
           setError(null)
         }
       })
@@ -72,7 +74,7 @@ export function MapPage() {
     return () => {
       cancelled = true
     }
-  }, [dateDay])
+  }, [queryDay])
 
   const center = useMemo<[number, number]>(() => [39.95, 116.4], [])
 
@@ -89,10 +91,14 @@ export function MapPage() {
         <TextInput
           label="Ngày PM2.5"
           type="date"
-          value={dateDay}
+          value={displayDay}
           min={data?.data_min}
           max={data?.data_max}
-          onChange={(e) => setDateDay(e.currentTarget.value)}
+          onChange={(e) => {
+            const v = e.currentTarget.value
+            setDisplayDay(v)
+            setQueryDay(v || undefined)
+          }}
         />
         <Group gap="xs">
           <Badge

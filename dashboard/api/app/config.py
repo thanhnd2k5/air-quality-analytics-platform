@@ -15,7 +15,10 @@ class Settings(BaseSettings):
     postgres_db: str = "air_quality_dw"
     postgres_user: str = "postgres"
     postgres_password: str = "postgres"
-    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    # Optional extra exact origins (comma-separated). Local Vite ports covered by regex.
+    cors_origins: str = ""
+    # Any localhost / 127.0.0.1 port (many Vite projects → 5173, 5174, 5175, …)
+    cors_origin_regex: str = r"https?://(localhost|127\.0\.0\.1)(:\d+)?$"
 
     @property
     def database_url(self) -> str:

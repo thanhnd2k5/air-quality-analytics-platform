@@ -4,6 +4,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from app.coerce import as_float
 from app.dates import resolve_date_range
 from app.db import fetch_all, get_db
 from app.schemas.weather import (
@@ -29,10 +30,6 @@ SCATTER_COLUMNS = {
     "rain_mm_sum": "w.rain_mm_sum",
     "cloud_cover_pct_avg": "w.cloud_cover_pct_avg",
 }
-
-
-def _f(v: object) -> float | None:
-    return float(v) if v is not None else None
 
 
 @router.get("", response_model=WeatherResponse)
@@ -127,12 +124,12 @@ def weather_analysis(
         series=[
             WeatherSeriesPoint(
                 date_day=r["date_day"],
-                pm25_ug_m3_avg=_f(r["pm25_ug_m3_avg"]),
-                temperature_c_avg=_f(r["temperature_c_avg"]),
-                relative_humidity_pct_avg=_f(r["relative_humidity_pct_avg"]),
-                wind_speed_m_s_avg=_f(r["wind_speed_m_s_avg"]),
-                rain_mm_sum=_f(r["rain_mm_sum"]),
-                cloud_cover_pct_avg=_f(r["cloud_cover_pct_avg"]),
+                pm25_ug_m3_avg=as_float(r["pm25_ug_m3_avg"]),
+                temperature_c_avg=as_float(r["temperature_c_avg"]),
+                relative_humidity_pct_avg=as_float(r["relative_humidity_pct_avg"]),
+                wind_speed_m_s_avg=as_float(r["wind_speed_m_s_avg"]),
+                rain_mm_sum=as_float(r["rain_mm_sum"]),
+                cloud_cover_pct_avg=as_float(r["cloud_cover_pct_avg"]),
             )
             for r in series_rows
         ],
@@ -140,8 +137,8 @@ def weather_analysis(
         scatter=[
             WeatherScatterPoint(
                 date_day=r["date_day"],
-                pm25_ug_m3_avg=_f(r["pm25_ug_m3_avg"]),
-                weather_value=_f(r["weather_value"]),
+                pm25_ug_m3_avg=as_float(r["pm25_ug_m3_avg"]),
+                weather_value=as_float(r["weather_value"]),
             )
             for r in scatter_rows
         ],

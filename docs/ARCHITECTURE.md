@@ -1148,8 +1148,8 @@ Airflow UI     : 8080
 MinIO API      : 9000
 MinIO Console  : 9001
 PostgreSQL     : 5432
-Dashboard API  : 8000
-Dashboard Web  : 5173 (dev) / 3000 (prod)
+Dashboard API  : 8100 (host; container internal 8000)
+Dashboard Web  : 5173+ (dev, next free) / 3000 (prod)
 ```
 
 Nếu port conflict trên máy Windows, có thể map host port khác mà không đổi container port.

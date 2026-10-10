@@ -3,6 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.coerce import as_float
 from app.dates import resolve_date_range
 from app.db import fetch_all, get_db
 from app.schemas.episodes import (
@@ -13,10 +14,6 @@ from app.schemas.episodes import (
 )
 
 router = APIRouter(prefix="/episodes", tags=["episodes"])
-
-
-def _f(v: object) -> float | None:
-    return float(v) if v is not None else None
 
 
 @router.get("", response_model=EpisodesResponse)
@@ -115,10 +112,10 @@ def list_episodes(
                 station_key=r["station_key"],
                 station_name=r["station_name"],
                 episode_count=r["episode_count"],
-                duration_hours_avg=_f(r["duration_hours_avg"]),
+                duration_hours_avg=as_float(r["duration_hours_avg"]),
                 duration_hours_sum=r["duration_hours_sum"],
-                pm25_mean_avg=_f(r["pm25_mean_avg"]),
-                pm25_max_max=_f(r["pm25_max_max"]),
+                pm25_mean_avg=as_float(r["pm25_mean_avg"]),
+                pm25_max_max=as_float(r["pm25_max_max"]),
             )
             for r in summary_rows
         ],
@@ -130,16 +127,16 @@ def list_episodes(
                 start_time=r["start_time"],
                 end_time=r["end_time"],
                 duration_hours=r["duration_hours"],
-                pm25_mean=_f(r["pm25_mean"]),
-                pm25_max=_f(r["pm25_max"]),
+                pm25_mean=as_float(r["pm25_mean"]),
+                pm25_max=as_float(r["pm25_max"]),
                 year=r["year"],
                 season=r["season"],
-                temperature_c_avg=_f(r["temperature_c_avg"]),
-                relative_humidity_pct_avg=_f(r["relative_humidity_pct_avg"]),
-                wind_speed_m_s_avg=_f(r["wind_speed_m_s_avg"]),
-                rain_mm_sum=_f(r["rain_mm_sum"]),
-                cloud_cover_pct_avg=_f(r["cloud_cover_pct_avg"]),
-                threshold_ug_m3=_f(r["threshold_ug_m3"]),
+                temperature_c_avg=as_float(r["temperature_c_avg"]),
+                relative_humidity_pct_avg=as_float(r["relative_humidity_pct_avg"]),
+                wind_speed_m_s_avg=as_float(r["wind_speed_m_s_avg"]),
+                rain_mm_sum=as_float(r["rain_mm_sum"]),
+                cloud_cover_pct_avg=as_float(r["cloud_cover_pct_avg"]),
+                threshold_ug_m3=as_float(r["threshold_ug_m3"]),
                 min_hours=r["min_hours"],
             )
             for r in episode_rows
@@ -151,7 +148,7 @@ def list_episodes(
                 end_time=r["end_time"],
                 duration_hours=r["duration_hours"],
                 peak_station_count=r["peak_station_count"],
-                mean_station_count=_f(r["mean_station_count"]),
+                mean_station_count=as_float(r["mean_station_count"]),
                 multi_station_k=r["multi_station_k"],
             )
             for r in multi_rows

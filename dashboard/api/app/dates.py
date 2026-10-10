@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from sqlalchemy.orm import Session
 
 from app.db import fetch_one
+from app.errors import EmptyMartError
 
 
 def data_date_bounds(db: Session) -> tuple[date, date]:
@@ -14,7 +15,7 @@ def data_date_bounds(db: Session) -> tuple[date, date]:
         """,
     )
     if not row or row["min_day"] is None or row["max_day"] is None:
-        raise ValueError("mart.mart_station_daily is empty")
+        raise EmptyMartError("mart.mart_station_daily is empty")
     return row["min_day"], row["max_day"]
 
 

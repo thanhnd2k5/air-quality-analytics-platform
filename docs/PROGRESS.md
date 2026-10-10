@@ -35,8 +35,15 @@ Phase 11 – Web Dashboard (`feature/phase-11-dashboard`)
 - Web build PASS
 - Smoke P11d (Postgres up): predictions meta/series OK; map snapshot 12 points
 
+### P11e (cùng đợt)
+- Compose service `dashboard-api` + `dashboard/api/Dockerfile` (**image build OK**)
+- `dashboard/README.md` demo Windows; root README § Phase 11; `.env.example` ghi chú
+- DoD Phase 11 đánh dấu xong trong PLAN §18
+- Note: lần `up` bị chiếm port 8000 (uvicorn host) rồi Docker Desktop ngắt — sau khi Desktop ổn: `docker compose up -d postgres dashboard-api`
+
 ### Next
-- P11e polish tối thiểu + README demo
+- P11f: commit / PR khi được yêu cầu
+- (Tuỳ chọn) Phase 12 Integration
 
 ---
 

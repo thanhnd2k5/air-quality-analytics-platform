@@ -3,6 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.coerce import as_float
 from app.dates import data_date_bounds, resolve_date_range
 from app.db import fetch_all, fetch_one, get_db
 from app.schemas.overview import OverviewKpis, OverviewTrends, TrendPoint
@@ -75,9 +76,9 @@ def overview_kpis(
         date_from=start,
         date_to=end,
         station_key=station_key,
-        pm25_avg=float(agg["pm25_avg"]) if agg["pm25_avg"] is not None else None,
-        pm10_avg=float(agg["pm10_avg"]) if agg["pm10_avg"] is not None else None,
-        o3_avg=float(agg["o3_avg"]) if agg["o3_avg"] is not None else None,
+        pm25_avg=as_float(agg["pm25_avg"]),
+        pm10_avg=as_float(agg["pm10_avg"]),
+        o3_avg=as_float(agg["o3_avg"]),
         station_day_rows=agg["station_day_rows"],
         pm25_day_rows=agg["pm25_day_rows"],
         episode_count=ep["episode_count"] if ep else 0,
@@ -125,15 +126,9 @@ def overview_trends(
     points = [
         TrendPoint(
             date_day=r["date_day"],
-            pm25_ug_m3_avg=(
-                float(r["pm25_ug_m3_avg"]) if r["pm25_ug_m3_avg"] is not None else None
-            ),
-            pm10_ug_m3_avg=(
-                float(r["pm10_ug_m3_avg"]) if r["pm10_ug_m3_avg"] is not None else None
-            ),
-            o3_ug_m3_avg=(
-                float(r["o3_ug_m3_avg"]) if r["o3_ug_m3_avg"] is not None else None
-            ),
+            pm25_ug_m3_avg=as_float(r["pm25_ug_m3_avg"]),
+            pm10_ug_m3_avg=as_float(r["pm10_ug_m3_avg"]),
+            o3_ug_m3_avg=as_float(r["o3_ug_m3_avg"]),
         )
         for r in rows
     ]

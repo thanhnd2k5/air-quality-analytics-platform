@@ -3,6 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.coerce import as_float
 from app.dates import data_date_bounds
 from app.db import fetch_all, fetch_one, get_db
 from app.schemas.map import MapSnapshotResponse, MapStationPoint
@@ -15,14 +16,12 @@ COORD_NOTE = (
 )
 
 
-def _f(v: object) -> float | None:
-    return float(v) if v is not None else None
-
-
 @router.get("/snapshot", response_model=MapSnapshotResponse)
 def map_snapshot(
     db: Session = Depends(get_db),
-    date_day: date | None = Query(None, description="Ngày PM daily; mặc định = ngày cuối có data"),
+    date_day: date | None = Query(
+        None, description="Ngày PM daily; mặc định = ngày cuối có data"
+    ),
 ) -> MapSnapshotResponse:
     data_min, data_max = data_date_bounds(db)
     day = date_day or data_max
@@ -31,8 +30,6 @@ def map_snapshot(
     if day > data_max:
         day = data_max
 
-    # If exact day missing for some stations, still show coords; PM may be null.
-    # Prefer nearest available day <= requested for city coverage.
     nearest = fetch_one(
         db,
         """
@@ -86,7 +83,7 @@ def map_snapshot(
                 coordinate_status=r["coordinate_status"],
                 cluster_id=r["cluster_id"],
                 cluster_label=r["cluster_label"],
-                pm25_ug_m3_avg=_f(r["pm25_ug_m3_avg"]),
+                pm25_ug_m3_avg=as_float(r["pm25_ug_m3_avg"]),
                 date_day=r["date_day"],
             )
             for r in rows

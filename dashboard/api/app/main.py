@@ -1,8 +1,19 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.config import get_settings
-from app.routers import compare, episodes, health, map, overview, predictions, stations, weather
+from app.errors import EmptyMartError
+from app.routers import (
+    compare,
+    episodes,
+    health,
+    map_view,
+    overview,
+    predictions,
+    stations,
+    weather,
+)
 
 settings = get_settings()
 
@@ -15,10 +26,17 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
+    allow_origin_regex=settings.cors_origin_regex or None,
     allow_credentials=True,
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(EmptyMartError)
+async def empty_mart_handler(_request: Request, exc: EmptyMartError) -> JSONResponse:
+    return JSONResponse(status_code=503, content={"detail": exc.message})
+
 
 app.include_router(health.router, prefix="/api")
 app.include_router(overview.router, prefix="/api")
@@ -26,7 +44,7 @@ app.include_router(compare.router, prefix="/api")
 app.include_router(episodes.router, prefix="/api")
 app.include_router(weather.router, prefix="/api")
 app.include_router(predictions.router, prefix="/api")
-app.include_router(map.router, prefix="/api")
+app.include_router(map_view.router, prefix="/api")
 app.include_router(stations.router, prefix="/api")
 
 

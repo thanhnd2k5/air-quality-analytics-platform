@@ -47,6 +47,7 @@ export function OverviewPage() {
       })
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : String(err))
+        setLoading(false)
       })
   }, [])
 

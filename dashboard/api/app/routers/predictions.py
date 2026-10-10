@@ -4,7 +4,9 @@ from typing import Literal
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.coerce import as_float
 from app.db import fetch_all, fetch_one, get_db
+from app.errors import EmptyMartError
 from app.schemas.predictions import (
     PredictionMetrics,
     PredictionPoint,
@@ -14,10 +16,6 @@ from app.schemas.predictions import (
 router = APIRouter(prefix="/predictions", tags=["predictions"])
 
 SplitFilter = Literal["train", "val", "test"]
-
-
-def _f(v: object) -> float | None:
-    return float(v) if v is not None else None
 
 
 def _prediction_bounds(db: Session) -> tuple[date, date]:
@@ -31,7 +29,7 @@ def _prediction_bounds(db: Session) -> tuple[date, date]:
         """,
     )
     if not row or row["min_day"] is None:
-        raise ValueError("mart.mart_pm25_predictions is empty")
+        raise EmptyMartError("mart.mart_pm25_predictions is empty")
     return row["min_day"], row["max_day"]
 
 
@@ -131,7 +129,7 @@ def list_predictions(
         params,
     )
 
-    # Prefer a single station series for chart readability; else city-mean by hour.
+    # Single station: raw series. All stations: hourly city mean; split label = "aggregate".
     if station_key is not None:
         series_sql = f"""
         SELECT
@@ -154,7 +152,7 @@ def list_predictions(
             AVG(p.predicted_pm25) AS predicted_pm25,
             AVG(p.predicted_pm25_persistence) AS predicted_pm25_persistence,
             AVG(p.absolute_error) AS absolute_error,
-            MIN(p.split) AS split
+            'aggregate'::text AS split
         FROM mart.mart_pm25_predictions AS p
         WHERE {where}
         GROUP BY date_trunc('hour', p.target_time)
@@ -174,18 +172,20 @@ def list_predictions(
             PredictionMetrics(
                 split=r["split"],
                 n=r["n"],
-                mae_model=_f(r["mae_model"]),
-                mae_persistence=_f(r["mae_persistence"]),
+                mae_model=as_float(r["mae_model"]),
+                mae_persistence=as_float(r["mae_persistence"]),
             )
             for r in metrics_rows
         ],
         series=[
             PredictionPoint(
                 target_time=r["target_time"],
-                actual_pm25=_f(r["actual_pm25"]),
-                predicted_pm25=_f(r["predicted_pm25"]),
-                predicted_pm25_persistence=_f(r["predicted_pm25_persistence"]),
-                absolute_error=_f(r["absolute_error"]),
+                actual_pm25=as_float(r["actual_pm25"]),
+                predicted_pm25=as_float(r["predicted_pm25"]),
+                predicted_pm25_persistence=as_float(
+                    r["predicted_pm25_persistence"]
+                ),
+                absolute_error=as_float(r["absolute_error"]),
                 split=r["split"],
             )
             for r in series_rows

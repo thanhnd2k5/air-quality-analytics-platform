@@ -47,9 +47,10 @@ export function WeatherPage() {
         setDateFrom(m.default_from)
         setDateTo(m.default_to)
       })
-      .catch((err: unknown) =>
-        setError(err instanceof Error ? err.message : String(err)),
-      )
+      .catch((err: unknown) => {
+        setError(err instanceof Error ? err.message : String(err))
+        setLoading(false)
+      })
   }, [])
 
   useEffect(() => {

@@ -1599,20 +1599,23 @@ React (Vite + TS) + Mantine + ECharts + react-leaflet
 
 ### P11e – Polish tối thiểu + Docker/README
 
+- `dashboard-api` trong `docker-compose.yml` + `dashboard/api/Dockerfile`
+- `dashboard/README.md` hướng dẫn demo; DoD đánh dấu
+
 ### P11f – Close / PR khi được yêu cầu
 
 ## Definition of Done
 
 ```text
-[ ] Dashboard đọc DWH/marts qua FastAPI
-[ ] Filter hoạt động
-[ ] Charts rõ (ECharts)
-[ ] Clustering hiển thị
-[ ] Pollution episodes hiển thị (từ mart)
-[ ] Prediction hiển thị
-[ ] Map 12 trạm (Leaflet)
-[ ] Không đọc trực tiếp CSV raw cho kết quả chính
-[ ] Không auth / CRUD / train model từ UI
+[x] Dashboard đọc DWH/marts qua FastAPI
+[x] Filter hoạt động
+[x] Charts rõ (ECharts)
+[x] Clustering hiển thị
+[x] Pollution episodes hiển thị (từ mart)
+[x] Prediction hiển thị
+[x] Map 12 trạm (Leaflet)
+[x] Không đọc trực tiếp CSV raw cho kết quả chính
+[x] Không auth / CRUD / train model từ UI
 ```
 
 ---
