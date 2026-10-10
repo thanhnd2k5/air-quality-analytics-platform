@@ -15,11 +15,17 @@ Phase 11 – Web Dashboard (`feature/phase-11-dashboard`)
 - Scope: read-only, UI tiếng Việt; không auth/Tailwind/Redux; map = 12 marker (heatmap để mở)
 - Scaffold: `dashboard/api` (FastAPI) + `dashboard/web` (Vite/Mantine shell + trang Trạm)
 - Endpoints: `GET /api/health`, `GET /api/health/db`, `GET /api/stations`
-- Web build PASS; API process OK — cần Postgres (port `.env`) để `/stations` trả data
+- Web build PASS; API process OK
+- Smoke (Postgres up): `/api/health/db` ok; `/api/stations` **12** rows + cluster labels
+
+### P11b (cùng ngày)
+- API: `/api/overview/meta|kpis|trends`, `/api/stations/compare`
+- UI: Tổng quan (KPI + ECharts), Trạm (xếp hạng PM2.5 + cluster); web build PASS
+- Smoke API P11b: cần Docker/Postgres đang chạy
 
 ### Next
-- Bật Postgres + smoke `/api/stations` (12 rows)
-- P11b Tổng quan + Trạm (KPI/trends)
+- Smoke P11b khi Postgres up
+- P11c Đợt ô nhiễm + Thời tiết
 
 ---
 

@@ -22,6 +22,8 @@ py -3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 - Health: http://localhost:8000/api/health
 - Stations: http://localhost:8000/api/stations
+- Overview: `/api/overview/meta`, `/kpis`, `/trends`
+- Compare: `/api/stations/compare`
 - OpenAPI: http://localhost:8000/docs
 
 ## Web

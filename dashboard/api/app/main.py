@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import health, stations
+from app.routers import compare, health, overview, stations
 
 settings = get_settings()
 
@@ -21,6 +21,8 @@ app.add_middleware(
 )
 
 app.include_router(health.router, prefix="/api")
+app.include_router(overview.router, prefix="/api")
+app.include_router(compare.router, prefix="/api")
 app.include_router(stations.router, prefix="/api")
 
 
