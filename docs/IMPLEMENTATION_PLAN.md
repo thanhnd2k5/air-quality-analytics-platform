@@ -1700,6 +1700,7 @@ source → lake → processing → staging → DWH → mining → dashboard
 - Host MinIO CLI: align `MINIO_*` với `MINIO_ROOT_*` (SignatureDoesNotMatch)
 - Postgres seed cũ `feature_set_version` → `dbt seed --full-refresh`
 - `staging.pm25_predictions_raw` lệch artifact → reload từ `predictions_locked.parquet`
+- Compose `CORS_ORIGIN_REGEX` over-escape → không match Vite origin → `Failed to fetch` (fix: `[0-9]`/`[.]`; web dev gọi thẳng `:8100`)
 
 ---
 

@@ -37,9 +37,10 @@ Phase 12 – Integration & Hardening (**DONE** kỹ thuật trên `feature/phase
 
 - **P12e:** scan — không hard-coded machine path; không secret thật trong repo (`.env.example` placeholder OK)
 - README § Phase 12 + runbook link; PLAN DoD Phase 12 tick xong; findings MinIO/seed/predictions ghi PLAN + runbook
+- **Hotfix (sau smoke UI):** CORS regex trong compose bị over-escape (`\\d`) → browser `Failed to fetch`; đổi default `[0-9]`/`[.]`; recreate `dashboard-api`. Dev web: `.env.development` → `VITE_API_BASE_URL=http://127.0.0.1:8100`, Vite port ưu tiên 5180.
 
 ### Next
-- P12f: commit / PR khi được yêu cầu
+- P12f: commit / PR phần hotfix còn lại (CORS + `.env.development`) khi được yêu cầu
 - Phase 13 – Report & Demo Preparation
 
 ---

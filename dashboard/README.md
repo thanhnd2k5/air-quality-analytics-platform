@@ -39,7 +39,10 @@ npm install
 npm run dev
 ```
 
-Mở URL Vite in ra (5173/5175/…) — proxy `/api` → `localhost:8100`.
+Mở **đúng URL Vite in ra** (mặc định ưu tiên **5180**; nếu bận thì 5181…).  
+Dev dùng `.env.development` → gọi thẳng `http://127.0.0.1:8100` (không phụ thuộc proxy).  
+
+**Hay lỗi:** tab đang mở `localhost:5173` / `5174` là Vite app khác → `/api` trả HTML → “Unexpected token '<'”. API `:8100` vẫn OK.
 
 ### API local (không Docker API)
 
@@ -60,8 +63,8 @@ py -3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8100
 | `POSTGRES_*` | Kết nối DWH |
 | `DASHBOARD_API_PORT` | Host port API (mặc định **8100**) |
 | `CORS_ORIGINS` | Origin exact thêm (tuỳ chọn) |
-| `CORS_ORIGIN_REGEX` | Mặc định cho phép `localhost` / `127.0.0.1` **mọi port** (5173, 5175, …) |
-| `VITE_API_BASE_URL` | Để trống khi dùng Vite proxy; hoặc `http://localhost:8100` |
+| `CORS_ORIGIN_REGEX` | Cho phép `localhost` / `127.0.0.1` mọi port — dùng `[0-9]`/`[.]` (tránh `\\d` trong compose) |
+| `VITE_API_BASE_URL` | Dev: `dashboard/web/.env.development` → `http://127.0.0.1:8100`. Để trống = dùng Vite proxy `/api` |
 
 ## Endpoints chính
 
@@ -83,6 +86,7 @@ py -3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8100
 |---|---|
 | `health/db` 500 / connection refused | Bật Docker Desktop; `docker compose up -d postgres` |
 | Docker “biến mất” | Engine Desktop tắt — bật lại; Settings → Start when you log in; tắt Resource Saver nếu có |
-| Web không gọi được API | Kiểm tra API `:8100`; dùng proxy Vite |
-| 404 JSON `Không thể xử lý yêu cầu` | Đang trúng app khác trên `:8000` — chạy dashboard API ở **8100**, restart Vite |
-| Port 8100 đã dùng | Đổi `DASHBOARD_API_PORT` trong `.env` + `vite.config.ts` proxy target |
+| `Failed to fetch` (API health vẫn OK) | CORS: `docker compose up -d dashboard-api --force-recreate`; mở đúng `http://localhost:5180/` |
+| HTML / `Unexpected token '<'` | Đang mở Vite app khác (5173/5174) — dùng URL Vite của dashboard |
+| 404 JSON `Không thể xử lý yêu cầu` | Đang trúng app khác trên `:8000` — API dashboard ở **8100** |
+| Port 8100 đã dùng | Đổi `DASHBOARD_API_PORT` trong `.env` + `.env.development` + proxy `vite.config.ts` |

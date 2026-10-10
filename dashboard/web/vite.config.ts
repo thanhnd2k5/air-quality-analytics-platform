@@ -4,15 +4,12 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   server: {
-    // Prefer 5173; if busy (other Vite apps), Vite picks next free port.
-    port: 5173,
+    // Prefer free port away from other local Vite apps (often 5173/5174).
+    port: 5180,
     strictPort: false,
     proxy: {
+      // Fallback if VITE_API_BASE_URL is empty; .env.development points at :8100 directly.
       '/api': {
-        // 8100 = dashboard API (8000 often taken by other local projects)
-        // Use 127.0.0.1 — on Windows, localhost can resolve to ::1 and break
-        // Docker port maps → proxy ECONNRESET → Vite serves index.html →
-        // frontend JSON.parse fails with Unexpected token '<!doctype'.
         target: 'http://127.0.0.1:8100',
         changeOrigin: true,
       },

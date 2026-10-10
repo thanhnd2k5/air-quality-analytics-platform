@@ -109,6 +109,9 @@ Xem script Phase 9 / 10:
 
 ```powershell
 docker compose up -d postgres dashboard-api
+# Nếu UI báo Failed to fetch dù health OK: recreate để nạp CORS regex mới
+# docker compose up -d dashboard-api --force-recreate
+
 Invoke-RestMethod http://127.0.0.1:8100/api/health
 Invoke-RestMethod http://127.0.0.1:8100/api/health/db
 Invoke-RestMethod http://127.0.0.1:8100/api/stations
@@ -116,6 +119,8 @@ Invoke-RestMethod http://127.0.0.1:8100/api/stations
 
 cd dashboard/web
 npm install
+npm run dev
+# Mở đúng URL Vite (ưu tiên :5180). Dev dùng .env.development → :8100 trực tiếp.
 npm run build
 ```
 
@@ -123,6 +128,7 @@ Evidence target: `dashboard_smoke.json`.
 
 ## 6) Hardening notes (P12e)
 
-- Không commit `.env`
+- Không commit `.env` (được commit: `dashboard/web/.env.development` — không secret)
 - Không hard-code path máy cá nhân
 - Screenshot demo → Phase 13
+- CORS compose: dùng `[0-9]` / `[.]`, không `\\d` / `\\.` trong default env

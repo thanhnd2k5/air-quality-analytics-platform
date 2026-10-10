@@ -17,8 +17,9 @@ class Settings(BaseSettings):
     postgres_password: str = "postgres"
     # Optional extra exact origins (comma-separated). Local Vite ports covered by regex.
     cors_origins: str = ""
-    # Any localhost / 127.0.0.1 port (many Vite projects → 5173, 5174, 5175, …)
-    cors_origin_regex: str = r"https?://(localhost|127\.0\.0\.1)(:\d+)?$"
+    # Any localhost / 127.0.0.1 port (Vite may land on 5173–5180+).
+    # Prefer [0-9] / [.] so Docker Compose env defaults do not over-escape \\d.
+    cors_origin_regex: str = r"https?://(localhost|127[.]0[.]0[.]1)(:[0-9]+)?$"
 
     @property
     def database_url(self) -> str:

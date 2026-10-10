@@ -266,13 +266,14 @@ Stack: FastAPI + React (Vite) + Mantine + ECharts + Leaflet. Chi tiết: [`dashb
 ```powershell
 # API trong Compose (cần Postgres/marts đã có)
 docker compose up -d postgres dashboard-api
-# API: http://localhost:8100/docs  (không dùng :8000 — dễ đụng project khác)
+# API: http://127.0.0.1:8100/docs  (không dùng :8000 — dễ đụng project khác)
 
 # UI local
 cd dashboard/web
 npm install
 npm run dev
-# → http://localhost:5173 (hoặc 5174/5175 nếu bận)
+# → ưu tiên http://localhost:5180/ (tránh đụng Vite app khác ở 5173/5174)
+# Dev gọi thẳng API qua dashboard/web/.env.development
 ```
 
 ### Phase 12 – Integration (hybrid)
@@ -284,6 +285,8 @@ Không `down -v`. Giữ volume; smoke idempotent + 1 slice fresh (Wanshouxigong)
 Evidence: `artifacts/integration/` (`pipeline_p12c_summary.json`, `mining_dashboard_p12d_summary.json`, …).
 
 **Lưu ý host CLI MinIO:** `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` phải khớp `MINIO_ROOT_*` (sai → `SignatureDoesNotMatch`). Sau `dbt run`, nếu mart cluster/predictions lệch lock: `dbt seed --full-refresh` + reload `staging.pm25_predictions_raw` từ `predictions_locked.parquet` (xem runbook §4).
+
+**Dashboard UI:** nếu `Failed to fetch` dù `/api/health` OK → CORS; `docker compose up -d dashboard-api --force-recreate` (regex compose dùng `[0-9]`/`[.]`, không `\\d`).
 
 ### Recreate checklist (2 thành viên)
 
