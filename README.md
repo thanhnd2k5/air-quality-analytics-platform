@@ -275,6 +275,16 @@ npm run dev
 # → http://localhost:5173 (hoặc 5174/5175 nếu bận)
 ```
 
+### Phase 12 – Integration (hybrid)
+
+Không `down -v`. Giữ volume; smoke idempotent + 1 slice fresh (Wanshouxigong); mining verify (không retrain). Runbook đầy đủ:
+
+[`artifacts/integration/runbook_hybrid.md`](artifacts/integration/runbook_hybrid.md)
+
+Evidence: `artifacts/integration/` (`pipeline_p12c_summary.json`, `mining_dashboard_p12d_summary.json`, …).
+
+**Lưu ý host CLI MinIO:** `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` phải khớp `MINIO_ROOT_*` (sai → `SignatureDoesNotMatch`). Sau `dbt run`, nếu mart cluster/predictions lệch lock: `dbt seed --full-refresh` + reload `staging.pm25_predictions_raw` từ `predictions_locked.parquet` (xem runbook §4).
+
 ### Recreate checklist (2 thành viên)
 
 Trên mỗi máy, chỉ cần repo + `.env` (không commit `.env`):

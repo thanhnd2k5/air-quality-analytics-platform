@@ -1678,22 +1678,28 @@ source → lake → processing → staging → DWH → mining → dashboard
 ## Definition of Done
 
 ```text
-[ ] Compose services healthy trên volume hiện có (không bắt buộc down -v)
-[ ] Idempotent rerun pipeline không fail (skip OK)
-[ ] Slice fresh 1 trạm chứng minh path hoạt động
-[ ] dbt test PASS
-[ ] Mart checks (episodes/cluster/predictions) + OLAP smoke OK
-[ ] Mining artifacts verified; không bắt buộc retrain
-[ ] Dashboard API (+ web build) smoke OK
-[ ] Runbook + evidence trong artifacts/integration/
-[ ] Không secret trong repo; cleanup rõ ràng nếu phát hiện
-[ ] PLAN DoD + PROGRESS đóng phase
+[x] Compose services healthy trên volume hiện có (không bắt buộc down -v)
+[x] Idempotent rerun pipeline không fail (skip OK)
+[x] Slice fresh 1 trạm chứng minh path hoạt động
+[x] dbt test PASS
+[x] Mart checks (episodes/cluster/predictions) + OLAP smoke OK
+[x] Mining artifacts verified; không bắt buộc retrain
+[x] Dashboard API (+ web build) smoke OK
+[x] Runbook + evidence trong artifacts/integration/
+[x] Không secret trong repo; cleanup rõ ràng nếu phát hiện
+[x] PLAN DoD + PROGRESS đóng phase
 ```
 
 ## Cleanup (khi phát hiện)
 
 - hard-coded path; password trong repo; code trùng / experiment thừa
 - notebook-only logic cần productionize (chỉ nếu chặn demo)
+
+**P12 findings (đã xử lý / ghi runbook):**
+
+- Host MinIO CLI: align `MINIO_*` với `MINIO_ROOT_*` (SignatureDoesNotMatch)
+- Postgres seed cũ `feature_set_version` → `dbt seed --full-refresh`
+- `staging.pm25_predictions_raw` lệch artifact → reload từ `predictions_locked.parquet`
 
 ---
 

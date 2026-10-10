@@ -9,6 +9,8 @@ Scope locked: **giữ volume** (không `docker compose down -v`), idempotent ful
 docker compose ps
 ```
 
+**MinIO host CLI:** `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` phải khớp `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD`. Nếu `SignatureDoesNotMatch`, align trong `.env` (local only) hoặc tạm export từ container ROOT trước khi chạy script.
+
 ## 1) Infra smoke (P12b)
 
 ```powershell
@@ -67,7 +69,23 @@ Hoặc Airflow: trigger `staging_load` với conf `{"station":"Wanshouxigong"}`.
 
 ## 4) Mining verify (P12d) — không retrain
 
+Trước khi check cluster/predictions, đồng bộ seed + staging predictions với artifact (tránh mart lệch sau `dbt run` trên seed/staging cũ):
+
 ```powershell
+docker run --rm --network air-quality-network --env-file .env `
+  -e POSTGRES_HOST=postgres -e POSTGRES_PORT=5432 `
+  -e DBT_SEND_ANONYMOUS_USAGE_STATS=false -e DO_NOT_TRACK=1 `
+  -v "${PWD}/dbt:/dbt" ghcr.io/dbt-labs/dbt-postgres:1.9.0 `
+  seed --full-refresh --project-dir /dbt/air_quality_dbt --profiles-dir /dbt
+
+py -3 -c "from pathlib import Path; from dotenv import load_dotenv; load_dotenv(Path('.')/'.env'); from src.forecasting.persist import load_predictions_to_staging; print(load_predictions_to_staging())"
+
+docker run --rm --network air-quality-network --env-file .env `
+  -e POSTGRES_HOST=postgres -e POSTGRES_PORT=5432 `
+  -e DBT_SEND_ANONYMOUS_USAGE_STATS=false -e DO_NOT_TRACK=1 `
+  -v "${PWD}/dbt:/dbt" ghcr.io/dbt-labs/dbt-postgres:1.9.0 `
+  run --select mart_station_cluster mart_pm25_predictions --project-dir /dbt/air_quality_dbt --profiles-dir /dbt
+
 py scripts/check_mart_cluster.py
 py scripts/check_mart_episodes.py
 py scripts/check_mart_predictions.py

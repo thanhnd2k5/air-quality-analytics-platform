@@ -7,7 +7,7 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 ## 2026-10-11 (Phase 12 – P12a kickoff)
 
 ### Current phase
-Phase 12 – Integration & Hardening (`feature/phase-12-integration`)
+Phase 12 – Integration & Hardening (**DONE** kỹ thuật trên `feature/phase-12-integration`)
 
 ### Decisions (locked)
 - E2E **Hybrid:** giữ volume (không `down -v`); idempotent full chain + slice fresh **Wanshouxigong**
@@ -19,9 +19,28 @@ Phase 12 – Integration & Hardening (`feature/phase-12-integration`)
 - **P12a:** branch `feature/phase-12-integration`
 - PLAN §19: WBS P12a→P12f + DoD + decisions
 - `artifacts/integration/.gitkeep` + `runbook_hybrid.md`
+- **P12b:** compose healthy — postgres, minio, airflow-webserver, airflow-scheduler, dashboard-api
+- Airflow `/health` metadatabase+scheduler healthy; dashboard `/api/health` + `/api/health/db` ok
+- MinIO `air-quality-lake`: raw UCI 12 + processed UCI 12 + OM raw 12 prefixes
+- Postgres schemas staging/dwh/mart; `dim_station`=12; fact/staging air = 420768
+- Evidence: `artifacts/integration/compose_ps.txt`, `airflow_health.json`, `dashboard_api_health.json`, `infra_smoke.json`
+
+- **P12c:** idempotent — UCI ingest rerun 12/12 skip; process UCI/OM + staging all skip; OM ingest 60/60 skip
+- Fresh slice **Wanshouxigong**: process UCI+OM `process_date=2026-10-11` uploaded; staging **loaded** (replace) 35064×2; verify ok
+- `dbt run` 15/15 PASS; `dbt test` **61/61** PASS
+- Finding: host `.env` `MINIO_SECRET_KEY` lệch ROOT → SignatureDoesNotMatch; smoke dùng ROOT từ container (không commit secret)
+- Evidence: `artifacts/integration/pipeline_p12c_summary.json` + JSONL/dbt_*.txt
+
+- **P12d:** episodes + OLAP ok; cluster/predictions lệch lúc đầu → fix: `dbt seed --full-refresh` + reload `staging.pm25_predictions_raw` từ `predictions_locked.parquet` → checks **ok** (MAE test = lock 9.1436)
+- Dashboard smoke: health/db, stations=12, KPIs, episodes, predictions meta (lock model), map=12; web `npm run build` PASS
+- Evidence: `mining_dashboard_p12d_summary.json`, `dashboard_smoke.json`, check_mart_*.txt
+
+- **P12e:** scan — không hard-coded machine path; không secret thật trong repo (`.env.example` placeholder OK)
+- README § Phase 12 + runbook link; PLAN DoD Phase 12 tick xong; findings MinIO/seed/predictions ghi PLAN + runbook
 
 ### Next
-- P12b: infra smoke (compose healthy + evidence)
+- P12f: commit / PR khi được yêu cầu
+- Phase 13 – Report & Demo Preparation
 
 ---
 

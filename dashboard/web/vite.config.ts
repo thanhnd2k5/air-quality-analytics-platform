@@ -10,7 +10,10 @@ export default defineConfig({
     proxy: {
       '/api': {
         // 8100 = dashboard API (8000 often taken by other local projects)
-        target: 'http://localhost:8100',
+        // Use 127.0.0.1 — on Windows, localhost can resolve to ::1 and break
+        // Docker port maps → proxy ECONNRESET → Vite serves index.html →
+        // frontend JSON.parse fails with Unexpected token '<!doctype'.
+        target: 'http://127.0.0.1:8100',
         changeOrigin: true,
       },
     },
