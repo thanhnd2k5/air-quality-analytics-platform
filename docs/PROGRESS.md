@@ -4,10 +4,31 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-10-10 (Phase 11 – P11a kickoff)
+## 2026-10-11 (Phase 12 – P12a kickoff)
 
 ### Current phase
-Phase 11 – Web Dashboard (`feature/phase-11-dashboard`)
+Phase 12 – Integration & Hardening (`feature/phase-12-integration`)
+
+### Decisions (locked)
+- E2E **Hybrid:** giữ volume (không `down -v`); idempotent full chain + slice fresh **Wanshouxigong**
+- Mining **verify + docs** (không retrain P9/P10)
+- Không meta-DAG mới; dashboard web vẫn local npm; API Compose `:8100`
+- Evidence / runbook: `artifacts/integration/`
+
+### Completed
+- **P12a:** branch `feature/phase-12-integration`
+- PLAN §19: WBS P12a→P12f + DoD + decisions
+- `artifacts/integration/.gitkeep` + `runbook_hybrid.md`
+
+### Next
+- P12b: infra smoke (compose healthy + evidence)
+
+---
+
+## 2026-10-10 (Phase 11 – **HOÀN THÀNH** kỹ thuật; merged PR #11)
+
+### Current phase
+Phase 11 – Web Dashboard (**DONE** trên `main` qua PR #11)
 
 ### Completed
 - **Stack lock:** FastAPI + Vite/React/TS + Mantine + ECharts + react-leaflet (thay Streamlit)
@@ -42,8 +63,8 @@ Phase 11 – Web Dashboard (`feature/phase-11-dashboard`)
 - Note: lần `up` bị chiếm port 8000 (uvicorn host) rồi Docker Desktop ngắt — sau khi Desktop ổn: `docker compose up -d postgres dashboard-api`
 
 ### Next
-- P11f: commit / PR khi được yêu cầu
-- (Tuỳ chọn) Phase 12 Integration
+- ~~P11f / PR #11~~ → merged `52f8fd0`
+- Phase 12 – Integration & Hardening (xem entry 2026-10-11)
 
 ---
 
