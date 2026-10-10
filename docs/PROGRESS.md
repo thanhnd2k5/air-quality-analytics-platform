@@ -4,6 +4,25 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-10 (Phase 11 – P11a kickoff)
+
+### Current phase
+Phase 11 – Web Dashboard (`feature/phase-11-dashboard`)
+
+### Completed
+- **Stack lock:** FastAPI + Vite/React/TS + Mantine + ECharts + react-leaflet (thay Streamlit)
+- Docs sync: PLAN §18, ARCHITECTURE, CONTEXT, README, `.env.example`
+- Scope: read-only, UI tiếng Việt; không auth/Tailwind/Redux; map = 12 marker (heatmap để mở)
+- Scaffold: `dashboard/api` (FastAPI) + `dashboard/web` (Vite/Mantine shell + trang Trạm)
+- Endpoints: `GET /api/health`, `GET /api/health/db`, `GET /api/stations`
+- Web build PASS; API process OK — cần Postgres (port `.env`) để `/stations` trả data
+
+### Next
+- Bật Postgres + smoke `/api/stations` (12 rows)
+- P11b Tổng quan + Trạm (KPI/trends)
+
+---
+
 ## 2026-10-10 (Phase 10 – **HOÀN THÀNH** kỹ thuật + hotfix baseline)
 
 ### Current phase

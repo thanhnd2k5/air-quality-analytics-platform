@@ -363,7 +363,7 @@ MinIO
 Airflow
 ```
 
-dbt và Streamlit có thể cấu hình sau.
+dbt và dashboard (FastAPI/React) có thể cấu hình sau.
 
 ## Docker Compose
 
@@ -1539,65 +1539,80 @@ Global model:
 
 ## Mục tiêu
 
-Tạo giao diện trực quan để khám phá kết quả của hệ thống.
+Tạo giao diện trực quan (read-only) để khám phá kết quả DWH / marts / ML.
 
-Công nghệ:
+## Công nghệ (locked P11a – 2026-10-10)
 
 ```text
-Streamlit
-+
-Plotly
+FastAPI  →  PostgreSQL (dwh / mart)
+React (Vite + TS) + Mantine + ECharts + react-leaflet
 ```
+
+- **Không** Streamlit; **không** Tailwind / Redux / Zustand / auth.
+- UI tiếng Việt; chỉ hiển thị dữ liệu (filter → chart/table/map).
+- Map MVP: 12 marker Leaflet (coords LITERATURE). Heatmap nội suy kiểu Windy = nice-to-have sau, không DoD.
 
 ## Minimum Viable Dashboard
 
-### Overview
+### Tổng quan
 
-- KPI;
-- pollutant trends;
-- station selector;
-- date filter.
+- KPI; xu hướng pollutant; chọn trạm; lọc ngày.
 
-### Station Analysis
+### Trạm
 
-- comparison;
-- ranking;
-- cluster.
+- so sánh; xếp hạng; cluster (`mart_station_cluster`).
 
-### Pollution Episodes
+### Đợt ô nhiễm
 
 - độ dài / số episode theo trạm;
 - phân bố theo thời gian;
-- mức độ đồng thời nhiều trạm;
-- weather trung bình trong episode — đọc từ `mart_pm25_episodes`.
+- sự kiện đa-trạm;
+- weather trong episode — `mart_pm25_episodes` / `mart_pm25_multi_station_events`.
 
-### Weather Analysis
+### Thời tiết
 
-- relationship với PM2.5;
-- filter;
-- scatter/time-series.
+- quan hệ với PM2.5; filter; scatter/time-series — `mart_pollution_weather`.
 
-### Prediction
+### Dự báo
 
-- actual vs predicted;
-- error;
-- model metrics;
-- station/date selection.
+- actual vs predicted; lỗi; metric tóm tắt; lọc trạm/ngày/split — `mart_pm25_predictions`.
 
-## Map
+### Bản đồ
 
-Chỉ thêm khi station coordinates đã được xác minh.
+- 12 điểm + màu cluster/PM; popup; chú thích nguồn coords.
+
+## WBS (P11a → P11f)
+
+### P11a – Lock + skeleton
+
+- Branch `feature/phase-11-dashboard`
+- Docs lock stack; scaffold `dashboard/api` + `dashboard/web`
+- `GET /api/health`, `GET /api/stations`
+
+### P11b – Tổng quan + Trạm
+
+- KPI, trends, compare/rank, cluster
+
+### P11c – Đợt ô nhiễm + Thời tiết
+
+### P11d – Dự báo + Bản đồ
+
+### P11e – Polish tối thiểu + Docker/README
+
+### P11f – Close / PR khi được yêu cầu
 
 ## Definition of Done
 
 ```text
-[ ] Dashboard đọc DWH/marts
+[ ] Dashboard đọc DWH/marts qua FastAPI
 [ ] Filter hoạt động
-[ ] Charts rõ
+[ ] Charts rõ (ECharts)
 [ ] Clustering hiển thị
 [ ] Pollution episodes hiển thị (từ mart)
 [ ] Prediction hiển thị
+[ ] Map 12 trạm (Leaflet)
 [ ] Không đọc trực tiếp CSV raw cho kết quả chính
+[ ] Không auth / CRUD / train model từ UI
 ```
 
 ---

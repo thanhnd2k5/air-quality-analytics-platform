@@ -106,9 +106,9 @@ Kiến trúc cần đáp ứng các yêu cầu:
 ┌────────────────────┐ ┌────────────────────┐
 │ DATA MINING / ML   │ │  WEB DASHBOARD     │
 │                    │ │                    │
-│ Scikit-learn       │ │ Streamlit          │
-│ Feature datasets   │ │ Plotly             │
-│ Models             │ │ Analytics          │
+│ Scikit-learn       │ │ FastAPI + React    │
+│ Feature datasets   │ │ Mantine / ECharts  │
+│ Models             │ │ Leaflet (map)      │
 └──────────┬─────────┘ └────────────────────┘
            │
            ▼
@@ -892,7 +892,7 @@ Mục tiêu:
 
 Không tạo mart nếu query trực tiếp đã đủ tốt và logic không lặp.
 
-Streamlit nên đọc từ:
+Dashboard (FastAPI) nên đọc từ:
 
 ```text
 PostgreSQL DWH / marts
@@ -1033,49 +1033,36 @@ Nguồn: `staging.pm25_predictions_raw` (COPY từ locked predictions). Dùng ch
 # 34. Dashboard architecture
 
 ```text
-Streamlit
-    ↓
+React (Vite) + Mantine
+    ↓  HTTP JSON
+FastAPI
+    ↓  SQL (read-only)
 PostgreSQL
     ↓
-DWH / marts
+DWH (dim_*) / marts (mart_*)
 ```
 
 Prediction page:
 
 ```text
-Streamlit
+React
     ↓
-Prediction table / model
+FastAPI
+    ↓
+mart.mart_pm25_predictions
 ```
 
-Không cần API backend riêng ở phiên bản đầu.
+Map page: join `dwh.dim_station` (lat/lon) + PM/cluster từ marts. Heatmap nội suy = ngoài DoD P11.
 
-Streamlit đủ làm:
-
-- UI;
-- query;
-- chart;
-- prediction interaction.
+Không auth; không đọc raw CSV cho kết quả chính.
 
 ---
 
 # 35. Dashboard caching
 
-Có thể sử dụng:
+Có thể dùng cache ngắn hạn ở FastAPI (response / query) sau khi endpoint đúng.
 
-```text
-st.cache_data
-```
-
-cho query analytics.
-
-Không cache:
-
-- dữ liệu cần cập nhật ngay;
-- credential;
-- object không phù hợp.
-
-Caching chỉ tối ưu sau khi dashboard chạy đúng.
+Không cache credential. Caching chỉ tối ưu sau khi dashboard chạy đúng.
 
 ---
 
@@ -1161,7 +1148,8 @@ Airflow UI     : 8080
 MinIO API      : 9000
 MinIO Console  : 9001
 PostgreSQL     : 5432
-Streamlit      : 8501
+Dashboard API  : 8000
+Dashboard Web  : 5173 (dev) / 3000 (prod)
 ```
 
 Nếu port conflict trên máy Windows, có thể map host port khác mà không đổi container port.
@@ -1289,7 +1277,8 @@ Cấu trúc này là định hướng, không cần tạo mọi folder ngay ngà
 
 ## `dashboard`
 
-- Streamlit app.
+- `api/` — FastAPI (read-only SQL → JSON).
+- `web/` — Vite + React + TypeScript + Mantine + ECharts + Leaflet.
 
 ---
 
@@ -1646,9 +1635,9 @@ Analytical warehouse.
 
 Mining/ML.
 
-### Streamlit/Plotly
+### Dashboard (FastAPI / React)
 
-Presentation.
+Presentation (read-only analytics UI).
 
 Nếu một component bắt đầu làm vai trò của 3 component khác, cần xem lại thiết kế.
 

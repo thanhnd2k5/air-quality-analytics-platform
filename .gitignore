@@ -80,3 +80,8 @@ dbt/air_quality_dbt/logs/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Dashboard frontend
+dashboard/web/node_modules/
+dashboard/web/dist/
+dashboard/api/.venv/
