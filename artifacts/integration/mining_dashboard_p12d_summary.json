@@ -1,0 +1,16 @@
+﻿{
+    "checked_at_utc":  "2026-10-10T20:19:11.9303238Z",
+    "artifacts_clustering":  true,
+    "artifacts_forecasting_lock":  true,
+    "artifacts_predictions_locked":  true,
+    "models_metadata":  true,
+    "check_mart_cluster":  true,
+    "check_mart_episodes":  true,
+    "check_mart_predictions":  true,
+    "olap_checks":  true,
+    "hardening_fixes":  [
+                            "dbt seed --full-refresh (stale feature_set_version in Postgres)",
+                            "reload staging.pm25_predictions_raw from predictions_locked.parquet + dbt run mart_pm25_predictions"
+                        ],
+    "web_build":  "PASS"
+}

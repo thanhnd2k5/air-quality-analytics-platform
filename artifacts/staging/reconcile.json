@@ -1,0 +1,61 @@
+{
+  "expect_full": false,
+  "ok": true,
+  "errors": [],
+  "air_quality_hourly": {
+    "source_row_count": 35064,
+    "target_row_count": 35064,
+    "station_count": 1,
+    "stations": [
+      {
+        "station": "Wanshouxigong",
+        "source_object_key": "processed/uci/air_quality/station=Wanshouxigong/process_date=2026-10-11/wanshouxigong_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      }
+    ]
+  },
+  "weather_openmeteo_hourly": {
+    "source_row_count": 35064,
+    "target_row_count": 35064,
+    "station_count": 1,
+    "stations": [
+      {
+        "station": "Wanshouxigong",
+        "source_object_key": "processed/weather/openmeteo/station=Wanshouxigong/process_date=2026-10-11/wanshouxigong_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      }
+    ]
+  },
+  "station_reference": {
+    "target_row_count": 12,
+    "duplicate_station_name": 0,
+    "null_required": 0
+  },
+  "minio_fingerprint": {
+    "bucket": "air-quality-lake",
+    "objects": [
+      {
+        "object_key": "processed/uci/air_quality/station=Wanshouxigong/process_date=2026-10-11/wanshouxigong_hourly.parquet",
+        "size": 961268,
+        "etag": "1e8fa7609e09e18583436dbc0d1a320f",
+        "last_modified": "2026-10-10T20:13:20+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Wanshouxigong/process_date=2026-10-11/wanshouxigong_hourly.parquet",
+        "size": 568882,
+        "etag": "2534a02f520009f6558e37775b987403",
+        "last_modified": "2026-10-10T20:13:22+00:00"
+      }
+    ]
+  }
+}

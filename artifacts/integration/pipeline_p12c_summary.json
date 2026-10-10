@@ -1,0 +1,21 @@
+﻿{
+    "checked_at_utc":  "2026-10-10T20:14:45.5877267Z",
+    "host_minio_note":  "Host CLI needs MINIO_ACCESS_KEY/SECRET aligned with MINIO_ROOT_* (SignatureDoesNotMatch if mismatched); session overrode from container ROOT for P12c",
+    "idempotent":  {
+                       "ingest_om":  "60/60 skipped_identical",
+                       "process_om":  "12/12 skipped_identical",
+                       "ingest_uci_rerun":  "12/12 skipped_identical (ingestion_date=2026-10-10)",
+                       "staging_all":  "reference + 12x2 hourly skipped_identical",
+                       "process_uci":  "12/12 skipped_identical (process_date=2026-10-07)"
+                   },
+    "fresh_slice_wanshouxigong":  {
+                                      "process_om":  "uploaded process_date=2026-10-11",
+                                      "verify_ok":  true,
+                                      "staging":  "loaded (replaced) air + weather 35064 each",
+                                      "process_uci":  "uploaded process_date=2026-10-11"
+                                  },
+    "dbt":  {
+                "test":  "PASS 61/61",
+                "run":  "PASS 15/15"
+            }
+}

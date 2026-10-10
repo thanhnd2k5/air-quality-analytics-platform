@@ -1624,47 +1624,83 @@ React (Vite + TS) + Mantine + ECharts + react-leaflet
 
 ## Mục tiêu
 
-Biến các module rời thành một project hoàn chỉnh.
-
-Kiểm tra end-to-end:
+Biến các module rời thành một project hoàn chỉnh — chứng minh chuỗi end-to-end còn sống, không làm feature mới.
 
 ```text
-source
-↓
-lake
-↓
-processing
-↓
-staging
-↓
-DWH
-↓
-mining
-↓
-dashboard
+source → lake → processing → staging → DWH → mining → dashboard
 ```
 
-## Kiểm tra
+## Decisions (locked P12a – 2026-10-11)
 
-- fresh environment setup;
-- rerun pipeline;
-- duplicate;
-- broken dependency;
-- config;
-- logging;
-- dbt tests;
-- model artifact;
-- dashboard query.
+- **E2E = Hybrid:** không `docker compose down -v`; giữ volume; smoke idempotent toàn chuỗi; thêm **1 slice fresh** (Wanshouxigong).
+- **Mining = Verify + docs:** không retrain P9/P10; kiểm artifacts / `models/` / mart + `check_mart_*`; ghi rõ recreate nếu volume mất.
+- **Không** meta-DAG orchestration mới — dùng DAG/script hiện có + runbook.
+- **Dashboard web** giữ local `npm run dev`; API Compose `:8100`.
+- Branch: `feature/phase-12-integration`.
+- Evidence: `artifacts/integration/` + runbook `artifacts/integration/runbook_hybrid.md`.
 
-## Cleanup
+## Ngoài phạm vi
 
-Xóa:
+- Full rebuild từ `down -v`; retrain HistGB / re-lock clustering
+- Heatmap / auth / Dockerize web / report (Phase 13)
 
-- hard-coded path;
-- notebook-only logic cần productionize;
-- duplicated code;
-- password trong repo;
-- unused experiments.
+## WBS (P12a → P12f)
+
+### P12a – Lock + skeleton
+
+- Branch + docs (PLAN §19, PROGRESS)
+- `artifacts/integration/` + runbook hybrid
+
+### P12b – Infra smoke (giữ volume)
+
+- Compose healthy: postgres, minio, airflow-*, `dashboard-api`
+- Evidence: compose ps + Airflow `/health`
+
+### P12c – Pipeline idempotent + slice fresh
+
+- Idempotent: ingest/process UCI → Open-Meteo (skip OK) → staging → `dbt run` + `dbt test`
+- Slice: Wanshouxigong path không chỉ skip (DAG/CLI)
+- Evidence JSONL / logs dưới `artifacts/integration/`
+
+### P12d – Mining verify + dashboard smoke
+
+- `check_mart_cluster` / `check_mart_episodes` / `check_mart_predictions` / `run_olap_checks`
+- Dashboard: health, stations, overview, episodes, predictions meta, map (12)
+- Web: `npm run build` (screenshot → Phase 13)
+
+### P12e – Hardening / cleanup
+
+- Scan secret / hard-coded path; sửa nếu phát hiện
+- README mục Phase 12; tick DoD; đóng PROGRESS
+
+### P12f – Close / PR khi được yêu cầu
+
+## Definition of Done
+
+```text
+[x] Compose services healthy trên volume hiện có (không bắt buộc down -v)
+[x] Idempotent rerun pipeline không fail (skip OK)
+[x] Slice fresh 1 trạm chứng minh path hoạt động
+[x] dbt test PASS
+[x] Mart checks (episodes/cluster/predictions) + OLAP smoke OK
+[x] Mining artifacts verified; không bắt buộc retrain
+[x] Dashboard API (+ web build) smoke OK
+[x] Runbook + evidence trong artifacts/integration/
+[x] Không secret trong repo; cleanup rõ ràng nếu phát hiện
+[x] PLAN DoD + PROGRESS đóng phase
+```
+
+## Cleanup (khi phát hiện)
+
+- hard-coded path; password trong repo; code trùng / experiment thừa
+- notebook-only logic cần productionize (chỉ nếu chặn demo)
+
+**P12 findings (đã xử lý / ghi runbook):**
+
+- Host MinIO CLI: align `MINIO_*` với `MINIO_ROOT_*` (SignatureDoesNotMatch)
+- Postgres seed cũ `feature_set_version` → `dbt seed --full-refresh`
+- `staging.pm25_predictions_raw` lệch artifact → reload từ `predictions_locked.parquet`
+- Compose `CORS_ORIGIN_REGEX` over-escape → không match Vite origin → `Failed to fetch` (fix: `[0-9]`/`[.]`; web dev gọi thẳng `:8100`)
 
 ---
 

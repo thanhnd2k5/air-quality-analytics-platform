@@ -1,0 +1,77 @@
+﻿{
+    "checked_at_utc":  "2026-10-10T20:17:29.5998753Z",
+    "results":  [
+                    {
+                        "endpoint":  "/api/health",
+                        "ok":  true,
+                        "summary":  {
+                                        "status":  "ok",
+                                        "service":  "dashboard-api"
+                                    }
+                    },
+                    {
+                        "endpoint":  "/api/health/db",
+                        "ok":  true,
+                        "summary":  {
+                                        "status":  "ok",
+                                        "database":  "up"
+                                    }
+                    },
+                    {
+                        "endpoint":  "/api/stations",
+                        "ok":  true,
+                        "summary":  {
+                                        "count":  12
+                                    }
+                    },
+                    {
+                        "endpoint":  "/api/overview/kpis",
+                        "ok":  true,
+                        "summary":  {
+                                        "date_from":  "2016-12-01",
+                                        "date_to":  "2017-02-28",
+                                        "station_key":  null,
+                                        "pm25_avg":  104.99034200143123,
+                                        "pm10_avg":  124.16499754972013,
+                                        "o3_avg":  32.28780708887047,
+                                        "station_day_rows":  1080,
+                                        "pm25_day_rows":  1080,
+                                        "episode_count":  405
+                                    }
+                    },
+                    {
+                        "endpoint":  "/api/episodes?limit=5",
+                        "ok":  true,
+                        "summary":  {
+                                        "keys":  [
+                                                     "date_from",
+                                                     "date_to",
+                                                     "station_key",
+                                                     "summary",
+                                                     "episodes",
+                                                     "multi_station_events"
+                                                 ]
+                                    }
+                    },
+                    {
+                        "endpoint":  "/api/predictions/meta",
+                        "ok":  true,
+                        "summary":  {
+                                        "data_min":  "2013-03-02",
+                                        "data_max":  "2016-12-31",
+                                        "default_from":  "2016-12-18",
+                                        "default_to":  "2016-12-31",
+                                        "model_versions":  [
+                                                               "hist_gradient_boosting@2026-10-09T18:43:33.886609+00:00"
+                                                           ]
+                                    }
+                    },
+                    {
+                        "endpoint":  "/api/map/snapshot",
+                        "ok":  true,
+                        "summary":  {
+                                        "points":  12
+                                    }
+                    }
+                ]
+}

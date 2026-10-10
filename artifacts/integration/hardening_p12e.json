@@ -1,0 +1,12 @@
+{
+  "checked_at_utc": "2026-10-10T20:20:00Z",
+  "secret_scan": "no real secrets in tracked files; .env.example uses placeholders",
+  "hardcoded_machine_paths": "none found under src/docs/scripts",
+  "findings_documented": [
+    "MINIO host CLI SignatureDoesNotMatch when SECRET != ROOT",
+    "stale dbt seed feature_set_version until seed --full-refresh",
+    "stale staging.pm25_predictions_raw until reload from predictions_locked.parquet"
+  ],
+  "dod_ticked": true,
+  "readme_phase12": true
+}

@@ -4,10 +4,51 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
-## 2026-10-10 (Phase 11 – P11a kickoff)
+## 2026-10-11 (Phase 12 – P12a kickoff)
 
 ### Current phase
-Phase 11 – Web Dashboard (`feature/phase-11-dashboard`)
+Phase 12 – Integration & Hardening (**DONE** kỹ thuật trên `feature/phase-12-integration`)
+
+### Decisions (locked)
+- E2E **Hybrid:** giữ volume (không `down -v`); idempotent full chain + slice fresh **Wanshouxigong**
+- Mining **verify + docs** (không retrain P9/P10)
+- Không meta-DAG mới; dashboard web vẫn local npm; API Compose `:8100`
+- Evidence / runbook: `artifacts/integration/`
+
+### Completed
+- **P12a:** branch `feature/phase-12-integration`
+- PLAN §19: WBS P12a→P12f + DoD + decisions
+- `artifacts/integration/.gitkeep` + `runbook_hybrid.md`
+- **P12b:** compose healthy — postgres, minio, airflow-webserver, airflow-scheduler, dashboard-api
+- Airflow `/health` metadatabase+scheduler healthy; dashboard `/api/health` + `/api/health/db` ok
+- MinIO `air-quality-lake`: raw UCI 12 + processed UCI 12 + OM raw 12 prefixes
+- Postgres schemas staging/dwh/mart; `dim_station`=12; fact/staging air = 420768
+- Evidence: `artifacts/integration/compose_ps.txt`, `airflow_health.json`, `dashboard_api_health.json`, `infra_smoke.json`
+
+- **P12c:** idempotent — UCI ingest rerun 12/12 skip; process UCI/OM + staging all skip; OM ingest 60/60 skip
+- Fresh slice **Wanshouxigong**: process UCI+OM `process_date=2026-10-11` uploaded; staging **loaded** (replace) 35064×2; verify ok
+- `dbt run` 15/15 PASS; `dbt test` **61/61** PASS
+- Finding: host `.env` `MINIO_SECRET_KEY` lệch ROOT → SignatureDoesNotMatch; smoke dùng ROOT từ container (không commit secret)
+- Evidence: `artifacts/integration/pipeline_p12c_summary.json` + JSONL/dbt_*.txt
+
+- **P12d:** episodes + OLAP ok; cluster/predictions lệch lúc đầu → fix: `dbt seed --full-refresh` + reload `staging.pm25_predictions_raw` từ `predictions_locked.parquet` → checks **ok** (MAE test = lock 9.1436)
+- Dashboard smoke: health/db, stations=12, KPIs, episodes, predictions meta (lock model), map=12; web `npm run build` PASS
+- Evidence: `mining_dashboard_p12d_summary.json`, `dashboard_smoke.json`, check_mart_*.txt
+
+- **P12e:** scan — không hard-coded machine path; không secret thật trong repo (`.env.example` placeholder OK)
+- README § Phase 12 + runbook link; PLAN DoD Phase 12 tick xong; findings MinIO/seed/predictions ghi PLAN + runbook
+- **Hotfix (sau smoke UI):** CORS regex trong compose bị over-escape (`\\d`) → browser `Failed to fetch`; đổi default `[0-9]`/`[.]`; recreate `dashboard-api`. Dev web: `.env.development` → `VITE_API_BASE_URL=http://127.0.0.1:8100`, Vite port ưu tiên 5180.
+
+### Next
+- P12f: commit / PR phần hotfix còn lại (CORS + `.env.development`) khi được yêu cầu
+- Phase 13 – Report & Demo Preparation
+
+---
+
+## 2026-10-10 (Phase 11 – **HOÀN THÀNH** kỹ thuật; merged PR #11)
+
+### Current phase
+Phase 11 – Web Dashboard (**DONE** trên `main` qua PR #11)
 
 ### Completed
 - **Stack lock:** FastAPI + Vite/React/TS + Mantine + ECharts + react-leaflet (thay Streamlit)
@@ -42,8 +83,8 @@ Phase 11 – Web Dashboard (`feature/phase-11-dashboard`)
 - Note: lần `up` bị chiếm port 8000 (uvicorn host) rồi Docker Desktop ngắt — sau khi Desktop ổn: `docker compose up -d postgres dashboard-api`
 
 ### Next
-- P11f: commit / PR khi được yêu cầu
-- (Tuỳ chọn) Phase 12 Integration
+- ~~P11f / PR #11~~ → merged `52f8fd0`
+- Phase 12 – Integration & Hardening (xem entry 2026-10-11)
 
 ---
 

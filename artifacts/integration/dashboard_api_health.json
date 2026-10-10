@@ -1,0 +1,10 @@
+﻿{
+    "api_health":  {
+                       "status":  "ok",
+                       "service":  "dashboard-api"
+                   },
+    "db_health":  {
+                      "status":  "ok",
+                      "database":  "up"
+                  }
+}
