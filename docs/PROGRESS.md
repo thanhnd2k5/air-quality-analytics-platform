@@ -23,9 +23,14 @@ Phase 11 – Web Dashboard (`feature/phase-11-dashboard`)
 - UI: Tổng quan (KPI + ECharts), Trạm (xếp hạng PM2.5 + cluster); web build PASS
 - Smoke API P11b: cần Docker/Postgres đang chạy
 
+### P11c (cùng ngày)
+- Smoke P11b (khi Postgres up): KPI pm25≈105, episodes=405
+- API: `/api/episodes`, `/api/weather` (đã có trong OpenAPI)
+- UI: Đợt ô nhiễm + Thời tiết; web build PASS
+- Smoke P11c (Postgres up): episodes summary=12, list=200, multi=31; weather series/scatter=90
+
 ### Next
-- Smoke P11b khi Postgres up
-- P11c Đợt ô nhiễm + Thời tiết
+- P11d Dự báo + Bản đồ
 
 ---
 
