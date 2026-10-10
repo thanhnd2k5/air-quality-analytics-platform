@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import compare, episodes, health, overview, stations, weather
+from app.routers import compare, episodes, health, map, overview, predictions, stations, weather
 
 settings = get_settings()
 
@@ -25,6 +25,8 @@ app.include_router(overview.router, prefix="/api")
 app.include_router(compare.router, prefix="/api")
 app.include_router(episodes.router, prefix="/api")
 app.include_router(weather.router, prefix="/api")
+app.include_router(predictions.router, prefix="/api")
+app.include_router(map.router, prefix="/api")
 app.include_router(stations.router, prefix="/api")
 
 

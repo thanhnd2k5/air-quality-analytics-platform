@@ -24,6 +24,8 @@ py -3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - Stations: http://localhost:8000/api/stations
 - Overview: `/api/overview/meta`, `/kpis`, `/trends`
 - Compare: `/api/stations/compare`
+- Episodes / Weather: `/api/episodes`, `/api/weather`
+- Predictions / Map: `/api/predictions`, `/api/map/snapshot`
 - OpenAPI: http://localhost:8000/docs
 
 ## Web

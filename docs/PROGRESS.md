@@ -29,8 +29,14 @@ Phase 11 – Web Dashboard (`feature/phase-11-dashboard`)
 - UI: Đợt ô nhiễm + Thời tiết; web build PASS
 - Smoke P11c (Postgres up): episodes summary=12, list=200, multi=31; weather series/scatter=90
 
+### P11d (cùng ngày / tiếp)
+- API: `/api/predictions`, `/api/predictions/meta`, `/api/map/snapshot`
+- UI: Dự báo (MAE + actual/HistGB/persistence), Bản đồ Leaflet 12 marker
+- Web build PASS
+- Smoke P11d (Postgres up): predictions meta/series OK; map snapshot 12 points
+
 ### Next
-- P11d Dự báo + Bản đồ
+- P11e polish tối thiểu + README demo
 
 ---
 
