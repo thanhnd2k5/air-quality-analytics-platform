@@ -51,6 +51,18 @@ def get_bucket(bucket: str | None = None) -> str:
     return bucket or _env("MINIO_BUCKET", "air-quality-lake")
 
 
+def ensure_bucket(client: Minio, bucket: str | None = None) -> bool:
+    """Create the lake bucket if missing (same result as scripts/infra/init_minio.sh).
+
+    Returns True when the bucket was created, False when it already existed.
+    """
+    name = get_bucket(bucket)
+    if client.bucket_exists(name):
+        return False
+    client.make_bucket(name)
+    return True
+
+
 def object_exists(client: Minio, bucket: str, object_name: str) -> bool:
     try:
         client.stat_object(bucket, object_name)

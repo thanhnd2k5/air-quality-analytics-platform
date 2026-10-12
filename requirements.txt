@@ -22,6 +22,11 @@ sqlalchemy>=2.0.0
 dbt-core>=1.8,<1.10
 dbt-postgres>=1.8,<1.10
 
+# Notebook execution (scripts/build_olap_notebook.py --execute)
+nbformat>=5.9
+nbclient>=0.9
+ipykernel>=6.25
+
 # Testing & Code Quality
 pytest>=7.3.0
 black>=23.3.0

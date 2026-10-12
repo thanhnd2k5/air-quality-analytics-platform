@@ -144,3 +144,54 @@ models:
         tests: [not_null]
       - name: model_version
         tests: [not_null]
+  - name: mart_pm25_alerts
+    description: >
+      Main mining output: locked alert classifier (PM2.5(t+1h) >= 115 µg/m³) per station × origin hour.
+      outcome / persistence_outcome are TP/FP/FN/TN so confusion matrices are a GROUP BY.
+      Composite uniqueness: tests/mart_pm25_alerts_grain_unique.sql
+    columns:
+      - name: station_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_station')
+              field: station_key
+      - name: prediction_origin_time
+        tests: [not_null]
+      - name: split
+        tests:
+          - not_null
+          - accepted_values:
+              values: [train, val, test]
+      - name: actual_alert
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: predicted_alert
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: outcome
+        tests:
+          - not_null
+          - accepted_values:
+              values: [TP, FP, FN, TN]
+      - name: predicted_proba
+        tests: [not_null]
+      - name: model_version
+        tests: [not_null]
+  - name: mart_olap_cube
+    description: >
+      GROUP BY CUBE(year, season, district, day_part, wind_quadrant): 32 pre-computed cuboids.
+      grouping_id = GROUPING() bitmask; cuboid lists kept attributes ('ALL' = apex).
+      Keep pm25_sum / pm25_hour_count for further roll-up (avg is algebraic).
+      Every cuboid must partition the whole fact: tests/olap_cube_partitions_fact.sql
+    columns:
+      - name: grouping_id
+        tests: [not_null]
+      - name: cuboid
+        tests: [not_null]
+      - name: hour_count
+        tests: [not_null]

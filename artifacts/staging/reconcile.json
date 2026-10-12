@@ -1,15 +1,125 @@
 {
-  "expect_full": false,
+  "expect_full": true,
   "ok": true,
   "errors": [],
   "air_quality_hourly": {
-    "source_row_count": 35064,
-    "target_row_count": 35064,
-    "station_count": 1,
+    "source_row_count": 420768,
+    "target_row_count": 420768,
+    "station_count": 12,
     "stations": [
       {
+        "station": "Aotizhongxin",
+        "source_object_key": "processed/uci/air_quality/station=Aotizhongxin/process_date=2026-10-12/aotizhongxin_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Changping",
+        "source_object_key": "processed/uci/air_quality/station=Changping/process_date=2026-10-12/changping_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Dingling",
+        "source_object_key": "processed/uci/air_quality/station=Dingling/process_date=2026-10-12/dingling_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Dongsi",
+        "source_object_key": "processed/uci/air_quality/station=Dongsi/process_date=2026-10-12/dongsi_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Guanyuan",
+        "source_object_key": "processed/uci/air_quality/station=Guanyuan/process_date=2026-10-12/guanyuan_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Gucheng",
+        "source_object_key": "processed/uci/air_quality/station=Gucheng/process_date=2026-10-12/gucheng_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Huairou",
+        "source_object_key": "processed/uci/air_quality/station=Huairou/process_date=2026-10-12/huairou_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Nongzhanguan",
+        "source_object_key": "processed/uci/air_quality/station=Nongzhanguan/process_date=2026-10-12/nongzhanguan_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Shunyi",
+        "source_object_key": "processed/uci/air_quality/station=Shunyi/process_date=2026-10-12/shunyi_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Tiantan",
+        "source_object_key": "processed/uci/air_quality/station=Tiantan/process_date=2026-10-12/tiantan_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Wanliu",
+        "source_object_key": "processed/uci/air_quality/station=Wanliu/process_date=2026-10-12/wanliu_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
         "station": "Wanshouxigong",
-        "source_object_key": "processed/uci/air_quality/station=Wanshouxigong/process_date=2026-10-11/wanshouxigong_hourly.parquet",
+        "source_object_key": "processed/uci/air_quality/station=Wanshouxigong/process_date=2026-10-12/wanshouxigong_hourly.parquet",
         "source_row_count": 35064,
         "target_row_count": 35064,
         "duplicate_keys": 0,
@@ -20,13 +130,123 @@
     ]
   },
   "weather_openmeteo_hourly": {
-    "source_row_count": 35064,
-    "target_row_count": 35064,
-    "station_count": 1,
+    "source_row_count": 420768,
+    "target_row_count": 420768,
+    "station_count": 12,
     "stations": [
       {
+        "station": "Aotizhongxin",
+        "source_object_key": "processed/weather/openmeteo/station=Aotizhongxin/process_date=2026-10-12/aotizhongxin_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Changping",
+        "source_object_key": "processed/weather/openmeteo/station=Changping/process_date=2026-10-12/changping_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Dingling",
+        "source_object_key": "processed/weather/openmeteo/station=Dingling/process_date=2026-10-12/dingling_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Dongsi",
+        "source_object_key": "processed/weather/openmeteo/station=Dongsi/process_date=2026-10-12/dongsi_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Guanyuan",
+        "source_object_key": "processed/weather/openmeteo/station=Guanyuan/process_date=2026-10-12/guanyuan_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Gucheng",
+        "source_object_key": "processed/weather/openmeteo/station=Gucheng/process_date=2026-10-12/gucheng_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Huairou",
+        "source_object_key": "processed/weather/openmeteo/station=Huairou/process_date=2026-10-12/huairou_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Nongzhanguan",
+        "source_object_key": "processed/weather/openmeteo/station=Nongzhanguan/process_date=2026-10-12/nongzhanguan_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Shunyi",
+        "source_object_key": "processed/weather/openmeteo/station=Shunyi/process_date=2026-10-12/shunyi_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Tiantan",
+        "source_object_key": "processed/weather/openmeteo/station=Tiantan/process_date=2026-10-12/tiantan_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
+        "station": "Wanliu",
+        "source_object_key": "processed/weather/openmeteo/station=Wanliu/process_date=2026-10-12/wanliu_hourly.parquet",
+        "source_row_count": 35064,
+        "target_row_count": 35064,
+        "duplicate_keys": 0,
+        "null_keys": 0,
+        "min_event_time": "2013-03-01 00:00:00",
+        "max_event_time": "2017-02-28 23:00:00"
+      },
+      {
         "station": "Wanshouxigong",
-        "source_object_key": "processed/weather/openmeteo/station=Wanshouxigong/process_date=2026-10-11/wanshouxigong_hourly.parquet",
+        "source_object_key": "processed/weather/openmeteo/station=Wanshouxigong/process_date=2026-10-12/wanshouxigong_hourly.parquet",
         "source_row_count": 35064,
         "target_row_count": 35064,
         "duplicate_keys": 0,
@@ -45,16 +265,148 @@
     "bucket": "air-quality-lake",
     "objects": [
       {
-        "object_key": "processed/uci/air_quality/station=Wanshouxigong/process_date=2026-10-11/wanshouxigong_hourly.parquet",
-        "size": 961268,
-        "etag": "1e8fa7609e09e18583436dbc0d1a320f",
-        "last_modified": "2026-10-10T20:13:20+00:00"
+        "object_key": "processed/uci/air_quality/station=Aotizhongxin/process_date=2026-10-12/aotizhongxin_hourly.parquet",
+        "size": 964492,
+        "etag": "fa123a078568426f851431d754cb5aa2",
+        "last_modified": "2026-10-12T08:30:42+00:00"
       },
       {
-        "object_key": "processed/weather/openmeteo/station=Wanshouxigong/process_date=2026-10-11/wanshouxigong_hourly.parquet",
+        "object_key": "processed/weather/openmeteo/station=Aotizhongxin/process_date=2026-10-12/aotizhongxin_hourly.parquet",
+        "size": 569261,
+        "etag": "5fbcdf7bbeb7b867e718008717cd5b44",
+        "last_modified": "2026-10-12T08:34:24+00:00"
+      },
+      {
+        "object_key": "processed/uci/air_quality/station=Changping/process_date=2026-10-12/changping_hourly.parquet",
+        "size": 959856,
+        "etag": "5f542445c1b2655deab0a2d90c28c7ff",
+        "last_modified": "2026-10-12T08:30:42+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Changping/process_date=2026-10-12/changping_hourly.parquet",
+        "size": 569071,
+        "etag": "0ebd3fce61609f29504503cc950a223f",
+        "last_modified": "2026-10-12T08:34:24+00:00"
+      },
+      {
+        "object_key": "processed/uci/air_quality/station=Dingling/process_date=2026-10-12/dingling_hourly.parquet",
+        "size": 956590,
+        "etag": "d412862fd07ed36bd7b546e3a49663e7",
+        "last_modified": "2026-10-12T08:30:42+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Dingling/process_date=2026-10-12/dingling_hourly.parquet",
+        "size": 567202,
+        "etag": "cf391525b62c0c2cf96b24c2ae00de18",
+        "last_modified": "2026-10-12T08:34:25+00:00"
+      },
+      {
+        "object_key": "processed/uci/air_quality/station=Dongsi/process_date=2026-10-12/dongsi_hourly.parquet",
+        "size": 970298,
+        "etag": "09297a0100f39b2b0ca298dfd2c6aaf9",
+        "last_modified": "2026-10-12T08:30:43+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Dongsi/process_date=2026-10-12/dongsi_hourly.parquet",
+        "size": 569026,
+        "etag": "1fae2fafcfec9071d4e651f3f06d2666",
+        "last_modified": "2026-10-12T08:34:25+00:00"
+      },
+      {
+        "object_key": "processed/uci/air_quality/station=Guanyuan/process_date=2026-10-12/guanyuan_hourly.parquet",
+        "size": 962674,
+        "etag": "243e8317a72f7b66ddc3d1e64e4debbc",
+        "last_modified": "2026-10-12T08:30:43+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Guanyuan/process_date=2026-10-12/guanyuan_hourly.parquet",
+        "size": 568751,
+        "etag": "ad6abe68ad98a6851d9fe300677e3c40",
+        "last_modified": "2026-10-12T08:34:26+00:00"
+      },
+      {
+        "object_key": "processed/uci/air_quality/station=Gucheng/process_date=2026-10-12/gucheng_hourly.parquet",
+        "size": 959179,
+        "etag": "2e3d47095edd3c8ee1b567e0c28bee2d",
+        "last_modified": "2026-10-12T08:30:44+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Gucheng/process_date=2026-10-12/gucheng_hourly.parquet",
+        "size": 568563,
+        "etag": "bd20c03bd17a5439fae7c42de42ed2f6",
+        "last_modified": "2026-10-12T08:34:26+00:00"
+      },
+      {
+        "object_key": "processed/uci/air_quality/station=Huairou/process_date=2026-10-12/huairou_hourly.parquet",
+        "size": 954602,
+        "etag": "db40575c0fc29201385fd8a93b87659d",
+        "last_modified": "2026-10-12T08:30:44+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Huairou/process_date=2026-10-12/huairou_hourly.parquet",
+        "size": 569380,
+        "etag": "1e00d76f4b15450aaa26867537426b2b",
+        "last_modified": "2026-10-12T08:34:26+00:00"
+      },
+      {
+        "object_key": "processed/uci/air_quality/station=Nongzhanguan/process_date=2026-10-12/nongzhanguan_hourly.parquet",
+        "size": 971433,
+        "etag": "c601a0bc6edc7e09be2fb63d9e392291",
+        "last_modified": "2026-10-12T08:30:45+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Nongzhanguan/process_date=2026-10-12/nongzhanguan_hourly.parquet",
+        "size": 569212,
+        "etag": "ed7602e7f730798cb9c8629773363955",
+        "last_modified": "2026-10-12T08:34:27+00:00"
+      },
+      {
+        "object_key": "processed/uci/air_quality/station=Shunyi/process_date=2026-10-12/shunyi_hourly.parquet",
+        "size": 967561,
+        "etag": "682de7abf5a847a5045cf4d82aa4e2fa",
+        "last_modified": "2026-10-12T08:30:45+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Shunyi/process_date=2026-10-12/shunyi_hourly.parquet",
+        "size": 569505,
+        "etag": "46c39829901ff7c32b7de0398a62df1f",
+        "last_modified": "2026-10-12T08:34:27+00:00"
+      },
+      {
+        "object_key": "processed/uci/air_quality/station=Tiantan/process_date=2026-10-12/tiantan_hourly.parquet",
+        "size": 961630,
+        "etag": "d1e11f90785470ea1bd9e208b9beb3ce",
+        "last_modified": "2026-10-12T08:30:45+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Tiantan/process_date=2026-10-12/tiantan_hourly.parquet",
+        "size": 569040,
+        "etag": "3181b615d8abb4dfed5a1a3d32e45347",
+        "last_modified": "2026-10-12T08:34:28+00:00"
+      },
+      {
+        "object_key": "processed/uci/air_quality/station=Wanliu/process_date=2026-10-12/wanliu_hourly.parquet",
+        "size": 971147,
+        "etag": "6e01105ed700257093a7c39dd098ed63",
+        "last_modified": "2026-10-12T08:30:45+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Wanliu/process_date=2026-10-12/wanliu_hourly.parquet",
+        "size": 568651,
+        "etag": "ff38391878d09a9eb38d5781fa548dd3",
+        "last_modified": "2026-10-12T08:34:28+00:00"
+      },
+      {
+        "object_key": "processed/uci/air_quality/station=Wanshouxigong/process_date=2026-10-12/wanshouxigong_hourly.parquet",
+        "size": 961268,
+        "etag": "4ad511155326f2d322044f7102a55a20",
+        "last_modified": "2026-10-12T08:30:46+00:00"
+      },
+      {
+        "object_key": "processed/weather/openmeteo/station=Wanshouxigong/process_date=2026-10-12/wanshouxigong_hourly.parquet",
         "size": 568882,
-        "etag": "2534a02f520009f6558e37775b987403",
-        "last_modified": "2026-10-10T20:13:22+00:00"
+        "etag": "4c5acc27385222131ac1f0d0a534703a",
+        "last_modified": "2026-10-12T08:34:28+00:00"
       }
     ]
   }

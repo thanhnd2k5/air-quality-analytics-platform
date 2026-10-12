@@ -124,6 +124,7 @@ export function PredictionsPage() {
         v == null || v === '' ? '—' : `${Number(v).toFixed(1)} µg/m³`,
     },
     legend: {
+      top: 0,
       data: ['Dự báo của mô hình', 'Thực tế đo được', 'Cách đơn giản (giờ trước)'],
     },
     grid: { left: 56, right: 24, top: 48, bottom: 40 },

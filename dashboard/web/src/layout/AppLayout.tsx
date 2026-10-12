@@ -1,7 +1,9 @@
 import { AppShell, Burger, Group, NavLink, Text, Title } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import {
+  IconAlertTriangle,
   IconChartLine,
+  IconCube,
   IconCloud,
   IconMap2,
   IconRadar2,
@@ -15,7 +17,9 @@ const NAV = [
   { to: '/tram', label: 'Trạm', icon: IconBuildingFactory2 },
   { to: '/dot-o-nhiem', label: 'Đợt ô nhiễm', icon: IconRadar2 },
   { to: '/thoi-tiet', label: 'Thời tiết', icon: IconCloud },
+  { to: '/olap', label: 'OLAP', icon: IconCube },
   { to: '/du-bao', label: 'Dự báo', icon: IconChartLine },
+  { to: '/canh-bao', label: 'Cảnh báo', icon: IconAlertTriangle },
   { to: '/ban-do', label: 'Bản đồ', icon: IconMap2 },
 ] as const
 

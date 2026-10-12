@@ -87,7 +87,7 @@ export function WeatherPage() {
   const seriesOption = {
     color: ['#0d9488', '#64748b'],
     tooltip: { trigger: 'axis' },
-    legend: { data: ['PM2.5', 'Nhiệt độ'] },
+    legend: { top: 0, data: ['PM2.5', 'Nhiệt độ'] },
     grid: { left: 48, right: 48, top: 40, bottom: 40 },
     xAxis: {
       type: 'category',

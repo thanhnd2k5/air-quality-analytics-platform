@@ -9,6 +9,12 @@
 > `PROJECT_CONTEXT.md` quyết định **dự án đang làm gì**.  
 > `DATA_GUIDE.md` quyết định **dữ liệu phải được hiểu và xử lý như thế nào**.
 
+**Nguồn & giấy phép (bắt buộc ghi trong báo cáo):**
+- UCI Beijing Multi-Site Air Quality: Chen, S. (2017), DOI 10.24432/C5RK5G, giấy phép **CC BY 4.0**. https://archive.ics.uci.edu/dataset/501/beijing+multi+site+air+quality
+- Open-Meteo Historical Weather API: dữ liệu CC BY 4.0, API miễn phí cho mục đích phi thương mại.
+
+Bảng tỷ lệ thiếu + cách xử lý từng cột (bản dùng cho báo cáo): `docs/DATA_PREPROCESSING.md`.
+
 ---
 
 # 1. Mục đích

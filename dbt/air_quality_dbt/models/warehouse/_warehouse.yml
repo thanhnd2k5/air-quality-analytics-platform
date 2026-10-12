@@ -37,6 +37,25 @@ models:
         tests:
           - accepted_values:
               values: ['night', 'morning', 'afternoon', 'evening']
+  - name: dim_wind_direction
+    description: >
+      16 compass directions (UCI wd labels) + UNKNOWN (key 0). Hierarchy:
+      wind_direction → wind_quadrant (NE/SE/SW/NW, 90° sectors from N) → wind_regime (northerly/southerly).
+    columns:
+      - name: wind_direction_key
+        tests: [not_null, unique]
+      - name: wind_direction
+        tests: [not_null, unique]
+      - name: wind_quadrant
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['NE', 'SE', 'SW', 'NW', 'UNKNOWN']
+      - name: wind_regime
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['northerly', 'southerly', 'UNKNOWN']
   - name: fact_air_quality_hourly
     description: >
       Grain is one station-hour. Pollutants stay null when missing.
@@ -65,6 +84,12 @@ models:
           - relationships:
               to: ref('dim_time')
               field: time_key
+      - name: wind_direction_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_wind_direction')
+              field: wind_direction_key
       - name: event_time_local
         tests: [not_null]
       - name: temperature_source
