@@ -4,6 +4,38 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-12 (Phase 13 – Đối chiếu yêu cầu BTL Bài 12 + lấp gap)
+
+### Gap đã lấp (so với `yeucaubaitap/VI/Bai12_Huong-dan-bai-tap-lon.pptx`)
+- **Khai phá chính → phân loại** (hồi quy không thuộc 3 loại cho phép): `src/classification/`, `scripts/run_classification.py`.
+  - Nhãn PM2.5(t+1) ≥ 115; baseline majority + persistence; cây quyết định entropy (độ sâu 6) + HistGB; ngưỡng chọn trên val.
+  - Test F1: HistGB 0,927, persistence 0,914. Onset báo trước được 304/1 000 lần (persistence 0). McNemar p ≈ 5e-23.
+  - Mart `mart_pm25_alerts`, check `scripts/check_mart_alerts.py`.
+- **Chiều thứ 4 không phải thời gian:** `dim_wind_direction` (hướng → phần tư → chế độ gió) + FK trong fact.
+- **Khối tính trước bằng `GROUP BY CUBE`:** `mart_olap_cube` (32 khối con). `scripts/run_olap_checks.py` kiểm chứng 24 759/24 759 ô (100%).
+- **5 thao tác OLAP:** `sql/olap/olap_operations.sql` (18 truy vấn), `notebooks/olap/olap_demo.ipynb` (đã chạy), trang `/olap` (tự đọc cube khi được).
+- Trang `/canh-bao`; sửa legend/lazyUpdate của ECharts 6 ở các trang cũ.
+- **Chạy lại bằng 1 lệnh:** `scripts/run_all.py` (14 bước, idempotent), `scripts/download_uci_dataset.py`.
+- **Tài liệu:** `docs/DW_DESIGN.md`, `docs/DATA_PREPROCESSING.md` (license CC BY 4.0, tỷ lệ thiếu + xử lý từng cột).
+- **Sản phẩm nộp:** `bao_cao/` (báo cáo 19 trang .docx, 15 slide .pptx, phân công, khai báo AI, mẫu biên bản).
+
+### Evidence
+- Chạy từ trạng thái trống (`docker compose down -v` + xoá CSV) → `python scripts/run_all.py`: 14/14 bước ok, **11,2 phút**.
+- **dbt test 130/130**; pytest 58/58.
+- Ma trận đặc trưng tái sinh từ kho giống hệt bản đã commit; fit lại hồi quy cho đúng test MAE 8,8718.
+
+### Fixes đi kèm
+- dbt bind-mount: partial-parse cache làm "mất" test → `DBT_PARTIAL_PARSE=false` trong `src/utils/dbt_runner.py`.
+- `run_forecasting_v2b.py` sau promote so sánh v2 với chính nó → giờ đọc `promote_backup_v1/model_lock.json`.
+- `promote_forecast_v2.py --no-backup`: chạy lại không ghi đè backup v1.
+
+### Next (nhóm)
+- Điền tên/MSSV, `bao_cao/BANG_PHAN_CONG.md`, `bao_cao/KHAI_BAO_AI.md` §2–3.
+- Commit theo đúng người phụ trách (CLO3).
+- Tập demo OLAP trực tiếp.
+
+---
+
 ## 2026-10-12 (Forecast improvement – Vòng A **xong** thí nghiệm)
 
 ### Current work

@@ -2,14 +2,77 @@
 
 Nền tảng thu thập, lưu trữ, chuyển đổi dữ liệu và phân tích nâng cao (Data Warehouse & Machine Learning) cho dữ liệu chất lượng không khí đa trạm tại Bắc Kinh (PRSA Dataset).
 
+Bài tập lớn học phần **INT1422 – Kho dữ liệu và Khai phá dữ liệu** (PTIT).
+
+---
+
+## 0. Chạy lại toàn bộ từ đầu bằng một lệnh
+
+Yêu cầu: **Docker Desktop đang chạy**, **Python 3.10+**, có Internet ở lần chạy đầu (tải zip UCI + gọi Open-Meteo).
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate            # Linux/macOS: source .venv/bin/activate
+pip install -r requirements.txt
+
+python scripts/run_all.py         # ← một lệnh duy nhất (~10 phút lần đầu)
+```
+
+`run_all.py` tự làm toàn bộ chuỗi:
+1. Tạo `.env` từ `.env.example` (mật khẩu ngẫu nhiên, không commit).
+2. Tải 12 CSV UCI.
+3. Bật PostgreSQL + MinIO.
+4. CSV → lake → Parquet → làm giàu Open-Meteo.
+5. Nạp staging.
+6. Chạy dbt: lược đồ sao, khối con, data cube.
+7. Dựng lại ma trận đặc trưng từ kho.
+8. Train và đánh giá **mô hình phân loại cảnh báo**.
+9. Chạy 130 dbt test và các bộ đối chiếu mart.
+10. Kiểm chứng 5 thao tác OLAP + chạy notebook OLAP.
+11. Bật dashboard API.
+
+Mọi bước đều idempotent. Kết quả ghi vào `artifacts/run_all/run_summary.json`, log từng bước ở `artifacts/run_all/logs/`.
+
+| Tuỳ chọn | Tác dụng |
+|---|---|
+| `--list` | Liệt kê 14 bước |
+| `--from STEP` / `--only a,b` / `--skip a,b` | Chạy tiếp hoặc chạy một phần (khi một bước lỗi, script in sẵn lệnh `--from` để chạy tiếp) |
+| `--retrain-all` | Fit lại cả phân cụm trạm và hồi quy PM2.5. Mặc định hai phân tích bổ trợ này dùng kết quả đã khoá và chỉ kiểm chứng, vì fit lại cho ra đúng cùng số liệu nhưng ghi đè metadata của lock. |
+| `--with-airflow` | Bật thêm Airflow webserver + scheduler |
+
+Giao diện web: `cd dashboard/web && npm install && npm run dev`, rồi mở http://localhost:5180. Các trang mới là **OLAP** (`/olap`) và **Cảnh báo** (`/canh-bao`).
+
+> **Trùng cổng?** Nếu 5433 / 9000 / 9001 / 8100 đã bị chương trình khác chiếm, hãy sửa `POSTGRES_PORT`, `MINIO_PORT` + `MINIO_ENDPOINT`, `MINIO_CONSOLE_PORT`, `DASHBOARD_API_PORT` trong `.env` rồi chạy lại.
+
+### Nguồn dữ liệu và giấy phép
+
+| Bộ dữ liệu | Nguồn | Giấy phép |
+|---|---|---|
+| Beijing Multi-Site Air Quality (12 trạm, 420 768 bản ghi giờ, 03/2013–02/2017) | [UCI ML Repository #501](https://archive.ics.uci.edu/dataset/501/beijing+multi+site+air+quality). Chen, S. (2017), DOI [10.24432/C5RK5G](https://doi.org/10.24432/C5RK5G) | CC BY 4.0 |
+| Thời tiết lịch sử theo giờ (lấp chỗ thiếu + mây che phủ) | [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api) (tái phân tích ERA5) | CC BY 4.0, API miễn phí cho mục đích phi thương mại |
+
+Dữ liệu thô không được commit (`data/raw/uci/` nằm trong `.gitignore`). `scripts/download_uci_dataset.py` tự tải và kiểm tra kích thước file. Không có dữ liệu cá nhân.
+
+### Đối chiếu yêu cầu bài tập lớn (Bài 12)
+
+| Phần việc | Sản phẩm trong repo |
+|---|---|
+| 1. Thu thập & tiền xử lý | `docs/DATA_PREPROCESSING.md` (tỷ lệ thiếu + cách xử lý từng cột), `artifacts/data_profile/` |
+| 2. Thiết kế kho | `docs/DW_DESIGN.md`: lược đồ sao 4 chiều, phân cấp khái niệm, lý do chọn độ mịn, `artifacts/dwh/figures/star_schema.png` |
+| 3. Cài đặt & tính khối | `dbt/air_quality_dbt/models/`, khối tính trước `mart_station_daily`, `mart_station_monthly`, `mart_olap_cube` (GROUP BY CUBE, 32 khối con), kiểm chứng `artifacts/dwh/olap_checks.json` (100% ô đúng) |
+| 4. Dịch vụ OLAP | `sql/olap/olap_operations.sql`, `notebooks/olap/olap_demo.ipynb`, dashboard `/olap` |
+| 5. Khai phá (phân loại) | `src/classification/`, `scripts/run_classification.py`, `artifacts/classification/` (ma trận nhầm lẫn, so với baseline, McNemar), dashboard `/canh-bao` |
+| Báo cáo, slide, phân công, khai báo AI | `bao_cao/` |
+
 ---
 
 ## 1. Mục tiêu dự án
 
 - **Ingestion & Data Lake**: Tự động hóa thu thập dữ liệu quan trắc 12 trạm và lưu trữ an toàn trên MinIO S3 Lake.
-- **Staging & Data Warehouse**: Xây dựng kiến trúc kho dữ liệu Star Schema (PostgreSQL + dbt) theo chuẩn `station-hour`.
-- **Data Mining & Machine Learning**: Phân tích khám phá (EDA), phân cụm đặc trưng trạm (K-Means) và dự báo chỉ số ô nhiễm $PM_{2.5}$ thời điểm $t+1$h.
-- **Serving & Dashboard**: Trực quan hóa KPIs, bản đồ 12 trạm và dự báo PM2.5 qua web app (FastAPI + React).
+- **Staging & Data Warehouse**: Xây dựng kiến trúc kho dữ liệu Star Schema (PostgreSQL + dbt) theo chuẩn `station-hour`, 4 chiều (Thời gian, Giờ, Địa điểm, Hướng gió).
+- **Data Mining (bài toán chính)**: **Phân loại cảnh báo vượt ngưỡng** PM2.5(t+1h) ≥ 115 µg/m³ bằng cây quyết định và HistGradientBoosting, so sánh với baseline persistence.
+- **Phân tích bổ trợ**: EDA, phân cụm đặc trưng trạm (K-Means), hồi quy PM2.5 t+1h.
+- **Serving & Dashboard**: Trực quan hóa KPI, OLAP tương tác, cảnh báo, bản đồ 12 trạm và dự báo PM2.5 qua web app (FastAPI + React).
 
 ---
 
@@ -309,6 +372,9 @@ Chi tiết kiến trúc và kế hoạch thực hiện được lưu trữ trong
 - [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md): Bối cảnh dự án, phạm vi và mục tiêu kinh doanh.
 - [`docs/DATA_GUIDE.md`](docs/DATA_GUIDE.md): Mô tả dữ liệu PRSA 12 trạm, ý nghĩa các biến và quy tắc chất lượng dữ liệu.
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): Kiến trúc kỹ thuật chi tiết từ Ingestion, MinIO, PostgreSQL DWH đến ML/Dashboard.
+- [`docs/DW_DESIGN.md`](docs/DW_DESIGN.md): Thiết kế kho (lược đồ sao, độ mịn, phân cấp, khối con tính trước) và năm thao tác OLAP.
+- [`docs/DATA_PREPROCESSING.md`](docs/DATA_PREPROCESSING.md): Nguồn, giấy phép, tỷ lệ thiếu và cách xử lý từng cột.
+- [`artifacts/classification/classification_report.md`](artifacts/classification/classification_report.md): Kết quả bài toán phân loại cảnh báo.
 - [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md): Kế hoạch thực thi qua 14 phase chi tiết kèm Definition of Done.
 - [`docs/PROJECT_WBS.xlsx`](docs/PROJECT_WBS.xlsx): Bảng phân rã công việc WBS chi tiết cho 2 thành viên.
 - [`docs/PROGRESS.md`](docs/PROGRESS.md): Nhật ký theo dõi tiến độ từng phase.
