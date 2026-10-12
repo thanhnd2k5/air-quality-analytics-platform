@@ -6,10 +6,12 @@ scripts/run_forecasting_phase10d.py.
 
 Example:
     py -3 scripts/promote_forecast_v2.py
+    py -3 scripts/promote_forecast_v2.py --no-backup   # re-runs (run_all): keep the real v1 backup
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import shutil
 import subprocess
@@ -81,7 +83,7 @@ def _build_production_lock(v2: dict, *, promoted_at: str) -> dict:
     return lock
 
 
-def promote_files() -> dict:
+def promote_files(*, backup: bool = True) -> dict:
     v2_lock_path = OUT / "model_lock_v2.json"
     if not v2_lock_path.is_file():
         raise FileNotFoundError("Missing model_lock_v2.json — run Vòng A first")
@@ -89,7 +91,7 @@ def promote_files() -> dict:
     if not v2.get("ok"):
         raise RuntimeError(f"model_lock_v2 not ok: {v2}")
 
-    backed_up = _backup_v1()
+    backed_up = _backup_v1() if backup else []
     promoted_at = datetime.now(timezone.utc).isoformat()
 
     _copy_file(OUT / "predictions_v2.parquet", OUT / "predictions_locked.parquet")
@@ -121,8 +123,15 @@ def promote_files() -> dict:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Promote HistGB v2 to production and reload the mart")
+    parser.add_argument(
+        "--no-backup",
+        action="store_true",
+        help="Do not overwrite promote_backup_v1/ (use when production is already v2)",
+    )
+    args = parser.parse_args()
     try:
-        info = promote_files()
+        info = promote_files(backup=not args.no_backup)
         print(json.dumps({"step": "promote_files", "ok": True, **info}, ensure_ascii=True))
     except Exception as exc:  # noqa: BLE001
         print(json.dumps({"ok": False, "step": "promote_files", "error": str(exc)}, ensure_ascii=True))

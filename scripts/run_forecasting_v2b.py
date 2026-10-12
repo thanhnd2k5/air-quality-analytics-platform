@@ -54,6 +54,7 @@ MODELS = ROOT / "models" / "pm25_forecast_v2"
 MATRIX_PARQUET = OUT / "feature_matrix_v2.parquet"
 MATRIX_CSV = OUT / "feature_matrix_v2.csv"
 V1_LOCK = OUT / "model_lock.json"
+V1_BACKUP_LOCK = OUT / "promote_backup_v1" / "model_lock.json"
 
 
 def _load_matrix() -> pd.DataFrame:
@@ -72,7 +73,11 @@ def _load_matrix() -> pd.DataFrame:
 def _load_v1_lock() -> dict:
     if not V1_LOCK.is_file():
         return {}
-    return json.loads(V1_LOCK.read_text(encoding="utf-8"))
+    lock = json.loads(V1_LOCK.read_text(encoding="utf-8"))
+    # After promote_forecast_v2.py the production lock *is* v2; the real v1 lives in the backup.
+    if "promoted_from" in lock and V1_BACKUP_LOCK.is_file():
+        return json.loads(V1_BACKUP_LOCK.read_text(encoding="utf-8"))
+    return lock
 
 
 def main() -> int:
