@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "mart_row_count": 372499,
+  "expected_row_count": 372499,
+  "station_count": 12,
+  "model_version_count": 1,
+  "test_confusion_mart": {
+    "locked": {
+      "fn": 838,
+      "fp": 865,
+      "tn": 36270,
+      "tp": 10808
+    },
+    "persistence": {
+      "fn": 1000,
+      "fp": 999,
+      "tn": 36136,
+      "tp": 10646
+    }
+  },
+  "test_confusion_lock": {
+    "locked": {
+      "tp": 10808,
+      "fp": 865,
+      "fn": 838,
+      "tn": 36270
+    },
+    "persistence": {
+      "tp": 10646,
+      "fp": 999,
+      "fn": 1000,
+      "tn": 36136
+    }
+  },
+  "test_onsets": {
+    "onsets": 1000,
+    "detected": 304
+  },
+  "issues": []
+}

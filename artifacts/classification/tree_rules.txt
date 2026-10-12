@@ -1,0 +1,95 @@
+|--- pm25_ug_m3 <= 109.5
+|   |--- pm25_ug_m3 <= 89.5
+|   |   |--- pm25_ug_m3 <= 62.5
+|   |   |   |--- pm10_ug_m3 <= 62.5
+|   |   |   |   |--- pm25_roll_mean_24 <= 79.6
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_roll_mean_24 >  79.6
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |--- pm10_ug_m3 >  62.5
+|   |   |   |   |--- pm25_roll_mean_24 <= 44.1
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_roll_mean_24 >  44.1
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |--- pm25_ug_m3 >  62.5
+|   |   |   |--- pm25_delta_1 <= 18.5
+|   |   |   |   |--- pm25_ug_m3 <= 78.0
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_ug_m3 >  78.0
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |--- pm25_delta_1 >  18.5
+|   |   |   |   |--- pm25_ug_m3 <= 77.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_ug_m3 >  77.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |--- pm25_ug_m3 >  89.5
+|   |   |--- pm25_ug_m3 <= 101.0
+|   |   |   |--- pm25_delta_1 <= 12.5
+|   |   |   |   |--- pm25_ug_m3 <= 94.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_ug_m3 >  94.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |--- pm25_delta_1 >  12.5
+|   |   |   |   |--- pm25_delta_1 <= 24.8
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_delta_1 >  24.8
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |--- pm25_ug_m3 >  101.0
+|   |   |   |--- pm25_delta_1 <= 6.5
+|   |   |   |   |--- pm25_ug_m3 <= 105.8
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_ug_m3 >  105.8
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |--- pm25_delta_1 >  6.5
+|   |   |   |   |--- pm25_ug_m3 <= 104.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_ug_m3 >  104.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|--- pm25_ug_m3 >  109.5
+|   |--- pm25_ug_m3 <= 134.5
+|   |   |--- pm25_ug_m3 <= 118.0
+|   |   |   |--- pm25_delta_1 <= -2.4
+|   |   |   |   |--- pm25_delta_1 <= -37.5
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- pm25_delta_1 >  -37.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |--- pm25_delta_1 >  -2.4
+|   |   |   |   |--- pm25_ug_m3 <= 113.8
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_ug_m3 >  113.8
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |--- pm25_ug_m3 >  118.0
+|   |   |   |--- pm25_delta_1 <= -5.5
+|   |   |   |   |--- pm25_delta_1 <= -19.4
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_delta_1 >  -19.4
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |--- pm25_delta_1 >  -5.5
+|   |   |   |   |--- pm25_ug_m3 <= 122.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_ug_m3 >  122.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |--- pm25_ug_m3 >  134.5
+|   |   |--- wind_speed_m_s <= 2.2
+|   |   |   |--- pm25_ug_m3 <= 164.5
+|   |   |   |   |--- pm25_delta_1 <= -28.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_delta_1 >  -28.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |--- pm25_ug_m3 >  164.5
+|   |   |   |   |--- pm25_delta_1 <= -39.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_delta_1 >  -39.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |--- wind_speed_m_s >  2.2
+|   |   |   |--- relative_humidity_pct <= 30.9
+|   |   |   |   |--- pm25_delta_1 <= -9.5
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- pm25_delta_1 >  -9.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |--- relative_humidity_pct >  30.9
+|   |   |   |   |--- pm25_delta_1 <= -15.5
+|   |   |   |   |   |--- truncated branch of depth 2
+|   |   |   |   |--- pm25_delta_1 >  -15.5
+|   |   |   |   |   |--- truncated branch of depth 2
+

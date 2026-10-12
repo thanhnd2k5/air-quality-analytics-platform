@@ -17,3 +17,9 @@ sources:
           scripts/run_forecasting_phase10d.py (COPY from
           artifacts/forecasting/predictions_locked.parquet). Grain:
           station_key + prediction_origin_time.
+      - name: pm25_alert_predictions_raw
+        description: >
+          Locked alert classifier output (PM2.5(t+1) >= 115) loaded by
+          scripts/run_all.py / src.classification.persist from
+          artifacts/classification/predictions.parquet. Grain:
+          station_key + prediction_origin_time.
