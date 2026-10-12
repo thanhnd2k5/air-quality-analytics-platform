@@ -10,7 +10,7 @@ export function TrendChart({ points, height = 360 }: Props) {
   const option = {
     color: ['#0d9488', '#64748b', '#d97706'],
     tooltip: { trigger: 'axis' },
-    legend: { data: ['PM2.5', 'PM10', 'O3'] },
+    legend: { top: 0, data: ['PM2.5', 'PM10', 'O3'] },
     grid: { left: 48, right: 24, top: 40, bottom: 40 },
     xAxis: {
       type: 'category',
@@ -44,5 +44,5 @@ export function TrendChart({ points, height = 360 }: Props) {
     ],
   }
 
-  return <ReactECharts option={option} style={{ height }} notMerge lazyUpdate />
+  return <ReactECharts option={option} style={{ height }} notMerge />
 }
