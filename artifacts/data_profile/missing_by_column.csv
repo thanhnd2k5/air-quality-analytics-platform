@@ -1,0 +1,13 @@
+variable,var_type,fact_column,rows,missing,missing_pct,worst_station_pct,longest_gap_h,remaining_in_fact,treatment
+PM2.5,pollutant,pm25_ug_m3,420768,8739,2.077,2.718,343,8739,"Giữ NULL, không nội suy; gắn cờ has_missing_pollutant / MISSING_MEASUREMENT. Khai phá: dòng thiếu PM2.5 tại t hoặc t+1 bị loại khỏi ma trận đặc trưng. Giá trị trần 999 gắn cờ SUSPECT_CAP."
+PM10,pollutant,pm10_ug_m3,420768,6449,1.533,2.216,343,6449,Giữ NULL trong kho. Khai phá: điền median của tập TRAIN + cờ *_missing (không dùng thông tin val/test). Giá trị trần 999 gắn cờ SUSPECT_CAP.
+SO2,pollutant,so2_ug_m3,420768,9021,2.144,3.696,457,9021,Giữ NULL + cờ; không dùng làm đặc trưng khai phá.
+NO2,pollutant,no2_ug_m3,420768,12116,2.879,4.674,900,12116,Giữ NULL trong kho. Khai phá: điền median của tập TRAIN + cờ *_missing (không dùng thông tin val/test).
+CO,pollutant,co_ug_m3,420768,20701,4.92,9.118,1517,20701,Giữ NULL trong kho. Khai phá: điền median của tập TRAIN + cờ *_missing (không dùng thông tin val/test). Giá trị trần 10000 gắn cờ SUSPECT_CAP.
+O3,pollutant,o3_ug_m3,420768,13277,3.155,6.009,497,13277,Giữ NULL + cờ; không dùng làm đặc trưng khai phá.
+TEMP,weather,temperature_c,420768,398,0.095,0.151,7,0,Lấp từ Open-Meteo (ERA5) khi UCI thiếu; cột *_source ghi nguồn. Khai phá: median TRAIN + cờ *_missing nếu vẫn thiếu.
+PRES,weather,pressure_hpa,420768,393,0.093,0.151,7,0,Lấp từ Open-Meteo (ERA5) khi UCI thiếu; cột *_source ghi nguồn. Khai phá: median TRAIN + cờ *_missing nếu vẫn thiếu.
+DEWP,weather,dew_point_c,420768,403,0.096,0.154,7,0,Lấp từ Open-Meteo (ERA5) khi UCI thiếu; cột *_source ghi nguồn. Khai phá: median TRAIN + cờ *_missing nếu vẫn thiếu. Dùng cùng TEMP để suy ra độ ẩm tương đối (công thức Magnus).
+RAIN,weather,rain_mm,420768,390,0.093,0.157,6,0,Lấp từ Open-Meteo (ERA5) khi UCI thiếu; cột *_source ghi nguồn. Khai phá: median TRAIN + cờ *_missing nếu vẫn thiếu.
+WSPM,weather,wind_speed_m_s,420768,318,0.076,0.14,5,0,Lấp từ Open-Meteo (ERA5) khi UCI thiếu; cột *_source ghi nguồn. Khai phá: median TRAIN + cờ *_missing nếu vẫn thiếu.
+wd,categorical,wind_direction,420768,1822,0.433,1.377,13,0,"Lấp từ hướng gió Open-Meteo (độ → 16 hướng, macro compass_16); nếu vẫn thiếu → khoá UNKNOWN (0) của dim_wind_direction."
