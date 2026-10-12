@@ -85,3 +85,6 @@ htmlcov/
 dashboard/web/node_modules/
 dashboard/web/dist/
 dashboard/api/.venv/
+
+# run_all.py output (machine-specific timings + logs)
+artifacts/run_all/
