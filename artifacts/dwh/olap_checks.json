@@ -1,93 +1,1160 @@
 {
-  "top_station_months_by_pm25": [
+  "ok": true,
+  "required_operations": [
+    "DICE",
+    "DRILL-DOWN",
+    "PIVOT",
+    "ROLL-UP",
+    "SLICE"
+  ],
+  "operations_present": [
+    "CUBE",
+    "DICE",
+    "DRILL-DOWN",
+    "GROUPING",
+    "PIVOT",
+    "ROLL-UP",
+    "SLICE"
+  ],
+  "operations": [
     {
-      "station_name": "Wanshouxigong",
-      "year": 2015,
-      "month": 12,
-      "pm25_avg": 171.2
+      "name": "rollup_day",
+      "op": "ROLL-UP (mức chi tiết: ngày)",
+      "desc": "Trạm Dongsi, tháng 12/2015 — PM2.5 trung bình theo NGÀY (điểm xuất phát).",
+      "rows": 31,
+      "preview": [
+        {
+          "date_day": "2015-12-01",
+          "pm25_avg": 506.0,
+          "hours": 24
+        },
+        {
+          "date_day": "2015-12-02",
+          "pm25_avg": 9.9,
+          "hours": 24
+        },
+        {
+          "date_day": "2015-12-03",
+          "pm25_avg": 10.2,
+          "hours": 24
+        },
+        {
+          "date_day": "2015-12-04",
+          "pm25_avg": 30.9,
+          "hours": 24
+        },
+        {
+          "date_day": "2015-12-05",
+          "pm25_avg": 53.7,
+          "hours": 24
+        },
+        {
+          "date_day": "2015-12-06",
+          "pm25_avg": 155.5,
+          "hours": 24
+        },
+        {
+          "date_day": "2015-12-07",
+          "pm25_avg": 178.7,
+          "hours": 24
+        },
+        {
+          "date_day": "2015-12-08",
+          "pm25_avg": 244.3,
+          "hours": 24
+        }
+      ]
     },
     {
-      "station_name": "Gucheng",
-      "year": 2015,
-      "month": 12,
-      "pm25_avg": 166.47
+      "name": "rollup_month",
+      "op": "ROLL-UP (ngày → tháng)",
+      "desc": "Cuộn lên một mức trên chiều Thời gian: cùng trạm Dongsi, gộp theo THÁNG của năm 2015.",
+      "rows": 12,
+      "preview": [
+        {
+          "year": 2015,
+          "month": 1,
+          "pm25_avg": 101.0,
+          "hours": 744
+        },
+        {
+          "year": 2015,
+          "month": 2,
+          "pm25_avg": 109.2,
+          "hours": 672
+        },
+        {
+          "year": 2015,
+          "month": 3,
+          "pm25_avg": 93.7,
+          "hours": 744
+        },
+        {
+          "year": 2015,
+          "month": 4,
+          "pm25_avg": 76.9,
+          "hours": 720
+        },
+        {
+          "year": 2015,
+          "month": 5,
+          "pm25_avg": 60.0,
+          "hours": 744
+        },
+        {
+          "year": 2015,
+          "month": 6,
+          "pm25_avg": 66.1,
+          "hours": 720
+        },
+        {
+          "year": 2015,
+          "month": 7,
+          "pm25_avg": 69.1,
+          "hours": 744
+        },
+        {
+          "year": 2015,
+          "month": 8,
+          "pm25_avg": 49.5,
+          "hours": 744
+        }
+      ]
     },
     {
-      "station_name": "Dongsi",
-      "year": 2015,
-      "month": 12,
-      "pm25_avg": 162.44
+      "name": "rollup_year",
+      "op": "ROLL-UP (tháng → năm)",
+      "desc": "Cuộn lên tiếp đến mức NĂM (toàn bộ giai đoạn) cho trạm Dongsi.",
+      "rows": 5,
+      "preview": [
+        {
+          "year": 2013,
+          "pm25_avg": 86.9,
+          "hours": 7344
+        },
+        {
+          "year": 2014,
+          "pm25_avg": 87.5,
+          "hours": 8760
+        },
+        {
+          "year": 2015,
+          "pm25_avg": 87.3,
+          "hours": 8760
+        },
+        {
+          "year": 2016,
+          "pm25_avg": 80.2,
+          "hours": 8784
+        },
+        {
+          "year": 2017,
+          "pm25_avg": 103.5,
+          "hours": 1416
+        }
+      ]
     },
     {
-      "station_name": "Nongzhanguan",
-      "year": 2015,
-      "month": 12,
-      "pm25_avg": 162.06
+      "name": "rollup_station_to_district",
+      "op": "ROLL-UP (trạm → quận)",
+      "desc": "Cuộn lên trên chiều Địa điểm: 12 trạm gộp thành 8 quận (năm 2016).",
+      "rows": 8,
+      "preview": [
+        {
+          "district": "Xicheng",
+          "stations": 2,
+          "pm25_avg": 77.8,
+          "hours": 17568
+        },
+        {
+          "district": "Shijingshan",
+          "stations": 1,
+          "pm25_avg": 77.4,
+          "hours": 8784
+        },
+        {
+          "district": "Dongcheng",
+          "stations": 2,
+          "pm25_avg": 77.0,
+          "hours": 17568
+        },
+        {
+          "district": "Chaoyang",
+          "stations": 2,
+          "pm25_avg": 75.1,
+          "hours": 17568
+        },
+        {
+          "district": "Shunyi",
+          "stations": 1,
+          "pm25_avg": 71.8,
+          "hours": 8784
+        },
+        {
+          "district": "Haidian",
+          "stations": 1,
+          "pm25_avg": 71.4,
+          "hours": 8784
+        },
+        {
+          "district": "Huairou",
+          "stations": 1,
+          "pm25_avg": 61.1,
+          "hours": 8784
+        },
+        {
+          "district": "Changping",
+          "stations": 2,
+          "pm25_avg": 60.8,
+          "hours": 17568
+        }
+      ]
     },
     {
-      "station_name": "Tiantan",
-      "year": 2015,
-      "month": 12,
-      "pm25_avg": 158.95
+      "name": "rollup_operator",
+      "op": "ROLL-UP (toán tử ROLLUP)",
+      "desc": "GROUP BY ROLLUP(year, quarter, month) — tổng con mọi mức của phân cấp Thời gian trong một câu; dòng NULL là mức \"ALL\".",
+      "rows": 18,
+      "preview": [
+        {
+          "year": 2016.0,
+          "quarter": 1.0,
+          "month": 1.0,
+          "grouping_id": 0,
+          "pm25_avg": 66.9,
+          "hours": 8928
+        },
+        {
+          "year": 2016.0,
+          "quarter": 1.0,
+          "month": 2.0,
+          "grouping_id": 0,
+          "pm25_avg": 42.8,
+          "hours": 8352
+        },
+        {
+          "year": 2016.0,
+          "quarter": 1.0,
+          "month": 3.0,
+          "grouping_id": 0,
+          "pm25_avg": 92.0,
+          "hours": 8928
+        },
+        {
+          "year": 2016.0,
+          "quarter": 1.0,
+          "month": NaN,
+          "grouping_id": 1,
+          "pm25_avg": 67.7,
+          "hours": 26208
+        },
+        {
+          "year": 2016.0,
+          "quarter": 2.0,
+          "month": 4.0,
+          "grouping_id": 0,
+          "pm25_avg": 67.0,
+          "hours": 8640
+        },
+        {
+          "year": 2016.0,
+          "quarter": 2.0,
+          "month": 5.0,
+          "grouping_id": 0,
+          "pm25_avg": 53.7,
+          "hours": 8928
+        },
+        {
+          "year": 2016.0,
+          "quarter": 2.0,
+          "month": 6.0,
+          "grouping_id": 0,
+          "pm25_avg": 58.5,
+          "hours": 8640
+        },
+        {
+          "year": 2016.0,
+          "quarter": 2.0,
+          "month": NaN,
+          "grouping_id": 1,
+          "pm25_avg": 59.6,
+          "hours": 26208
+        }
+      ]
+    },
+    {
+      "name": "drilldown_year",
+      "op": "DRILL-DOWN (mức năm)",
+      "desc": "Bắt đầu ở mức tổng hợp: PM2.5 trung bình toàn mạng lưới theo NĂM.",
+      "rows": 5,
+      "preview": [
+        {
+          "year": 2013,
+          "pm25_avg": 80.0,
+          "exceed_hours": 21433
+        },
+        {
+          "year": 2014,
+          "pm25_avg": 85.6,
+          "exceed_hours": 27485
+        },
+        {
+          "year": 2015,
+          "pm25_avg": 79.6,
+          "exceed_hours": 24065
+        },
+        {
+          "year": 2016,
+          "pm25_avg": 71.9,
+          "exceed_hours": 20613
+        },
+        {
+          "year": 2017,
+          "pm25_avg": 92.7,
+          "exceed_hours": 4834
+        }
+      ]
+    },
+    {
+      "name": "drilldown_quarter",
+      "op": "DRILL-DOWN (năm → quý)",
+      "desc": "Khoan xuống năm 2015 theo QUÝ — quý 4 nổi bật.",
+      "rows": 4,
+      "preview": [
+        {
+          "quarter": 1,
+          "pm25_avg": 92.0,
+          "exceed_hours": 8432
+        },
+        {
+          "quarter": 2,
+          "pm25_avg": 62.4,
+          "exceed_hours": 4060
+        },
+        {
+          "quarter": 3,
+          "pm25_avg": 51.4,
+          "exceed_hours": 2408
+        },
+        {
+          "quarter": 4,
+          "pm25_avg": 112.8,
+          "exceed_hours": 9165
+        }
+      ]
+    },
+    {
+      "name": "drilldown_month",
+      "op": "DRILL-DOWN (quý → tháng)",
+      "desc": "Khoan xuống quý 4/2015 theo THÁNG.",
+      "rows": 3,
+      "preview": [
+        {
+          "month": 10,
+          "pm25_avg": 71.8,
+          "exceed_hours": 1592
+        },
+        {
+          "month": 11,
+          "pm25_avg": 115.5,
+          "exceed_hours": 3230
+        },
+        {
+          "month": 12,
+          "pm25_avg": 150.5,
+          "exceed_hours": 4343
+        }
+      ]
+    },
+    {
+      "name": "drilldown_daypart",
+      "op": "DRILL-DOWN (tháng → buổi trong ngày, chiều Giờ)",
+      "desc": "Khoan xuống tháng 12/2015 theo chiều thứ hai: BUỔI trong ngày (dim_time).",
+      "rows": 4,
+      "preview": [
+        {
+          "day_part": "evening",
+          "pm25_avg": 169.7,
+          "hours": 2232
+        },
+        {
+          "day_part": "night",
+          "pm25_avg": 159.8,
+          "hours": 2232
+        },
+        {
+          "day_part": "afternoon",
+          "pm25_avg": 140.7,
+          "hours": 2232
+        },
+        {
+          "day_part": "morning",
+          "pm25_avg": 131.8,
+          "hours": 2232
+        }
+      ]
+    },
+    {
+      "name": "slice_district",
+      "op": "SLICE",
+      "desc": "Cắt lát chiều Địa điểm tại quận = 'Dongcheng' → khối con 2 chiều (năm × mùa).",
+      "rows": 17,
+      "preview": [
+        {
+          "year": 2013,
+          "season": "autumn",
+          "pm25_avg": 88.0,
+          "hours": 4368
+        },
+        {
+          "year": 2013,
+          "season": "spring",
+          "pm25_avg": 85.5,
+          "hours": 4416
+        },
+        {
+          "year": 2013,
+          "season": "summer",
+          "pm25_avg": 81.5,
+          "hours": 4416
+        },
+        {
+          "year": 2013,
+          "season": "winter",
+          "pm25_avg": 85.4,
+          "hours": 1488
+        },
+        {
+          "year": 2014,
+          "season": "autumn",
+          "pm25_avg": 89.8,
+          "hours": 4368
+        },
+        {
+          "year": 2014,
+          "season": "spring",
+          "pm25_avg": 83.3,
+          "hours": 4416
+        },
+        {
+          "year": 2014,
+          "season": "summer",
+          "pm25_avg": 74.4,
+          "hours": 4416
+        },
+        {
+          "year": 2014,
+          "season": "winter",
+          "pm25_avg": 101.6,
+          "hours": 4320
+        }
+      ]
+    },
+    {
+      "name": "dice_winter_south_core",
+      "op": "DICE",
+      "desc": "Khối con theo 3 chiều: mùa ∈ {đông, thu} × chế độ gió = nam × quận ∈ {Dongcheng, Xicheng}.",
+      "rows": 4,
+      "preview": [
+        {
+          "district": "Dongcheng",
+          "season": "autumn",
+          "wind_regime": "southerly",
+          "pm25_avg": 96.8,
+          "pct_exceed": 32.0,
+          "hours": 8072
+        },
+        {
+          "district": "Dongcheng",
+          "season": "winter",
+          "wind_regime": "southerly",
+          "pm25_avg": 133.0,
+          "pct_exceed": 43.5,
+          "hours": 6370
+        },
+        {
+          "district": "Xicheng",
+          "season": "autumn",
+          "wind_regime": "southerly",
+          "pm25_avg": 95.0,
+          "pct_exceed": 30.3,
+          "hours": 7571
+        },
+        {
+          "district": "Xicheng",
+          "season": "winter",
+          "wind_regime": "southerly",
+          "pm25_avg": 132.4,
+          "pct_exceed": 42.6,
+          "hours": 5900
+        }
+      ]
+    },
+    {
+      "name": "dice_compare_north",
+      "op": "DICE (đối chứng)",
+      "desc": "Cùng khối con nhưng chế độ gió = bắc — để thấy gió nam làm PM2.5 tăng gấp nhiều lần.",
+      "rows": 4,
+      "preview": [
+        {
+          "district": "Dongcheng",
+          "season": "autumn",
+          "wind_regime": "northerly",
+          "pm25_avg": 77.5,
+          "pct_exceed": 24.4,
+          "hours": 9400
+        },
+        {
+          "district": "Dongcheng",
+          "season": "winter",
+          "wind_regime": "northerly",
+          "pm25_avg": 83.8,
+          "pct_exceed": 27.8,
+          "hours": 10958
+        },
+        {
+          "district": "Xicheng",
+          "season": "autumn",
+          "wind_regime": "northerly",
+          "pm25_avg": 81.0,
+          "pct_exceed": 25.4,
+          "hours": 9901
+        },
+        {
+          "district": "Xicheng",
+          "season": "winter",
+          "wind_regime": "northerly",
+          "pm25_avg": 87.7,
+          "pct_exceed": 29.5,
+          "hours": 11428
+        }
+      ]
+    },
+    {
+      "name": "pivot_station_month",
+      "op": "PIVOT (xoay trục)",
+      "desc": "Xoay trục: trạm trên hàng, tháng (năm 2016) lên cột — bảng chéo bằng FILTER.",
+      "rows": 12,
+      "preview": [
+        {
+          "station_name": "Aotizhongxin",
+          "m01": 68.0,
+          "m02": 45.0,
+          "m03": 102.0,
+          "m04": 67.0,
+          "m05": 53.0,
+          "m06": 58.0,
+          "m07": 72.0,
+          "m08": 46.0,
+          "m09": 56.0,
+          "m10": 85.0,
+          "m11": 100.0,
+          "m12": 132.0
+        },
+        {
+          "station_name": "Changping",
+          "m01": 54.0,
+          "m02": 37.0,
+          "m03": 73.0,
+          "m04": 57.0,
+          "m05": 50.0,
+          "m06": 53.0,
+          "m07": 55.0,
+          "m08": 36.0,
+          "m09": 45.0,
+          "m10": 80.0,
+          "m11": 86.0,
+          "m12": 110.0
+        },
+        {
+          "station_name": "Dingling",
+          "m01": 54.0,
+          "m02": 35.0,
+          "m03": 82.0,
+          "m04": 60.0,
+          "m05": 51.0,
+          "m06": 49.0,
+          "m07": 57.0,
+          "m08": 37.0,
+          "m09": 44.0,
+          "m10": 76.0,
+          "m11": 76.0,
+          "m12": 96.0
+        },
+        {
+          "station_name": "Dongsi",
+          "m01": 69.0,
+          "m02": 43.0,
+          "m03": 100.0,
+          "m04": 76.0,
+          "m05": 64.0,
+          "m06": 61.0,
+          "m07": 78.0,
+          "m08": 51.0,
+          "m09": 61.0,
+          "m10": 94.0,
+          "m11": 109.0,
+          "m12": 150.0
+        },
+        {
+          "station_name": "Guanyuan",
+          "m01": 67.0,
+          "m02": 41.0,
+          "m03": 95.0,
+          "m04": 74.0,
+          "m05": 57.0,
+          "m06": 66.0,
+          "m07": 78.0,
+          "m08": 49.0,
+          "m09": 58.0,
+          "m10": 87.0,
+          "m11": 107.0,
+          "m12": 143.0
+        },
+        {
+          "station_name": "Gucheng",
+          "m01": 76.0,
+          "m02": 43.0,
+          "m03": 98.0,
+          "m04": 72.0,
+          "m05": 60.0,
+          "m06": 65.0,
+          "m07": 70.0,
+          "m08": 48.0,
+          "m09": 60.0,
+          "m10": 93.0,
+          "m11": 105.0,
+          "m12": 135.0
+        },
+        {
+          "station_name": "Huairou",
+          "m01": 59.0,
+          "m02": 39.0,
+          "m03": 83.0,
+          "m04": 57.0,
+          "m05": 48.0,
+          "m06": 47.0,
+          "m07": 58.0,
+          "m08": 42.0,
+          "m09": 46.0,
+          "m10": 78.0,
+          "m11": 83.0,
+          "m12": 91.0
+        },
+        {
+          "station_name": "Nongzhanguan",
+          "m01": 70.0,
+          "m02": 43.0,
+          "m03": 94.0,
+          "m04": 71.0,
+          "m05": 54.0,
+          "m06": 62.0,
+          "m07": 71.0,
+          "m08": 49.0,
+          "m09": 60.0,
+          "m10": 86.0,
+          "m11": 105.0,
+          "m12": 146.0
+        }
+      ]
+    },
+    {
+      "name": "pivot_season_wind",
+      "op": "PIVOT (xoay trục)",
+      "desc": "Cùng dữ liệu, khung nhìn khác: mùa trên hàng × phần tư hướng gió trên cột (đọc từ khối đã tính trước).",
+      "rows": 4,
+      "preview": [
+        {
+          "season": "spring",
+          "gio_dong_bac": 76.1,
+          "gio_dong_nam": 94.2,
+          "gio_tay_nam": 81.2,
+          "gio_tay_bac": 54.8
+        },
+        {
+          "season": "summer",
+          "gio_dong_bac": 58.2,
+          "gio_dong_nam": 79.0,
+          "gio_tay_nam": 69.5,
+          "gio_tay_bac": 47.9
+        },
+        {
+          "season": "autumn",
+          "gio_dong_bac": 86.3,
+          "gio_dong_nam": 100.8,
+          "gio_tay_nam": 81.4,
+          "gio_tay_bac": 60.6
+        },
+        {
+          "season": "winter",
+          "gio_dong_bac": 101.9,
+          "gio_dong_nam": 136.9,
+          "gio_tay_nam": 106.0,
+          "gio_tay_bac": 61.5
+        }
+      ]
+    },
+    {
+      "name": "cube_operator",
+      "op": "CUBE",
+      "desc": "GROUP BY CUBE(season, wind_regime) — mọi tổ hợp 2 chiều + tổng con + tổng toàn bộ (2² = 4 khối con).",
+      "rows": 15,
+      "preview": [
+        {
+          "season": "autumn",
+          "wind_regime": "northerly",
+          "grouping_id": 0,
+          "pm25_avg": 76.1,
+          "hours": 63260
+        },
+        {
+          "season": "autumn",
+          "wind_regime": "southerly",
+          "grouping_id": 0,
+          "pm25_avg": 91.9,
+          "hours": 41572
+        },
+        {
+          "season": "spring",
+          "wind_regime": "northerly",
+          "grouping_id": 0,
+          "pm25_avg": 66.3,
+          "hours": 51924
+        },
+        {
+          "season": "spring",
+          "wind_regime": "southerly",
+          "grouping_id": 0,
+          "pm25_avg": 87.2,
+          "hours": 54060
+        },
+        {
+          "season": "summer",
+          "wind_regime": "northerly",
+          "grouping_id": 0,
+          "pm25_avg": 54.5,
+          "hours": 51674
+        },
+        {
+          "season": "summer",
+          "wind_regime": "southerly",
+          "grouping_id": 0,
+          "pm25_avg": 74.3,
+          "hours": 54310
+        },
+        {
+          "season": "winter",
+          "wind_regime": "northerly",
+          "grouping_id": 0,
+          "pm25_avg": 83.2,
+          "hours": 70814
+        },
+        {
+          "season": "winter",
+          "wind_regime": "southerly",
+          "grouping_id": 0,
+          "pm25_avg": 121.8,
+          "hours": 33154
+        }
+      ]
+    },
+    {
+      "name": "grouping_sets",
+      "op": "GROUPING SETS",
+      "desc": "Chỉ tính đúng 3 khối con cần cho báo cáo: theo quận, theo buổi, và tổng.",
+      "rows": 13,
+      "preview": [
+        {
+          "district": "ALL",
+          "day_part": "ALL",
+          "pm25_avg": 79.8,
+          "hours": 420768
+        },
+        {
+          "district": "ALL",
+          "day_part": "afternoon",
+          "pm25_avg": 75.4,
+          "hours": 105192
+        },
+        {
+          "district": "ALL",
+          "day_part": "evening",
+          "pm25_avg": 85.6,
+          "hours": 105192
+        },
+        {
+          "district": "ALL",
+          "day_part": "morning",
+          "pm25_avg": 75.4,
+          "hours": 105192
+        },
+        {
+          "district": "ALL",
+          "day_part": "night",
+          "pm25_avg": 82.7,
+          "hours": 105192
+        },
+        {
+          "district": "Changping",
+          "day_part": "ALL",
+          "pm25_avg": 68.5,
+          "hours": 70128
+        },
+        {
+          "district": "Chaoyang",
+          "day_part": "ALL",
+          "pm25_avg": 83.8,
+          "hours": 70128
+        },
+        {
+          "district": "Dongcheng",
+          "day_part": "ALL",
+          "pm25_avg": 84.2,
+          "hours": 70128
+        }
+      ]
+    },
+    {
+      "name": "cube_lookup",
+      "op": "Trả lời từ khối đã tính trước",
+      "desc": "Đọc thẳng khối con (year, season) trong mart_olap_cube thay vì quét 420 768 dòng fact.",
+      "rows": 17,
+      "preview": [
+        {
+          "year": 2013,
+          "season": "spring",
+          "pm25_avg": 83.2,
+          "hour_count": 26496
+        },
+        {
+          "year": 2013,
+          "season": "summer",
+          "pm25_avg": 76.7,
+          "hour_count": 26496
+        },
+        {
+          "year": 2013,
+          "season": "autumn",
+          "pm25_avg": 80.8,
+          "hour_count": 26208
+        },
+        {
+          "year": 2013,
+          "season": "winter",
+          "pm25_avg": 78.5,
+          "hour_count": 8928
+        },
+        {
+          "year": 2014,
+          "season": "spring",
+          "pm25_avg": 82.5,
+          "hour_count": 26496
+        },
+        {
+          "year": 2014,
+          "season": "summer",
+          "pm25_avg": 69.4,
+          "hour_count": 26496
+        },
+        {
+          "year": 2014,
+          "season": "autumn",
+          "pm25_avg": 90.9,
+          "hour_count": 26208
+        },
+        {
+          "year": 2014,
+          "season": "winter",
+          "pm25_avg": 100.2,
+          "hour_count": 25920
+        }
+      ]
+    },
+    {
+      "name": "cuboid_inventory",
+      "op": "Danh mục khối con",
+      "desc": "32 khối con trong mart_olap_cube và số ô của từng khối.",
+      "rows": 32,
+      "preview": [
+        {
+          "grouping_id": 0,
+          "cuboid": "year,season,district,day_part,wind_quadrant",
+          "cells": 2176,
+          "hours": 420768.0
+        },
+        {
+          "grouping_id": 1,
+          "cuboid": "year,season,district,day_part",
+          "cells": 544,
+          "hours": 420768.0
+        },
+        {
+          "grouping_id": 2,
+          "cuboid": "year,season,district,wind_quadrant",
+          "cells": 544,
+          "hours": 420768.0
+        },
+        {
+          "grouping_id": 3,
+          "cuboid": "year,season,district",
+          "cells": 136,
+          "hours": 420768.0
+        },
+        {
+          "grouping_id": 4,
+          "cuboid": "year,season,day_part,wind_quadrant",
+          "cells": 272,
+          "hours": 420768.0
+        },
+        {
+          "grouping_id": 5,
+          "cuboid": "year,season,day_part",
+          "cells": 68,
+          "hours": 420768.0
+        },
+        {
+          "grouping_id": 6,
+          "cuboid": "year,season,wind_quadrant",
+          "cells": 68,
+          "hours": 420768.0
+        },
+        {
+          "grouping_id": 7,
+          "cuboid": "year,season",
+          "cells": 17,
+          "hours": 420768.0
+        }
+      ]
     }
   ],
-  "pm25_by_season": [
+  "cuboid_checks": [
     {
-      "season": "autumn",
-      "pm25_avg": 82.33,
-      "hour_count": 104832
+      "cuboid": "mart_station_daily (station × day)",
+      "cells": 17532,
+      "matched": 17532,
+      "pct_correct": 100.0
     },
     {
-      "season": "spring",
-      "pm25_avg": 76.97,
-      "hour_count": 105984
+      "cuboid": "mart_station_monthly (station × month)",
+      "cells": 576,
+      "matched": 576,
+      "pct_correct": 100.0
     },
     {
-      "season": "summer",
-      "pm25_avg": 64.67,
-      "hour_count": 105984
+      "cuboid": "lattice: monthly = roll-up(daily)",
+      "cells": 576,
+      "matched": 576,
+      "pct_correct": 100.0
     },
     {
-      "season": "winter",
-      "pm25_avg": 95.48,
-      "hour_count": 103968
+      "cuboid": "mart_olap_cube [year,season,district,day_part,wind_quadrant]",
+      "cells": 2176,
+      "matched": 2176,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,season,district,day_part]",
+      "cells": 544,
+      "matched": 544,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,season,district,wind_quadrant]",
+      "cells": 544,
+      "matched": 544,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,season,district]",
+      "cells": 136,
+      "matched": 136,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,season,day_part,wind_quadrant]",
+      "cells": 272,
+      "matched": 272,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,season,day_part]",
+      "cells": 68,
+      "matched": 68,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,season,wind_quadrant]",
+      "cells": 68,
+      "matched": 68,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,season]",
+      "cells": 17,
+      "matched": 17,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,district,day_part,wind_quadrant]",
+      "cells": 640,
+      "matched": 640,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,district,day_part]",
+      "cells": 160,
+      "matched": 160,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,district,wind_quadrant]",
+      "cells": 160,
+      "matched": 160,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,district]",
+      "cells": 40,
+      "matched": 40,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,day_part,wind_quadrant]",
+      "cells": 80,
+      "matched": 80,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,day_part]",
+      "cells": 20,
+      "matched": 20,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year,wind_quadrant]",
+      "cells": 20,
+      "matched": 20,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [year]",
+      "cells": 5,
+      "matched": 5,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [season,district,day_part,wind_quadrant]",
+      "cells": 512,
+      "matched": 512,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [season,district,day_part]",
+      "cells": 128,
+      "matched": 128,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [season,district,wind_quadrant]",
+      "cells": 128,
+      "matched": 128,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [season,district]",
+      "cells": 32,
+      "matched": 32,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [season,day_part,wind_quadrant]",
+      "cells": 64,
+      "matched": 64,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [season,day_part]",
+      "cells": 16,
+      "matched": 16,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [season,wind_quadrant]",
+      "cells": 16,
+      "matched": 16,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [season]",
+      "cells": 4,
+      "matched": 4,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [district,day_part,wind_quadrant]",
+      "cells": 128,
+      "matched": 128,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [district,day_part]",
+      "cells": 32,
+      "matched": 32,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [district,wind_quadrant]",
+      "cells": 32,
+      "matched": 32,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [district]",
+      "cells": 8,
+      "matched": 8,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [day_part,wind_quadrant]",
+      "cells": 16,
+      "matched": 16,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [day_part]",
+      "cells": 4,
+      "matched": 4,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [wind_quadrant]",
+      "cells": 4,
+      "matched": 4,
+      "pct_correct": 100.0
+    },
+    {
+      "cuboid": "mart_olap_cube [ALL]",
+      "cells": 1,
+      "matched": 1,
+      "pct_correct": 100.0
     }
   ],
-  "pm25_by_temperature_bin": [
+  "cube_cuboid_count": 32,
+  "summary": {
+    "cuboids_checked": 35,
+    "cuboids_fully_correct": 35,
+    "cells_checked": 24759,
+    "cells_matched": 24759,
+    "pct_cells_correct": 100.0
+  },
+  "drilldown_consistency": [
     {
-      "temp_bin": 1,
-      "pm25_avg": 20.96,
-      "hour_count": 1335
+      "check": "Σ quarters(2015).exceed_hours = year 2015",
+      "ok": true
     },
     {
-      "temp_bin": 2,
-      "pm25_avg": 98.87,
-      "hour_count": 62052
-    },
-    {
-      "temp_bin": 3,
-      "pm25_avg": 88.35,
-      "hour_count": 103278
-    },
-    {
-      "temp_bin": 4,
-      "pm25_avg": 75.94,
-      "hour_count": 97884
-    },
-    {
-      "temp_bin": 5,
-      "pm25_avg": 70.66,
-      "hour_count": 121820
-    },
-    {
-      "temp_bin": 6,
-      "pm25_avg": 60.38,
-      "hour_count": 25627
-    },
-    {
-      "temp_bin": 7,
-      "pm25_avg": 22.82,
-      "hour_count": 33
+      "check": "Σ months(Q4/2015).exceed_hours = Q4/2015",
+      "ok": true
     }
   ]
 }
