@@ -1,8 +1,10 @@
 -- Grain: one station × one hour. Weather columns are resolved (UCI, else Open-Meteo).
+-- Dimensions: dim_station, dim_date, dim_time, dim_wind_direction (key 0 = UNKNOWN).
 select
     station.station_key,
     to_char(hour_row.event_time_local, 'YYYYMMDD')::integer as date_key,
     extract(hour from hour_row.event_time_local)::integer as time_key,
+    coalesce(wind.wind_direction_key, 0) as wind_direction_key,
     hour_row.event_time_local,
     hour_row.pm25_ug_m3,
     hour_row.pm10_ug_m3,
@@ -31,3 +33,5 @@ select
 from {{ ref('int_station_hour') }} as hour_row
 inner join {{ ref('dim_station') }} as station
     on hour_row.station_name = station.station_name
+left join {{ ref('dim_wind_direction') }} as wind
+    on hour_row.wind_direction = wind.wind_direction

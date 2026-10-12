@@ -144,3 +144,16 @@ models:
         tests: [not_null]
       - name: model_version
         tests: [not_null]
+  - name: mart_olap_cube
+    description: >
+      GROUP BY CUBE(year, season, district, day_part, wind_quadrant): 32 pre-computed cuboids.
+      grouping_id = GROUPING() bitmask; cuboid lists kept attributes ('ALL' = apex).
+      Keep pm25_sum / pm25_hour_count for further roll-up (avg is algebraic).
+      Every cuboid must partition the whole fact: tests/olap_cube_partitions_fact.sql
+    columns:
+      - name: grouping_id
+        tests: [not_null]
+      - name: cuboid
+        tests: [not_null]
+      - name: hour_count
+        tests: [not_null]
