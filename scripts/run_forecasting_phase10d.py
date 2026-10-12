@@ -24,51 +24,14 @@ except ImportError:
     pass
 
 from src.forecasting.persist import load_predictions_to_staging  # noqa: E402
+from src.utils.dbt_runner import run_dbt  # noqa: E402
 
 OUT = ROOT / "artifacts" / "forecasting"
 
 
 def _run_dbt(args: list[str]) -> int:
-    """Prefer docker dbt image (repo standard); fall back to local dbt."""
-    docker_cmd = [
-        "docker",
-        "run",
-        "--rm",
-        "--network",
-        "air-quality-network",
-        "--env-file",
-        str(ROOT / ".env"),
-        "-e",
-        "POSTGRES_HOST=postgres",
-        "-e",
-        "POSTGRES_PORT=5432",
-        "-e",
-        "DBT_SEND_ANONYMOUS_USAGE_STATS=false",
-        "-e",
-        "DO_NOT_TRACK=1",
-        "-v",
-        f"{ROOT / 'dbt'}:/dbt",
-        "ghcr.io/dbt-labs/dbt-postgres:1.9.0",
-        *args,
-        "--project-dir",
-        "/dbt/air_quality_dbt",
-        "--profiles-dir",
-        "/dbt",
-    ]
-    try:
-        proc = subprocess.run(docker_cmd, cwd=str(ROOT), check=False)
-        return int(proc.returncode)
-    except FileNotFoundError:
-        local = [
-            "dbt",
-            *args,
-            "--project-dir",
-            str(ROOT / "dbt" / "air_quality_dbt"),
-            "--profiles-dir",
-            str(ROOT / "dbt"),
-        ]
-        proc = subprocess.run(local, cwd=str(ROOT), check=False)
-        return int(proc.returncode)
+    """Docker dbt image (repo standard); falls back to local dbt."""
+    return run_dbt(args)
 
 
 def main() -> int:
