@@ -5,10 +5,12 @@ from fastapi.responses import JSONResponse
 from app.config import get_settings
 from app.errors import EmptyMartError
 from app.routers import (
+    alerts,
     compare,
     episodes,
     health,
     map_view,
+    olap,
     overview,
     predictions,
     stations,
@@ -46,6 +48,8 @@ app.include_router(weather.router, prefix="/api")
 app.include_router(predictions.router, prefix="/api")
 app.include_router(map_view.router, prefix="/api")
 app.include_router(stations.router, prefix="/api")
+app.include_router(alerts.router, prefix="/api")
+app.include_router(olap.router, prefix="/api")
 
 
 @app.get("/")

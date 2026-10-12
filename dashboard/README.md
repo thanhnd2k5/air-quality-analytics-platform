@@ -12,7 +12,9 @@ UI tiếng Việt. Không auth / CRUD / train model.
 | `/tram` | Xếp hạng trạm + cluster |
 | `/dot-o-nhiem` | Episode + sự kiện đa-trạm |
 | `/thoi-tiet` | PM2.5 vs weather |
+| `/olap` | OLAP tương tác: roll-up / drill-down / slice / dice / pivot (tự đọc `mart_olap_cube` khi có thể) |
 | `/du-bao` | Actual vs HistGB / persistence |
+| `/canh-bao` | Phân loại cảnh báo PM2.5 ≥ 115: ma trận nhầm lẫn mô hình vs persistence, timeline theo trạm |
 | `/ban-do` | 12 marker Leaflet |
 
 ## Demo nhanh (Windows)
@@ -74,6 +76,8 @@ py -3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8100
 - `GET /api/episodes`, `/api/weather`
 - `GET /api/predictions`, `/api/predictions/meta`
 - `GET /api/map/snapshot`
+- `GET /api/olap/meta`, `/api/olap/query?rows=&cols=&measure=&filter=attr:v1,v2`
+- `GET /api/alerts/meta`, `/api/alerts/summary`, `/api/alerts/timeline`
 
 ## Phạm vi / ngoài phạm vi
 

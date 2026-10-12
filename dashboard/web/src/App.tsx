@@ -1,7 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './layout/AppLayout'
+import { AlertsPage } from './pages/AlertsPage'
 import { EpisodesPage } from './pages/EpisodesPage'
 import { MapPage } from './pages/MapPage'
+import { OlapPage } from './pages/OlapPage'
 import { OverviewPage } from './pages/OverviewPage'
 import { PredictionsPage } from './pages/PredictionsPage'
 import { StationsPage } from './pages/StationsPage'
@@ -17,6 +19,8 @@ export default function App() {
           <Route path="/dot-o-nhiem" element={<EpisodesPage />} />
           <Route path="/thoi-tiet" element={<WeatherPage />} />
           <Route path="/du-bao" element={<PredictionsPage />} />
+          <Route path="/canh-bao" element={<AlertsPage />} />
+          <Route path="/olap" element={<OlapPage />} />
           <Route path="/ban-do" element={<MapPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
