@@ -16,10 +16,23 @@ PRED_PATH = ROOT / "artifacts" / "forecasting" / "predictions_locked.parquet"
 STATION_MAP = ROOT / "data" / "clustering" / "station_cluster_assignment.csv"
 
 
-def load_predictions_with_names() -> pd.DataFrame:
-    if not PRED_PATH.is_file():
-        raise FileNotFoundError(f"Missing {PRED_PATH}")
-    df = pd.read_parquet(PRED_PATH)
+def load_predictions_with_names(
+    pred_path: Path | None = None,
+) -> pd.DataFrame:
+    path = pred_path or PRED_PATH
+    if not path.is_file():
+        # CSV fallback (v1/v2 scripts may write either)
+        csv_path = path.with_suffix(".csv")
+        if csv_path.is_file():
+            path = csv_path
+        else:
+            raise FileNotFoundError(f"Missing {path}")
+    if path.suffix.lower() == ".csv":
+        df = pd.read_csv(path)
+        df["event_time_local"] = pd.to_datetime(df["event_time_local"])
+        df["target_time_local"] = pd.to_datetime(df["target_time_local"])
+    else:
+        df = pd.read_parquet(path)
     stations = pd.read_csv(STATION_MAP)[["station_key", "station_name", "district"]]
     return df.merge(stations, on="station_key", how="left")
 

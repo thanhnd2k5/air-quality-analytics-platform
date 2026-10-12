@@ -26,8 +26,34 @@
     "wind_speed_m_s_lag_1",
     "temperature_c_missing",
     "relative_humidity_pct_missing",
-    "wind_speed_m_s_missing"
+    "wind_speed_m_s_missing",
+    "pm25_delta_1",
+    "pm10_ug_m3",
+    "co_ug_m3",
+    "no2_ug_m3",
+    "pm10_ug_m3_lag_1",
+    "pm10_ug_m3_lag_2",
+    "pm10_ug_m3_lag_3",
+    "pm10_ug_m3_lag_6",
+    "co_ug_m3_lag_1",
+    "co_ug_m3_lag_2",
+    "co_ug_m3_lag_3",
+    "co_ug_m3_lag_6",
+    "no2_ug_m3_lag_1",
+    "no2_ug_m3_lag_2",
+    "no2_ug_m3_lag_3",
+    "no2_ug_m3_lag_6",
+    "pm10_ug_m3_missing",
+    "co_ug_m3_missing",
+    "no2_ug_m3_missing",
+    "hours_into_episode",
+    "in_episode_flag"
   ],
+  "sample_weight": {
+    "threshold": 115.0,
+    "high_weight": 2.0,
+    "rule": "w=2 if pm25(t)>=115 or y>=115 else 1"
+  },
   "training_period": {
     "start": "2013-03-01 00:00:00",
     "end": "2015-12-31 23:00:00"
@@ -46,22 +72,24 @@
   },
   "metrics": {
     "train": {
-      "mae": 9.504393073763834,
-      "rmse": 16.4364563747865,
-      "r2": 0.9571516545390516
+      "mae": 9.215321721642113,
+      "rmse": 15.693486486519669,
+      "r2": 0.9609378134664901
     },
     "val": {
-      "mae": 8.947822147397424,
-      "rmse": 18.347592810728738,
-      "r2": 0.9302383729087638
+      "mae": 8.885590210643032,
+      "rmse": 18.61887772578741,
+      "r2": 0.9281601503851885
     },
     "test": {
-      "mae": 9.14359009380599,
-      "rmse": 16.50295931770892,
-      "r2": 0.9578861087050512
+      "mae": 8.871842776028974,
+      "rmse": 15.826992913267008,
+      "r2": 0.961265448702441
     }
   },
   "random_state": 42,
-  "created_at": "2026-10-09T18:43:33.886609+00:00",
-  "dataset": "artifacts/forecasting/feature_matrix.parquet"
+  "created_at": "2026-10-12T03:23:11.828234+00:00",
+  "dataset": "artifacts/forecasting/feature_matrix_v2.parquet",
+  "note": "Promoted to production from V\u00f2ng A HistGB v2",
+  "promoted_at": "2026-10-12T03:41:58.584977+00:00"
 }

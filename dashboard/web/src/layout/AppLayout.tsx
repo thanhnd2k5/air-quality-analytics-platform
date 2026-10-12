@@ -40,7 +40,7 @@ export function AppLayout() {
             <Title order={4}>Chất lượng không khí Bắc Kinh</Title>
           </Group>
           <Text size="sm" c="dimmed">
-            Dashboard đọc DWH / marts
+            Theo dõi & dự báo chất lượng không khí
           </Text>
         </Group>
       </AppShell.Header>

@@ -25,6 +25,18 @@ WEATHER_COLS = (
 )
 WEATHER_LAG = 1
 
+# Vòng A (feature v2): co-pollutants + causal episode (EDA lock ≥115 / ≥3h).
+POLLUTANT_COLS = (
+    "pm10_ug_m3",
+    "co_ug_m3",
+    "no2_ug_m3",
+)
+POLLUTANT_LAGS = (1, 2, 3, 6)
+EPISODE_THRESHOLD = 115.0
+EPISODE_MIN_HOURS = 3
+SAMPLE_WEIGHT_THRESHOLD = 115.0
+SAMPLE_WEIGHT_HIGH = 2.0
+
 # Columns used as model inputs after impute (P10c may one-hot season/station).
 # pm25_ug_m3 = value at prediction origin t (valid nowcast input; also persistence baseline).
 FEATURE_COLS = (
@@ -40,6 +52,17 @@ FEATURE_COLS = (
     *WEATHER_COLS,
     *(f"{c}_lag_{WEATHER_LAG}" for c in WEATHER_COLS),
     *(f"{c}_missing" for c in WEATHER_COLS),
+)
+
+# Vòng A feature set (does not replace FEATURE_COLS / production lock).
+FEATURE_COLS_V2 = (
+    *FEATURE_COLS,
+    "pm25_delta_1",
+    *POLLUTANT_COLS,
+    *(f"{c}_lag_{k}" for c in POLLUTANT_COLS for k in POLLUTANT_LAGS),
+    *(f"{c}_missing" for c in POLLUTANT_COLS),
+    "hours_into_episode",
+    "in_episode_flag",
 )
 
 TARGET_COL = "y_pm25_tplus1"

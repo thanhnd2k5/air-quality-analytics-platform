@@ -2,14 +2,18 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 import pytest
 
-from src.forecasting.constants import TARGET_COL
+from src.forecasting.constants import FEATURE_COLS_V2, TARGET_COL
 from src.forecasting.features import (
+    add_causal_episode_features,
+    add_pm25_delta,
     add_pm25_lags_and_rolls,
     add_target,
     build_feature_matrix,
+    build_feature_matrix_v2,
     drop_unusable_rows,
 )
 from src.forecasting.split import assign_split
@@ -32,6 +36,9 @@ def _toy_station(
             "day_of_week": [t.isoweekday() for t in times],
             "season": ["winter"] * n,
             "pm25_ug_m3": pm25,
+            "pm10_ug_m3": [float(x) + 5 if x is not None else None for x in pm25],
+            "co_ug_m3": [1.0] * n,
+            "no2_ug_m3": [40.0] * n,
             "temperature_c": [10.0] * n,
             "relative_humidity_pct": [50.0] * n,
             "wind_speed_m_s": [2.0] * n,
@@ -129,3 +136,40 @@ def test_lags_isolated_per_station():
     # First row of station 2 must not get station 1's last value as lag1
     b0 = out[out["station_key"] == 2].iloc[0]
     assert pd.isna(b0["pm25_lag_1"])
+
+
+def test_pm25_delta_equals_pm25_minus_lag1():
+    df = _toy_station([10.0, 25.0, 40.0])
+    out = add_pm25_lags_and_rolls(df)
+    out = add_pm25_delta(out)
+    assert pd.isna(out.loc[0, "pm25_delta_1"])
+    assert out.loc[1, "pm25_delta_1"] == pytest.approx(15.0)
+    assert out.loc[2, "pm25_delta_1"] == pytest.approx(15.0)
+
+
+def test_causal_episode_streak_no_future_look():
+    # Only 2 dirty hours then clean — streak never reaches 3 (no future length leak).
+    pm = [50.0, 120.0, 130.0, 40.0, 140.0, 150.0, 160.0, 50.0]
+    df = _toy_station(pm)
+    out = add_causal_episode_features(df, threshold=115.0, min_hours=3)
+    assert list(out["hours_into_episode"]) == [0, 1, 2, 0, 1, 2, 3, 0]
+    assert list(out["in_episode_flag"]) == [0, 0, 0, 0, 0, 0, 1, 0]
+    # At index 2 (second dirty), flag still 0 even though a longer island might form later
+    # in other designs — here the next hour is clean, so island never completes.
+    assert out.loc[2, "in_episode_flag"] == 0
+
+
+def test_build_feature_matrix_v2_has_new_cols():
+    rows = []
+    for start, n in [("2015-01-01", 48), ("2016-03-01", 48), ("2016-09-01", 48)]:
+        rows.append(_toy_station([50.0] * n, start=start))
+    base = pd.concat(rows, ignore_index=True)
+    # Punch some pollutant nulls in val
+    base.loc[base["event_time_local"] >= "2016-01-01", "pm10_ug_m3"] = np.nan
+    matrix, meta = build_feature_matrix_v2(base)
+    assert meta["variant"] == "v2"
+    for c in FEATURE_COLS_V2:
+        assert c in matrix.columns
+    assert matrix["pm10_ug_m3"].notna().all()
+    assert "pm25_delta_1" in matrix.columns
+    assert set(matrix["in_episode_flag"].unique()).issubset({0, 1})

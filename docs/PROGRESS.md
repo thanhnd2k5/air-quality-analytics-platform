@@ -4,6 +4,37 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-12 (Forecast improvement – Vòng A **xong** thí nghiệm)
+
+### Current work
+Vòng A — Feature + HistGB v2 (**DONE** thí nghiệm; production lock / mart / dashboard **không** đổi)
+
+### Results (test 2016 H2)
+| Model | Test MAE |
+|-------|----------|
+| Persistence | 9.78 |
+| HistGB v1 (lock) | 9.14 |
+| HistGB v2 | **8.87** |
+
+- Val MAE v2 8.89 (v1 8.95); thắng persistence + v1 trên test
+- Winter MAE v2 ≈ 14.08 (persistence ≈ 15.61); elevated_core lift ≈ 1.07
+- Khuyến nghị: **cân nhắc Promote** (plan riêng) — chưa promote
+
+### Evidence
+- Scripts: `scripts/run_forecasting_v2a.py` / `v2b` / `v2c`
+- Docs: `docs/FORECAST_IMPROVEMENT_PLAN.md`
+- Artifacts: `feature_matrix_v2`, `model_lock_v2.json`, `error_analysis_v2.md`, `models/pm25_forecast_v2/`
+
+### Promote (cùng ngày)
+- `scripts/promote_forecast_v2.py` — production lock/model/predictions = v2; backup v1 → `promote_backup_v1/`
+- Mart reload P10d: **372 499** rows; test MAE mart = lock **8.872**; dbt tests PASS
+- Dashboard Predictions đọc mart mới (không đổi UI code)
+
+### Next
+- Vòng B: nghiên cứu mở rộng (LSTM / cloud_cover / …) khi cần
+
+---
+
 ## 2026-10-11 (Phase 12 – P12a kickoff)
 
 ### Current phase
