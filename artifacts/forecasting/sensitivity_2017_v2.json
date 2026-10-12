@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "note": "2017 Jan-Feb only (winter-biased); not primary DoD; HistGB v2",
+  "n": 15813,
+  "v2": {
+    "mae": 12.395759073789058,
+    "rmse": 27.483085671645878,
+    "r2": 0.9416696256799073
+  },
+  "persistence": {
+    "mae": 12.608676405489154,
+    "rmse": 27.380826672317074,
+    "r2": 0.9421028891687443
+  },
+  "beats_persistence": true,
+  "v1_ref_histgb_mae": 12.96031065362697,
+  "v1_ref_persistence_mae": 12.608676405489154,
+  "v1_beats_persistence": false
+}

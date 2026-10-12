@@ -1,0 +1,158 @@
+{
+  "ok": true,
+  "phase": "VongA_A2",
+  "variant": "v2",
+  "locked_model": "hist_gradient_boosting",
+  "lock_rule": "min val MAE among ML models (exclude persistence)",
+  "random_state": 42,
+  "sample_weight": {
+    "threshold": 115.0,
+    "high_weight": 2.0,
+    "rule": "w=2 if pm25(t)>=115 or y>=115 else 1"
+  },
+  "beats_persistence_on_test": true,
+  "val_mae": {
+    "persistence": 9.448307913304323,
+    "linear_regression": 9.269913182921279,
+    "hist_gradient_boosting": 8.885590210643032
+  },
+  "test_mae": {
+    "persistence": 9.78268178184129,
+    "linear_regression": 9.380627961786194,
+    "hist_gradient_boosting": 8.871842776028974
+  },
+  "comparison_vs_v1": {
+    "persistence_test_mae": 9.78268178184129,
+    "histgb_v1_lock_test_mae": 9.14359009380599,
+    "histgb_v1_lock_val_mae": 8.947822147397424,
+    "histgb_v2_test_mae": 8.871842776028974,
+    "histgb_v2_val_mae": 8.885590210643032,
+    "lift_vs_persistence_test": 0.910839005812317,
+    "delta_vs_v1_test_mae": -0.27174731777701666,
+    "beats_persistence_on_test": true,
+    "beats_v1_lock_on_test": true
+  },
+  "metrics_table": "artifacts/forecasting/model_metrics_v2.csv",
+  "predictions": "artifacts/forecasting/predictions_v2.parquet",
+  "model_artifact": "models/pm25_forecast_v2/model.joblib",
+  "metadata": "models/pm25_forecast_v2/metadata.json",
+  "split": {
+    "train": {
+      "start": "2013-03-01 00:00:00",
+      "end": "2015-12-31 23:00:00"
+    },
+    "val": {
+      "start": "2016-01-01 00:00:00",
+      "end": "2016-06-30 23:00:00"
+    },
+    "test": {
+      "start": "2016-07-01 00:00:00",
+      "end": "2016-12-31 23:00:00"
+    }
+  },
+  "feature_cols": [
+    "hour",
+    "month",
+    "day_of_week",
+    "season_code",
+    "station_key",
+    "cluster_id",
+    "pm25_ug_m3",
+    "pm25_lag_1",
+    "pm25_lag_2",
+    "pm25_lag_3",
+    "pm25_lag_6",
+    "pm25_lag_12",
+    "pm25_lag_24",
+    "pm25_roll_mean_6",
+    "pm25_roll_mean_24",
+    "temperature_c",
+    "relative_humidity_pct",
+    "wind_speed_m_s",
+    "temperature_c_lag_1",
+    "relative_humidity_pct_lag_1",
+    "wind_speed_m_s_lag_1",
+    "temperature_c_missing",
+    "relative_humidity_pct_missing",
+    "wind_speed_m_s_missing",
+    "pm25_delta_1",
+    "pm10_ug_m3",
+    "co_ug_m3",
+    "no2_ug_m3",
+    "pm10_ug_m3_lag_1",
+    "pm10_ug_m3_lag_2",
+    "pm10_ug_m3_lag_3",
+    "pm10_ug_m3_lag_6",
+    "co_ug_m3_lag_1",
+    "co_ug_m3_lag_2",
+    "co_ug_m3_lag_3",
+    "co_ug_m3_lag_6",
+    "no2_ug_m3_lag_1",
+    "no2_ug_m3_lag_2",
+    "no2_ug_m3_lag_3",
+    "no2_ug_m3_lag_6",
+    "pm10_ug_m3_missing",
+    "co_ug_m3_missing",
+    "no2_ug_m3_missing",
+    "hours_into_episode",
+    "in_episode_flag"
+  ],
+  "target_col": "y_pm25_tplus1",
+  "per_model_metrics": {
+    "persistence": {
+      "train": {
+        "mae": 10.667340617989725,
+        "rmse": 19.800235859995222,
+        "r2": 0.937818899902209
+      },
+      "val": {
+        "mae": 9.448307913304323,
+        "rmse": 18.909570196843802,
+        "r2": 0.9258993990185275
+      },
+      "test": {
+        "mae": 9.78268178184129,
+        "rmse": 18.011904729886954,
+        "r2": 0.9498326690344105
+      }
+    },
+    "linear_regression": {
+      "train": {
+        "mae": 10.354562303514816,
+        "rmse": 18.390907257193327,
+        "r2": 0.9463556505828726
+      },
+      "val": {
+        "mae": 9.269913182921279,
+        "rmse": 17.871297189363272,
+        "r2": 0.9338133242932937
+      },
+      "test": {
+        "mae": 9.380627961786194,
+        "rmse": 16.424724651711962,
+        "r2": 0.9582844562375232
+      }
+    },
+    "hist_gradient_boosting": {
+      "train": {
+        "mae": 9.215321721642113,
+        "rmse": 15.693486486519669,
+        "r2": 0.9609378134664901
+      },
+      "val": {
+        "mae": 8.885590210643032,
+        "rmse": 18.61887772578741,
+        "r2": 0.9281601503851885
+      },
+      "test": {
+        "mae": 8.871842776028974,
+        "rmse": 15.826992913267008,
+        "r2": 0.961265448702441
+      }
+    }
+  },
+  "created_at": "2026-10-12T03:23:11.828234+00:00",
+  "note": "Experimental lock only \u2014 production remains artifacts/forecasting/model_lock.json",
+  "promoted_to_production": true,
+  "promoted_at": "2026-10-12T03:41:58.584977+00:00"
+}

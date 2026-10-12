@@ -6,7 +6,12 @@ import numpy as np
 import pandas as pd
 
 from src.forecasting.constants import FEATURE_COLS, TARGET_COL
-from src.forecasting.models import choose_lock, predict_persistence, run_persistence
+from src.forecasting.models import (
+    choose_lock,
+    compute_sample_weights,
+    predict_persistence,
+    run_persistence,
+)
 
 
 def _mini_matrix(n: int = 40) -> pd.DataFrame:
@@ -71,3 +76,10 @@ def test_choose_lock_picks_lower_val_mae():
 
     locked = choose_lock([base, _Fake("linear_regression", 5.0), _Fake("hist_gradient_boosting", 3.0)])
     assert locked.name == "hist_gradient_boosting"
+
+
+def test_sample_weights_dirty_bin():
+    pm = np.array([50.0, 120.0, 80.0])
+    y = np.array([60.0, 90.0, 130.0])
+    w = compute_sample_weights(pm, y, threshold=115.0, high_weight=2.0)
+    np.testing.assert_allclose(w, [1.0, 2.0, 2.0])

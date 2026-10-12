@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "phase": "VongA_A3",
+  "test_metrics": {
+    "n_test": 48781,
+    "locked": {
+      "mae": 8.871842776028974,
+      "rmse": 15.826992913267008,
+      "r2": 0.961265448702441
+    },
+    "persistence": {
+      "mae": 9.78268178184129,
+      "rmse": 18.011904729886954,
+      "r2": 0.9498326690344105
+    },
+    "mae_lift": 0.910839005812317
+  },
+  "comparison_vs_v1": {
+    "persistence_test_mae": 9.78268178184129,
+    "histgb_v1_lock_test_mae": 9.14359009380599,
+    "histgb_v1_lock_val_mae": 8.947822147397424,
+    "histgb_v2_test_mae": 8.871842776028974,
+    "histgb_v2_val_mae": 8.885590210643032,
+    "lift_vs_persistence_test": 0.910839005812317,
+    "delta_vs_v1_test_mae": -0.27174731777701666,
+    "beats_persistence_on_test": true,
+    "beats_v1_lock_on_test": true
+  },
+  "recommendation": "HistGB v2 thắng cả persistence và lock v1 trên test — đủ điều kiện **cân nhắc Promote** (plan riêng: mart + dashboard). Trước Promote nên kiểm tra thêm MAE bin ≥115/≥150 và mùa đông.",
+  "figures": {
+    "station": "artifacts/forecasting/figures/error_v2_mae_by_station.png",
+    "hour": "artifacts/forecasting/figures/error_v2_mae_by_hour.png",
+    "scatter": "artifacts/forecasting/figures/error_v2_actual_vs_pred.png",
+    "bins": "artifacts/forecasting/figures/error_v2_mae_by_actual_bin.png"
+  },
+  "error_analysis_md": "artifacts/forecasting/error_analysis_v2.md",
+  "csv_prefix": "artifacts/forecasting/error_v2_",
+  "production_lock_unchanged": true,
+  "v1_error_summary_ref": "artifacts/forecasting/error_analysis_summary.json"
+}

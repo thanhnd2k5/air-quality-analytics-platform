@@ -1,0 +1,67 @@
+{
+  "model_name": "hist_gradient_boosting",
+  "target": "y_pm25_tplus1",
+  "horizon": "t+1h",
+  "feature_cols": [
+    "hour",
+    "month",
+    "day_of_week",
+    "season_code",
+    "station_key",
+    "cluster_id",
+    "pm25_ug_m3",
+    "pm25_lag_1",
+    "pm25_lag_2",
+    "pm25_lag_3",
+    "pm25_lag_6",
+    "pm25_lag_12",
+    "pm25_lag_24",
+    "pm25_roll_mean_6",
+    "pm25_roll_mean_24",
+    "temperature_c",
+    "relative_humidity_pct",
+    "wind_speed_m_s",
+    "temperature_c_lag_1",
+    "relative_humidity_pct_lag_1",
+    "wind_speed_m_s_lag_1",
+    "temperature_c_missing",
+    "relative_humidity_pct_missing",
+    "wind_speed_m_s_missing"
+  ],
+  "training_period": {
+    "start": "2013-03-01 00:00:00",
+    "end": "2015-12-31 23:00:00"
+  },
+  "val_period": {
+    "start": "2016-01-01 00:00:00",
+    "end": "2016-06-30 23:00:00"
+  },
+  "test_period": {
+    "start": "2016-07-01 00:00:00",
+    "end": "2016-12-31 23:00:00"
+  },
+  "ml_window": {
+    "start": "2013-03-01 00:00:00",
+    "end": "2016-12-31 23:00:00"
+  },
+  "metrics": {
+    "train": {
+      "mae": 9.504393073763834,
+      "rmse": 16.4364563747865,
+      "r2": 0.9571516545390516
+    },
+    "val": {
+      "mae": 8.947822147397424,
+      "rmse": 18.347592810728738,
+      "r2": 0.9302383729087638
+    },
+    "test": {
+      "mae": 9.14359009380599,
+      "rmse": 16.50295931770892,
+      "r2": 0.9578861087050512
+    }
+  },
+  "random_state": 42,
+  "created_at": "2026-10-09T18:43:33.886609+00:00",
+  "dataset": "artifacts/forecasting/feature_matrix.parquet"
+}

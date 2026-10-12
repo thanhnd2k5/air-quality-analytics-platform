@@ -1,5 +1,6 @@
 import {
   Alert,
+  Badge,
   Group,
   Loader,
   Paper,
@@ -11,7 +12,7 @@ import {
   Title,
 } from '@mantine/core'
 import ReactECharts from 'echarts-for-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   fetchPredictionMeta,
   fetchPredictions,
@@ -21,9 +22,36 @@ import {
 import { fetchStations, type Station } from '../api/stations'
 import { DateStationFilters } from '../components/DateStationFilters'
 
-function fmt(n: number | null | undefined, d = 2) {
+function fmt(n: number | null | undefined, d = 1) {
   if (n === null || n === undefined) return '—'
   return n.toFixed(d)
+}
+
+function fmtTime(iso: string) {
+  return iso.replace('T', ' ').slice(0, 16)
+}
+
+const SPLIT_LABEL: Record<string, string> = {
+  train: 'Giai đoạn học',
+  val: 'Giai đoạn tinh chỉnh',
+  test: 'Giai đoạn đánh giá',
+}
+
+function splitLabel(split: string) {
+  return SPLIT_LABEL[split] ?? split
+}
+
+function pickHeadline(metrics: PredictionsResponse['metrics']) {
+  return metrics.find((m) => m.split === 'test') ?? metrics[0] ?? null
+}
+
+function aqiHint(pm25: number | null | undefined): string {
+  if (pm25 == null) return ''
+  if (pm25 <= 35) return 'Mức thấp'
+  if (pm25 <= 75) return 'Mức trung bình'
+  if (pm25 <= 115) return 'Hơi cao'
+  if (pm25 <= 150) return 'Cao'
+  return 'Rất cao'
 }
 
 export function PredictionsPage() {
@@ -32,7 +60,7 @@ export function PredictionsPage() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [stationKey, setStationKey] = useState<string | null>(null)
-  const [split, setSplit] = useState<string | null>(null)
+  const [split, setSplit] = useState<string | null>('test')
   const [data, setData] = useState<PredictionsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -79,50 +107,72 @@ export function PredictionsPage() {
     }
   }, [dateFrom, dateTo, stationKey, split])
 
+  const series = data?.series ?? []
+  const latest = series.length ? series[series.length - 1] : null
+  const headline = data ? pickHeadline(data.metrics) : null
+
+  const recentRows = useMemo(() => {
+    if (!series.length) return []
+    return [...series].slice(-12).reverse()
+  }, [series])
+
   const chartOption = {
-    color: ['#334155', '#0d9488', '#94a3b8'],
-    tooltip: { trigger: 'axis' },
-    legend: { data: ['Thực tế', 'HistGB', 'Persistence'] },
-    grid: { left: 48, right: 24, top: 40, bottom: 40 },
+    color: ['#0d9488', '#334155', '#94a3b8'],
+    tooltip: {
+      trigger: 'axis',
+      valueFormatter: (v: number | string) =>
+        v == null || v === '' ? '—' : `${Number(v).toFixed(1)} µg/m³`,
+    },
+    legend: {
+      data: ['Dự báo của mô hình', 'Thực tế đo được', 'Cách đơn giản (giờ trước)'],
+    },
+    grid: { left: 56, right: 24, top: 48, bottom: 40 },
     xAxis: {
       type: 'category',
-      data: data?.series.map((p) => p.target_time.replace('T', ' ').slice(0, 16)) ?? [],
+      data: series.map((p) => fmtTime(p.target_time)),
       axisLabel: { hideOverlap: true },
     },
     yAxis: {
       type: 'value',
-      name: 'PM2.5',
+      name: 'PM2.5 (µg/m³)',
       splitLine: { lineStyle: { type: 'dashed', opacity: 0.4 } },
     },
     series: [
       {
-        name: 'Thực tế',
+        name: 'Dự báo của mô hình',
         type: 'line',
         showSymbol: false,
-        data: data?.series.map((p) => p.actual_pm25) ?? [],
+        lineStyle: { width: 2.5 },
+        data: series.map((p) => p.predicted_pm25),
       },
       {
-        name: 'HistGB',
+        name: 'Thực tế đo được',
         type: 'line',
         showSymbol: false,
-        data: data?.series.map((p) => p.predicted_pm25) ?? [],
+        data: series.map((p) => p.actual_pm25),
       },
       {
-        name: 'Persistence',
+        name: 'Cách đơn giản (giờ trước)',
         type: 'line',
         showSymbol: false,
-        data: data?.series.map((p) => p.predicted_pm25_persistence) ?? [],
+        lineStyle: { type: 'dashed' },
+        data: series.map((p) => p.predicted_pm25_persistence),
       },
     ],
   }
 
+  const stationName =
+    stationKey != null
+      ? stations.find((s) => String(s.station_key) === stationKey)?.station_name
+      : null
+
   return (
     <Stack gap="md">
       <div>
-        <Title order={2}>Dự báo</Title>
-        <Text size="sm" c="dimmed">
-          PM2.5(t+1h) — mart_pm25_predictions
-          {data?.model_version ? ` · ${data.model_version}` : ''}
+        <Title order={2}>Dự báo PM2.5 giờ tới</Title>
+        <Text size="sm" c="dimmed" maw={720}>
+          Đây là số PM2.5 mô hình đã đoán cho từng giờ (trước khi biết kết quả đo).
+          Phần sai số chỉ để xem dự báo có sát thực tế không — không phải nội dung chính.
         </Text>
       </div>
 
@@ -139,17 +189,17 @@ export function PredictionsPage() {
           onStationKey={setStationKey}
         />
         <Select
-          label="Split"
+          label="Xem giai đoạn"
           clearable
           placeholder="Tất cả"
           data={[
-            { value: 'train', label: 'train' },
-            { value: 'val', label: 'val' },
-            { value: 'test', label: 'test' },
+            { value: 'test', label: 'Đánh giá (khuyên dùng)' },
+            { value: 'val', label: 'Tinh chỉnh' },
+            { value: 'train', label: 'Học' },
           ]}
           value={split}
           onChange={setSplit}
-          w={140}
+          w={200}
         />
       </Group>
 
@@ -167,32 +217,76 @@ export function PredictionsPage() {
 
       {!loading && !error && data && (
         <>
-          <SimpleGrid cols={{ base: 1, sm: data.metrics.length || 1 }} spacing="sm">
-            {data.metrics.map((m) => (
-              <Paper key={m.split} withBorder p="md" radius="sm">
+          {latest ? (
+            <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm">
+              <Paper withBorder p="md" radius="sm">
                 <Text size="xs" c="dimmed" tt="uppercase">
-                  {m.split} · n={m.n}
+                  Dự báo gần nhất
                 </Text>
-                <Text fw={600} size="lg">
-                  MAE HistGB {fmt(m.mae_model)}
+                <Text fw={700} size="2rem" mt={4}>
+                  {fmt(latest.predicted_pm25)}{' '}
+                  <Text span size="sm" fw={500} c="dimmed">
+                    µg/m³
+                  </Text>
                 </Text>
                 <Text size="sm" c="dimmed">
-                  MAE persistence {fmt(m.mae_persistence)}
+                  {fmtTime(latest.target_time)}
+                  {stationName ? ` · ${stationName}` : ' · trung bình các trạm'}
+                </Text>
+                {latest.predicted_pm25 != null && (
+                  <Badge mt={8} variant="light" color="teal">
+                    {aqiHint(latest.predicted_pm25)}
+                  </Badge>
+                )}
+              </Paper>
+              <Paper withBorder p="md" radius="sm">
+                <Text size="xs" c="dimmed" tt="uppercase">
+                  Thực tế đo được
+                </Text>
+                <Text fw={700} size="2rem" mt={4}>
+                  {fmt(latest.actual_pm25)}{' '}
+                  <Text span size="sm" fw={500} c="dimmed">
+                    µg/m³
+                  </Text>
+                </Text>
+                <Text size="sm" c="dimmed">
+                  Cùng giờ đó máy quan trắc ghi nhận
                 </Text>
               </Paper>
-            ))}
-          </SimpleGrid>
+              <Paper withBorder p="md" radius="sm">
+                <Text size="xs" c="dimmed" tt="uppercase">
+                  Lệch bao nhiêu?
+                </Text>
+                <Text fw={700} size="2rem" mt={4}>
+                  {fmt(latest.absolute_error)}{' '}
+                  <Text span size="sm" fw={500} c="dimmed">
+                    µg/m³
+                  </Text>
+                </Text>
+                <Text size="sm" c="dimmed">
+                  |dự báo − thực tế| ở giờ gần nhất
+                </Text>
+              </Paper>
+            </SimpleGrid>
+          ) : (
+            <Alert color="yellow" title="Chưa có điểm dự báo">
+              Không có dữ liệu trong khoảng đã chọn. Thử đổi ngày, trạm hoặc giai đoạn.
+            </Alert>
+          )}
 
           <Paper withBorder p="md" radius="sm">
-            <Text fw={600} mb="xs">
-              Chuỗi actual vs predicted
-              {stationKey
-                ? ''
-                : ' (trung bình theo giờ mọi trạm — chọn 1 trạm để rõ hơn)'}
+            <Text fw={600} mb={4}>
+              Số dự báo theo thời gian
             </Text>
-            {data.series.length === 0 ? (
+            <Text size="sm" c="dimmed" mb="sm">
+              Đường xanh là số mô hình đoán. Đường đậm là thực tế. Càng sát nhau càng tốt.
+              {!stationKey
+                ? ' Đang lấy trung bình mọi trạm — chọn 1 trạm để xem rõ hơn.'
+                : null}
+            </Text>
+            {series.length === 0 ? (
               <Text size="sm" c="dimmed">
-                Không có điểm trong khoảng chọn.
+                Không có chuỗi để vẽ.
               </Text>
             ) : (
               <ReactECharts option={chartOption} style={{ height: 380 }} />
@@ -200,25 +294,78 @@ export function PredictionsPage() {
           </Paper>
 
           <Paper withBorder p="md" radius="sm">
-            <Text fw={600} mb="xs">
-              Metric theo split (trong filter)
+            <Text fw={600} mb={4}>
+              12 giờ gần nhất trong khoảng chọn
             </Text>
+            <Text size="sm" c="dimmed" mb="sm">
+              Cột chính là <strong>số dự báo</strong>; thực tế và lệch để đối chiếu.
+            </Text>
+            {recentRows.length === 0 ? (
+              <Text size="sm" c="dimmed">
+                Không có dòng nào.
+              </Text>
+            ) : (
+              <Table striped withTableBorder>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Thời điểm</Table.Th>
+                    <Table.Th>Dự báo</Table.Th>
+                    <Table.Th>Thực tế</Table.Th>
+                    <Table.Th>Lệch</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {recentRows.map((p) => (
+                    <Table.Tr key={p.target_time}>
+                      <Table.Td>{fmtTime(p.target_time)}</Table.Td>
+                      <Table.Td>
+                        <Text fw={600}>{fmt(p.predicted_pm25)} µg/m³</Text>
+                        <Text size="xs" c="dimmed">
+                          {aqiHint(p.predicted_pm25)}
+                        </Text>
+                      </Table.Td>
+                      <Table.Td>{fmt(p.actual_pm25)} µg/m³</Table.Td>
+                      <Table.Td>{fmt(p.absolute_error)} µg/m³</Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            )}
+          </Paper>
+
+          <Paper withBorder p="md" radius="sm">
+            <Text fw={600} mb={4}>
+              Độ tin cậy (phụ)
+            </Text>
+            <Text size="sm" c="dimmed" mb="sm">
+              Sai số trung bình trên cả khoảng lọc — dùng để biết mô hình có đáng tin không,
+              không thay cho số dự báo từng giờ ở trên.
+            </Text>
+            {headline && headline.mae_model != null && (
+              <Text size="sm" mb="sm">
+                Trung bình mỗi giờ lệch khoảng <strong>{fmt(headline.mae_model)} µg/m³</strong>
+                {headline.mae_persistence != null
+                  ? ` (cách đơn giản: ${fmt(headline.mae_persistence)} µg/m³)`
+                  : ''}
+                .
+              </Text>
+            )}
             <Table striped withTableBorder>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>Split</Table.Th>
-                  <Table.Th>n</Table.Th>
-                  <Table.Th>MAE model</Table.Th>
-                  <Table.Th>MAE persistence</Table.Th>
+                  <Table.Th>Giai đoạn</Table.Th>
+                  <Table.Th>Số điểm giờ</Table.Th>
+                  <Table.Th>Sai số mô hình</Table.Th>
+                  <Table.Th>Sai số cách đơn giản</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
                 {data.metrics.map((m) => (
                   <Table.Tr key={m.split}>
-                    <Table.Td>{m.split}</Table.Td>
-                    <Table.Td>{m.n}</Table.Td>
-                    <Table.Td>{fmt(m.mae_model)}</Table.Td>
-                    <Table.Td>{fmt(m.mae_persistence)}</Table.Td>
+                    <Table.Td>{splitLabel(m.split)}</Table.Td>
+                    <Table.Td>{m.n.toLocaleString('vi-VN')}</Table.Td>
+                    <Table.Td>{fmt(m.mae_model)} µg/m³</Table.Td>
+                    <Table.Td>{fmt(m.mae_persistence)} µg/m³</Table.Td>
                   </Table.Tr>
                 ))}
               </Table.Tbody>

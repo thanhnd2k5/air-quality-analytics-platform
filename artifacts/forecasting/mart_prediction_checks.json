@@ -9,9 +9,9 @@
     "train": 276380,
     "val": 47338
   },
-  "mae_all": 9.38641346931478,
-  "mae_test": 9.14359009380593,
-  "lock_test_mae": 9.14359009380599,
+  "mae_all": 9.128438060978203,
+  "mae_test": 8.871842776029025,
+  "lock_test_mae": 8.871842776028974,
   "model_version_count": 1,
   "issues": []
 }
