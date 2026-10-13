@@ -4,6 +4,60 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-12 (Forecast Vòng B – LSTM thí nghiệm **xong**)
+
+### Current work
+LSTM t+1h (seq=24, hidden=64, CUDA) trên `feature_matrix_v2` (**DONE** thí nghiệm; production lock / mart / dashboard **không** đổi)
+
+### Results (test 2016 H2, sequence rows n=40 511)
+| Model | Test MAE |
+|-------|----------|
+| Persistence | 9.74 |
+| HistGB v2 (prod lock) | 8.87 |
+| LSTM exp | **8.85** |
+
+- Δ vs v2 ≈ −0.020 (thắng mỏng); val MAE LSTM 8.69 (v2 8.89); best_epoch=19
+- Winter MAE LSTM ≈ 14.75 (v2 ≈ 14.08) — kém hơn mùa đông
+- High-bin ≥150 LSTM ≈ 15.26 (v2 ≈ 16.60) — tốt hơn spike
+- Khuyến nghị: **cân nhắc Promote** theo lệnh tổng MAE, nhưng winter kém v2 — nên cân nhắc kỹ trước khi thay serving
+
+### Evidence
+- Scripts: `scripts/run_forecasting_lstm_b.py` / `lstm_c`
+- Code: `src/forecasting/lstm_data.py`, `lstm_model.py`, `tests/unit/test_forecasting_lstm.py`
+- Docs: `docs/FORECAST_IMPROVEMENT_PLAN.md`
+- Artifacts: `lstm_exp_lock.json`, `lstm_exp_error_analysis.md`, `models/pm25_forecast_lstm_exp/`
+
+### Next
+- Quyết định giữ v2 / Promote LSTM / hoặc thử hướng khác (plan riêng)
+
+---
+
+## 2026-10-12 (Forecast Feature v3 – O3/SO2 + cloud_cover **xong** thí nghiệm)
+
+### Current work
+Feature v3 — HistGB + O3/SO2 + cloud_cover (**DONE** thí nghiệm; production lock / mart / dashboard **không** đổi)
+
+### Results (test 2016 H2)
+| Model | Test MAE |
+|-------|----------|
+| Persistence | 9.78 |
+| HistGB v2 (prod lock) | 8.87 |
+| HistGB v3 | **8.86** |
+
+- Δ vs v2 ≈ −0.012 (thắng mỏng); val MAE v3 8.83 (v2 8.89)
+- Winter MAE v3 ≈ 14.13 (v2 ≈ 14.08) — hơi kém hơn trên mùa đông
+- Khuyến nghị: **cân nhắc Promote** nhưng gain nhỏ; có thể giữ v2 hoặc Promote nếu muốn tối ưu MAE tổng
+
+### Evidence
+- Scripts: `scripts/run_forecasting_v3a.py` / `v3b` / `v3c`
+- Docs: `docs/FORECAST_IMPROVEMENT_PLAN.md`
+- Artifacts: `feature_matrix_v3`, `model_lock_v3.json`, `error_analysis_v3.md`, `models/pm25_forecast_v3/`
+
+### Next
+- Quyết định Promote v3 (plan riêng) hoặc giữ v2; LSTM / hướng khác nếu cần
+
+---
+
 ## 2026-10-12 (Forecast improvement – Vòng A **xong** thí nghiệm)
 
 ### Current work

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.forecasting.constants import FEATURE_COLS_V2, TARGET_COL
+from src.forecasting.constants import FEATURE_COLS_V2, FEATURE_COLS_V3, TARGET_COL
 from src.forecasting.features import (
     add_causal_episode_features,
     add_pm25_delta,
@@ -14,6 +14,7 @@ from src.forecasting.features import (
     add_target,
     build_feature_matrix,
     build_feature_matrix_v2,
+    build_feature_matrix_v3,
     drop_unusable_rows,
 )
 from src.forecasting.split import assign_split
@@ -39,9 +40,12 @@ def _toy_station(
             "pm10_ug_m3": [float(x) + 5 if x is not None else None for x in pm25],
             "co_ug_m3": [1.0] * n,
             "no2_ug_m3": [40.0] * n,
+            "o3_ug_m3": [30.0] * n,
+            "so2_ug_m3": [15.0] * n,
             "temperature_c": [10.0] * n,
             "relative_humidity_pct": [50.0] * n,
             "wind_speed_m_s": [2.0] * n,
+            "cloud_cover_pct": [40.0] * n,
             "cluster_id": 0,
             "cluster_label": "elevated_core",
         }
@@ -173,3 +177,22 @@ def test_build_feature_matrix_v2_has_new_cols():
     assert matrix["pm10_ug_m3"].notna().all()
     assert "pm25_delta_1" in matrix.columns
     assert set(matrix["in_episode_flag"].unique()).issubset({0, 1})
+
+
+def test_build_feature_matrix_v3_has_o3_so2_cloud():
+    rows = []
+    for start, n in [("2015-01-01", 48), ("2016-03-01", 48), ("2016-09-01", 48)]:
+        rows.append(_toy_station([50.0] * n, start=start))
+    base = pd.concat(rows, ignore_index=True)
+    base.loc[base["event_time_local"] >= "2016-01-01", "o3_ug_m3"] = np.nan
+    base.loc[base["event_time_local"] >= "2016-01-01", "cloud_cover_pct"] = np.nan
+    matrix, meta = build_feature_matrix_v3(base)
+    assert meta["variant"] == "v3"
+    for c in FEATURE_COLS_V3:
+        assert c in matrix.columns
+    assert matrix["o3_ug_m3"].notna().all()
+    assert matrix["so2_ug_m3"].notna().all()
+    assert matrix["cloud_cover_pct"].notna().all()
+    assert "o3_ug_m3_missing" in matrix.columns
+    assert "cloud_cover_pct_missing" in matrix.columns
+    assert set(matrix["cloud_cover_pct_missing"].unique()).issubset({0, 1})

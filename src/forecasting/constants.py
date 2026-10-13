@@ -65,6 +65,28 @@ FEATURE_COLS_V2 = (
     "in_episode_flag",
 )
 
+# Vòng B-feature (v3): O3/SO2 + cloud_cover on top of v2 (does not replace v2 lock).
+POLLUTANT_COLS_V3 = (
+    *POLLUTANT_COLS,
+    "o3_ug_m3",
+    "so2_ug_m3",
+)
+WEATHER_COLS_V3 = (
+    *WEATHER_COLS,
+    "cloud_cover_pct",
+)
+FEATURE_COLS_V3 = (
+    *FEATURE_COLS_V2,
+    "o3_ug_m3",
+    "so2_ug_m3",
+    *(f"{c}_lag_{k}" for c in ("o3_ug_m3", "so2_ug_m3") for k in POLLUTANT_LAGS),
+    "o3_ug_m3_missing",
+    "so2_ug_m3_missing",
+    "cloud_cover_pct",
+    f"cloud_cover_pct_lag_{WEATHER_LAG}",
+    "cloud_cover_pct_missing",
+)
+
 TARGET_COL = "y_pm25_tplus1"
 META_COLS = (
     "station_key",
@@ -74,6 +96,24 @@ META_COLS = (
     "cluster_label",
     "pm25_ug_m3",
     "season",
+)
+
+# LSTM experiment (Vòng B): slim per-timestep features — no lag/roll (encoded by window).
+LSTM_SEQ_LEN = 24
+LSTM_HIDDEN = 64
+LSTM_DROPOUT = 0.1
+LSTM_STATION_EMB_DIM = 8
+LSTM_SEQ_COLS = (
+    "pm25_ug_m3",
+    *WEATHER_COLS,
+    *POLLUTANT_COLS,
+    "hours_into_episode",
+    "in_episode_flag",
+    "hour",
+    "month",
+    "day_of_week",
+    "season_code",
+    "cluster_id",
 )
 
 SEASON_TO_CODE = {

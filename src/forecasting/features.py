@@ -12,14 +12,17 @@ from src.forecasting.constants import (
     EPISODE_THRESHOLD,
     FEATURE_COLS,
     FEATURE_COLS_V2,
+    FEATURE_COLS_V3,
     META_COLS,
     PM25_LAGS,
     PM25_ROLL_WINDOWS,
     POLLUTANT_COLS,
+    POLLUTANT_COLS_V3,
     POLLUTANT_LAGS,
     SEASON_TO_CODE,
     TARGET_COL,
     WEATHER_COLS,
+    WEATHER_COLS_V3,
     WEATHER_LAG,
 )
 from src.forecasting.split import assign_split
@@ -56,18 +59,28 @@ def add_pm25_delta(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def add_weather_lags_and_missing_flags(df: pd.DataFrame) -> pd.DataFrame:
+def add_weather_lags_and_missing_flags(
+    df: pd.DataFrame,
+    *,
+    weather_cols: Sequence[str] = WEATHER_COLS,
+) -> pd.DataFrame:
     out = df.copy()
-    for col in WEATHER_COLS:
+    for col in weather_cols:
+        if col not in out.columns:
+            out[col] = np.nan
         out[f"{col}_missing"] = out[col].isna().astype(np.int8)
         out[f"{col}_lag_{WEATHER_LAG}"] = _groupby_station(out)[col].shift(WEATHER_LAG)
     return out
 
 
-def add_pollutant_lags_and_missing_flags(df: pd.DataFrame) -> pd.DataFrame:
+def add_pollutant_lags_and_missing_flags(
+    df: pd.DataFrame,
+    *,
+    pollutant_cols: Sequence[str] = POLLUTANT_COLS,
+) -> pd.DataFrame:
     """Co-pollutant value at t, lags, and pre-impute missing flags."""
     out = df.copy()
-    for col in POLLUTANT_COLS:
+    for col in pollutant_cols:
         if col not in out.columns:
             out[col] = np.nan
         out[f"{col}_missing"] = out[col].isna().astype(np.int8)
@@ -162,12 +175,18 @@ def impute_numeric_from_train(
     return out, medians
 
 
-def _pollutant_impute_cols() -> list[str]:
-    cols: list[str] = list(POLLUTANT_COLS)
-    for c in POLLUTANT_COLS:
+def _pollutant_impute_cols(
+    pollutant_cols: Sequence[str] = POLLUTANT_COLS,
+) -> list[str]:
+    cols: list[str] = list(pollutant_cols)
+    for c in pollutant_cols:
         for k in POLLUTANT_LAGS:
             cols.append(f"{c}_lag_{k}")
     return cols
+
+
+def _weather_impute_cols(weather_cols: Sequence[str] = WEATHER_COLS) -> list[str]:
+    return list(weather_cols) + [f"{c}_lag_{WEATHER_LAG}" for c in weather_cols]
 
 
 def build_feature_matrix(base: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]:
@@ -237,7 +256,7 @@ def build_feature_matrix_v2(base: pd.DataFrame) -> tuple[pd.DataFrame, dict[str,
 
     df = df[df["split"].isin(["train", "val", "test"])].reset_index(drop=True)
 
-    weather_cols = list(WEATHER_COLS) + [f"{c}_lag_{WEATHER_LAG}" for c in WEATHER_COLS]
+    weather_cols = _weather_impute_cols()
     pollutant_cols = _pollutant_impute_cols()
     df, medians = impute_numeric_from_train(df, cols=weather_cols + pollutant_cols)
     weather_medians = {k: v for k, v in medians.items() if k in weather_cols}
@@ -255,6 +274,56 @@ def build_feature_matrix_v2(base: pd.DataFrame) -> tuple[pd.DataFrame, dict[str,
         "target_col": TARGET_COL,
         "meta_cols": list(META_COLS),
         "variant": "v2",
+        "episode_threshold": EPISODE_THRESHOLD,
+        "episode_min_hours": EPISODE_MIN_HOURS,
+    }
+    return df, meta
+
+
+def build_feature_matrix_v3(base: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """
+    Feature v3: v2 + O3/SO2 pollutant lags + cloud_cover (weather-style).
+    Train-median impute for weather_v3 + pollutant_v3 columns.
+    """
+    if base.empty:
+        raise ValueError("Empty forecast base frame")
+
+    df = base.sort_values(["station_key", "event_time_local"]).reset_index(drop=True)
+    n_in = len(df)
+
+    df = add_calendar_codes(df)
+    df = add_pm25_lags_and_rolls(df)
+    df = add_pm25_delta(df)
+    df = add_weather_lags_and_missing_flags(df, weather_cols=WEATHER_COLS_V3)
+    df = add_pollutant_lags_and_missing_flags(df, pollutant_cols=POLLUTANT_COLS_V3)
+    df = add_causal_episode_features(df)
+    df = add_target(df)
+    df["split"] = assign_split(df["event_time_local"])
+
+    before_drop = len(df)
+    df = drop_unusable_rows(df)
+    after_drop = len(df)
+
+    df = df[df["split"].isin(["train", "val", "test"])].reset_index(drop=True)
+
+    weather_cols = _weather_impute_cols(WEATHER_COLS_V3)
+    pollutant_cols = _pollutant_impute_cols(POLLUTANT_COLS_V3)
+    df, medians = impute_numeric_from_train(df, cols=weather_cols + pollutant_cols)
+    weather_medians = {k: v for k, v in medians.items() if k in weather_cols}
+    pollutant_medians = {k: v for k, v in medians.items() if k in pollutant_cols}
+
+    meta = {
+        "rows_in": n_in,
+        "rows_before_drop": before_drop,
+        "rows_after_target_lag_drop": after_drop,
+        "rows_out": len(df),
+        "split_counts": df["split"].value_counts().to_dict(),
+        "weather_train_medians": weather_medians,
+        "pollutant_train_medians": pollutant_medians,
+        "feature_cols": list(FEATURE_COLS_V3),
+        "target_col": TARGET_COL,
+        "meta_cols": list(META_COLS),
+        "variant": "v3",
         "episode_threshold": EPISODE_THRESHOLD,
         "episode_min_hours": EPISODE_MIN_HOURS,
     }

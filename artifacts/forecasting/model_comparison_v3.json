@@ -1,0 +1,11 @@
+{
+  "persistence_test_mae": 9.78268178184129,
+  "histgb_v2_lock_test_mae": 8.871842776028974,
+  "histgb_v2_lock_val_mae": 8.885590210643032,
+  "histgb_v3_test_mae": 8.859798985634345,
+  "histgb_v3_val_mae": 8.8271003379289,
+  "lift_vs_persistence_test": 0.9228827962069452,
+  "delta_vs_v2_test_mae": -0.012043790394628218,
+  "beats_persistence_on_test": true,
+  "beats_v2_lock_on_test": true
+}

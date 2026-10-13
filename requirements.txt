@@ -6,6 +6,9 @@ openpyxl>=3.1.0
 matplotlib>=3.7.0
 scikit-learn>=1.3.0
 scipy>=1.10.0
+# LSTM experiment (Vòng B). Prefer CUDA wheel on GPU hosts:
+#   py -3 -m pip install torch --index-url https://download.pytorch.org/whl/cu128
+torch>=2.0.0
 
 # Configuration & Utilities
 pydantic>=2.0.0

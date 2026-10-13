@@ -10,9 +10,12 @@ select
     fact.pm10_ug_m3,
     fact.co_ug_m3,
     fact.no2_ug_m3,
+    fact.o3_ug_m3,
+    fact.so2_ug_m3,
     fact.temperature_c,
     fact.relative_humidity_pct,
     fact.wind_speed_m_s,
+    fact.cloud_cover_pct,
     cl.cluster_id,
     cl.cluster_label
 from dwh.fact_air_quality_hourly as fact

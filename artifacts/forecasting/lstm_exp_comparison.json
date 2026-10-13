@@ -1,0 +1,17 @@
+{
+  "persistence_test_mae": 9.740539606526623,
+  "histgb_v2_prod_test_mae": 8.871842776028974,
+  "histgb_v2_prod_val_mae": 8.885590210643032,
+  "lstm_test_mae": 8.851378558356549,
+  "lstm_val_mae": 8.685800229011896,
+  "lift_vs_persistence_test": 0.8891610481700738,
+  "delta_vs_histgb_v2_test_mae": -0.020464217672424567,
+  "beats_persistence_on_test": true,
+  "beats_histgb_v2_on_test": true,
+  "n_sequences": {
+    "train": 231913,
+    "val": 34815,
+    "test": 40511
+  },
+  "note": "LSTM sequences require 24h history \u2014 n may be slightly under flat matrix"
+}

@@ -10,7 +10,9 @@ from src.forecasting.constants import (
     EXPECTED_CLUSTERS,
     EXPECTED_STATIONS,
     FEATURE_COLS,
+    POLLUTANT_COLS_V3,
     TARGET_COL,
+    WEATHER_COLS_V3,
 )
 from src.forecasting.features import (
     add_calendar_codes,
@@ -111,16 +113,29 @@ def qc_feature_matrix(
     if base_for_leakage is not None and not base_for_leakage.empty:
         eng = add_calendar_codes(base_for_leakage)
         eng = add_pm25_lags_and_rolls(eng)
-        if variant == "v2":
+        if variant in ("v2", "v3"):
             eng = add_pm25_delta(eng)
-            eng = add_pollutant_lags_and_missing_flags(eng)
+            if variant == "v3":
+                eng = add_pollutant_lags_and_missing_flags(
+                    eng, pollutant_cols=POLLUTANT_COLS_V3
+                )
+                eng = add_weather_lags_and_missing_flags(
+                    eng, weather_cols=WEATHER_COLS_V3
+                )
+            else:
+                eng = add_pollutant_lags_and_missing_flags(eng)
+                eng = add_weather_lags_and_missing_flags(eng)
             eng = add_causal_episode_features(eng)
-        eng = add_weather_lags_and_missing_flags(eng)
+        else:
+            eng = add_weather_lags_and_missing_flags(eng)
         eng = add_target(eng)
         leakage_checks = leakage_spot_check(eng)
         required_keys = ["lag1_matches_prev_pm25", "target_matches_next_pm25"]
-        if variant == "v2":
-            required_keys += ["delta1_matches_pm25_minus_lag1", "episode_streak_matches_prefix"]
+        if variant in ("v2", "v3"):
+            required_keys += [
+                "delta1_matches_pm25_minus_lag1",
+                "episode_streak_matches_prefix",
+            ]
         if not all(all(r.get(k, True) for k in required_keys) for r in leakage_checks):
             issues.append("leakage spot-check failed")
 
