@@ -273,8 +273,9 @@ Artifact chạy demo (tuỳ chọn): `artifacts/cdc_eval/mae_by_batch.json` — 
 - [x] **1.2** Đối soát `|File| + |DB| = 298.368 + 122.400 = 420.768`.
 
 ### Giai đoạn 2 — Module ingest DB
-- [ ] **2.1** `src/ingestion/db_client.py` — kết nối SQLite, query theo watermark.
-- [ ] **2.2** `src/ingestion/db_to_minio.py` — delta batch → `raw/operational_db/`.
+- [x] **2.1** `src/ingestion/db_client.py` — kết nối SQLite, query theo watermark.
+- [x] **2.2** `src/ingestion/db_to_minio.py` — delta batch → `raw/operational_db/`.
+  - CLI smoke: `scripts/ingest_operational_db_batch.py` (`--fetch-only` / upload MinIO).
 
 ### Giai đoạn 3 — Airflow CDC DAG
 - [ ] **3.1** `airflow/dags/operational_db_cdc_dag.py`: check → delta → MinIO → load staging.
