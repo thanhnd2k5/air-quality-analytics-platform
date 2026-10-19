@@ -1,0 +1,428 @@
+{
+  "data": {
+    "matrix": "artifacts/forecasting/feature_matrix_v2.parquet",
+    "n_comparable": 372487,
+    "n_matrix": 372499,
+    "n_stations": 12,
+    "n_train": 276368,
+    "pbl_cache": "artifacts/forecasting/pbl_ablation/pbl_panel_cache.parquet",
+    "stations": [
+      "Aotizhongxin",
+      "Changping",
+      "Dingling",
+      "Dongsi",
+      "Guanyuan",
+      "Gucheng",
+      "Huairou",
+      "Nongzhanguan",
+      "Shunyi",
+      "Tiantan",
+      "Wanliu",
+      "Wanshouxigong"
+    ]
+  },
+  "decision": {
+    "checked": {
+      "delta_mae_high_pm_test": -0.03623862139662748,
+      "delta_mae_test": -0.01683468405625277,
+      "delta_mae_val": -0.005072119270721487,
+      "delta_mae_winter_test": -0.010273397450633937,
+      "stations_improved_test": 10
+    },
+    "criteria": {
+      "delta_mae_improve_threshold": -0.15,
+      "high_pm_threshold": 115.0,
+      "min_stations_improved_on_test": 7,
+      "no_harm_threshold": 0.1,
+      "rule": "PROMOTE only if val AND test \u0394MAE(M1\u2212M0) \u2264 \u22120.15 \u00b5g/m\u00b3, winter-test and highPM-test do not worsen by >0.10, and \u22657/12 stations improve on test. WINTER_ONLY if winter-test \u0394MAE \u2264 \u22120.15 but overall promote fails. Otherwise CLOSE_BRANCH."
+    },
+    "decision": "CLOSE_BRANCH",
+    "note": "No clear stable incremental value vs locked HistGB v2 baseline. Keep POC/ablation artifacts for the report; do not ingest PBL."
+  },
+  "delta_mae_by_split": {
+    "test": -0.01683468405625277,
+    "train": -0.014937364827467547,
+    "val": -0.005072119270721487
+  },
+  "finished_at": "2026-10-19T11:59:49Z",
+  "leakage": {
+    "definition": "boundary_layer_height at event_time_local \u2212 1h, within station",
+    "feature": "pbl_lag_1",
+    "note": "Rows with null pbl_lag_1 dropped from BOTH models so comparison uses identical record sets. HistGB hyperparams/sample weights match v2 lock.",
+    "rows_dropped_for_null_pbl_lag1": 12,
+    "same_row_set_m0_m1": true,
+    "uses_pbl_at_t": false,
+    "uses_pbl_at_tplus1": false
+  },
+  "locked_reference": {
+    "algorithm": "hist_gradient_boosting",
+    "feature_cols_m0": [
+      "hour",
+      "month",
+      "day_of_week",
+      "season_code",
+      "station_key",
+      "cluster_id",
+      "pm25_ug_m3",
+      "pm25_lag_1",
+      "pm25_lag_2",
+      "pm25_lag_3",
+      "pm25_lag_6",
+      "pm25_lag_12",
+      "pm25_lag_24",
+      "pm25_roll_mean_6",
+      "pm25_roll_mean_24",
+      "temperature_c",
+      "relative_humidity_pct",
+      "wind_speed_m_s",
+      "temperature_c_lag_1",
+      "relative_humidity_pct_lag_1",
+      "wind_speed_m_s_lag_1",
+      "temperature_c_missing",
+      "relative_humidity_pct_missing",
+      "wind_speed_m_s_missing",
+      "pm25_delta_1",
+      "pm10_ug_m3",
+      "co_ug_m3",
+      "no2_ug_m3",
+      "pm10_ug_m3_lag_1",
+      "pm10_ug_m3_lag_2",
+      "pm10_ug_m3_lag_3",
+      "pm10_ug_m3_lag_6",
+      "co_ug_m3_lag_1",
+      "co_ug_m3_lag_2",
+      "co_ug_m3_lag_3",
+      "co_ug_m3_lag_6",
+      "no2_ug_m3_lag_1",
+      "no2_ug_m3_lag_2",
+      "no2_ug_m3_lag_3",
+      "no2_ug_m3_lag_6",
+      "pm10_ug_m3_missing",
+      "co_ug_m3_missing",
+      "no2_ug_m3_missing",
+      "hours_into_episode",
+      "in_episode_flag"
+    ],
+    "feature_cols_m1": [
+      "hour",
+      "month",
+      "day_of_week",
+      "season_code",
+      "station_key",
+      "cluster_id",
+      "pm25_ug_m3",
+      "pm25_lag_1",
+      "pm25_lag_2",
+      "pm25_lag_3",
+      "pm25_lag_6",
+      "pm25_lag_12",
+      "pm25_lag_24",
+      "pm25_roll_mean_6",
+      "pm25_roll_mean_24",
+      "temperature_c",
+      "relative_humidity_pct",
+      "wind_speed_m_s",
+      "temperature_c_lag_1",
+      "relative_humidity_pct_lag_1",
+      "wind_speed_m_s_lag_1",
+      "temperature_c_missing",
+      "relative_humidity_pct_missing",
+      "wind_speed_m_s_missing",
+      "pm25_delta_1",
+      "pm10_ug_m3",
+      "co_ug_m3",
+      "no2_ug_m3",
+      "pm10_ug_m3_lag_1",
+      "pm10_ug_m3_lag_2",
+      "pm10_ug_m3_lag_3",
+      "pm10_ug_m3_lag_6",
+      "co_ug_m3_lag_1",
+      "co_ug_m3_lag_2",
+      "co_ug_m3_lag_3",
+      "co_ug_m3_lag_6",
+      "no2_ug_m3_lag_1",
+      "no2_ug_m3_lag_2",
+      "no2_ug_m3_lag_3",
+      "no2_ug_m3_lag_6",
+      "pm10_ug_m3_missing",
+      "co_ug_m3_missing",
+      "no2_ug_m3_missing",
+      "hours_into_episode",
+      "in_episode_flag",
+      "pbl_lag_1"
+    ],
+    "model_lock_untouched": true,
+    "random_state": 42,
+    "sample_weight": {
+      "high_weight": 2.0,
+      "threshold": 115.0
+    },
+    "split": {
+      "test": [
+        "2016-07-01 00:00:00",
+        "2016-12-31 23:00:00"
+      ],
+      "train_end": "2015-12-31 23:00:00",
+      "val": [
+        "2016-01-01 00:00:00",
+        "2016-06-30 23:00:00"
+      ]
+    }
+  },
+  "metrics": {
+    "high_pm": {
+      "test": {
+        "delta_mae": -0.03623862139662748,
+        "delta_rmse": -0.03259643873612106,
+        "m0": {
+          "mae": 15.324062264309845,
+          "r2": 0.9117451151318535,
+          "rmse": 24.128764343433765
+        },
+        "m1": {
+          "mae": 15.287823642913217,
+          "r2": 0.911983407629769,
+          "rmse": 24.096167904697644
+        },
+        "n": 11646
+      },
+      "train": {
+        "delta_mae": -0.023812125942104245,
+        "delta_rmse": -0.041072849607733275,
+        "m0": {
+          "mae": 14.655122462231832,
+          "r2": 0.9047681584978395,
+          "rmse": 23.476160999160932
+        },
+        "m1": {
+          "mae": 14.631310336289728,
+          "r2": 0.9051010938070135,
+          "rmse": 23.4350881495532
+        },
+        "n": 69627
+      },
+      "val": {
+        "delta_mae": 0.07898868108128454,
+        "delta_rmse": 0.404703947728116,
+        "m0": {
+          "mae": 17.985409154052007,
+          "r2": 0.7964445477426301,
+          "rmse": 37.507679537115756
+        },
+        "m1": {
+          "mae": 18.064397835133292,
+          "r2": 0.7920281652690337,
+          "rmse": 37.91238348484387
+        },
+        "n": 7479
+      }
+    },
+    "overall": {
+      "test": {
+        "delta_mae": -0.01683468405625277,
+        "delta_rmse": -0.027127156745571313,
+        "m0": {
+          "mae": 8.884635384780415,
+          "r2": 0.9610172609182476,
+          "rmse": 15.877616892047813
+        },
+        "m1": {
+          "mae": 8.867800700724162,
+          "r2": 0.9611503523652549,
+          "rmse": 15.850489735302242
+        },
+        "n": 48781
+      },
+      "train": {
+        "delta_mae": -0.014937364827467547,
+        "delta_rmse": -0.022691800609591084,
+        "m0": {
+          "mae": 9.229504724495776,
+          "r2": 0.9608889056338199,
+          "rmse": 15.703341363440526
+        },
+        "m1": {
+          "mae": 9.214567359668308,
+          "r2": 0.9610018573810338,
+          "rmse": 15.680649562830935
+        },
+        "n": 276368
+      },
+      "val": {
+        "delta_mae": -0.005072119270721487,
+        "delta_rmse": 0.12491100696448143,
+        "m0": {
+          "mae": 8.889134868023824,
+          "r2": 0.9295517449322467,
+          "rmse": 18.43766470144468
+        },
+        "m1": {
+          "mae": 8.884062748753102,
+          "r2": 0.9285939695499154,
+          "rmse": 18.562575708409163
+        },
+        "n": 47338
+      }
+    },
+    "stations_test": {
+      "mean_delta_mae": -0.017011725418449936,
+      "n_improved": 10,
+      "n_stations": 12,
+      "rows": [
+        {
+          "cluster_label": "elevated_core",
+          "delta_mae": -0.011604194097879272,
+          "mae_m0": 9.109257149534006,
+          "mae_m1": 9.097652955436127,
+          "n": 4139,
+          "station_name": "Aotizhongxin"
+        },
+        {
+          "cluster_label": "cleaner_outskirts",
+          "delta_mae": -0.032172651748362924,
+          "mae_m0": 9.049959062989009,
+          "mae_m1": 9.017786411240646,
+          "n": 4140,
+          "station_name": "Changping"
+        },
+        {
+          "cluster_label": "cleaner_outskirts",
+          "delta_mae": -0.02123333515453929,
+          "mae_m0": 7.591882099535688,
+          "mae_m1": 7.570648764381149,
+          "n": 3875,
+          "station_name": "Dingling"
+        },
+        {
+          "cluster_label": "elevated_core",
+          "delta_mae": -0.05213232865634687,
+          "mae_m0": 9.935783380573522,
+          "mae_m1": 9.883651051917175,
+          "n": 3917,
+          "station_name": "Dongsi"
+        },
+        {
+          "cluster_label": "elevated_core",
+          "delta_mae": 0.01070131911058958,
+          "mae_m0": 9.788823373932281,
+          "mae_m1": 9.799524693042871,
+          "n": 4078,
+          "station_name": "Guanyuan"
+        },
+        {
+          "cluster_label": "elevated_core",
+          "delta_mae": -0.016552320812833088,
+          "mae_m0": 9.027487143796632,
+          "mae_m1": 9.010934822983799,
+          "n": 4065,
+          "station_name": "Gucheng"
+        },
+        {
+          "cluster_label": "cleaner_outskirts",
+          "delta_mae": -0.018074070457974933,
+          "mae_m0": 7.353797838321654,
+          "mae_m1": 7.335723767863679,
+          "n": 4113,
+          "station_name": "Huairou"
+        },
+        {
+          "cluster_label": "elevated_core",
+          "delta_mae": -0.029098283166590022,
+          "mae_m0": 9.049737050476699,
+          "mae_m1": 9.020638767310109,
+          "n": 4099,
+          "station_name": "Nongzhanguan"
+        },
+        {
+          "cluster_label": "elevated_core",
+          "delta_mae": -0.013838632897964942,
+          "mae_m0": 8.386497721716127,
+          "mae_m1": 8.372659088818162,
+          "n": 3824,
+          "station_name": "Shunyi"
+        },
+        {
+          "cluster_label": "elevated_core",
+          "delta_mae": -0.01628086390276806,
+          "mae_m0": 9.32624936004396,
+          "mae_m1": 9.309968496141192,
+          "n": 4154,
+          "station_name": "Tiantan"
+        },
+        {
+          "cluster_label": "elevated_core",
+          "delta_mae": 0.04793732811804574,
+          "mae_m0": 8.457166521112017,
+          "mae_m1": 8.505103849230062,
+          "n": 4193,
+          "station_name": "Wanliu"
+        },
+        {
+          "cluster_label": "elevated_core",
+          "delta_mae": -0.051792671354775166,
+          "mae_m0": 9.480315538965721,
+          "mae_m1": 9.428522867610946,
+          "n": 4184,
+          "station_name": "Wanshouxigong"
+        }
+      ]
+    },
+    "winter": {
+      "test": {
+        "delta_mae": -0.010273397450633937,
+        "delta_rmse": -0.055359578326338976,
+        "m0": {
+          "mae": 14.108431224527067,
+          "r2": 0.959591193050291,
+          "rmse": 25.31136767576291
+        },
+        "m1": {
+          "mae": 14.098157827076433,
+          "r2": 0.9597677594221137,
+          "rmse": 25.25600809743657
+        },
+        "n": 8478
+      },
+      "train": {
+        "delta_mae": -0.040711674210967885,
+        "delta_rmse": -0.03536060702940347,
+        "m0": {
+          "mae": 11.10576209161822,
+          "r2": 0.9673965156446415,
+          "rmse": 19.124775550629664
+        },
+        "m1": {
+          "mae": 11.065050417407251,
+          "r2": 0.9675169681113008,
+          "rmse": 19.08941494360026
+        },
+        "n": 55025
+      },
+      "val": {
+        "delta_mae": 0.005562480228308075,
+        "delta_rmse": 0.18571631607564498,
+        "m0": {
+          "mae": 9.022079805454599,
+          "r2": 0.9062939902171537,
+          "rmse": 22.89933727301002
+        },
+        "m1": {
+          "mae": 9.027642285682907,
+          "r2": 0.9047678932969415,
+          "rmse": 23.085053589085664
+        },
+        "n": 16317
+      }
+    }
+  },
+  "ok": true,
+  "phase": "PBL_offline_ablation_one_shot",
+  "promote_criteria_preregistered": {
+    "delta_mae_improve_threshold": -0.15,
+    "high_pm_threshold": 115.0,
+    "min_stations_improved_on_test": 7,
+    "no_harm_threshold": 0.1,
+    "rule": "PROMOTE only if val AND test \u0394MAE(M1\u2212M0) \u2264 \u22120.15 \u00b5g/m\u00b3, winter-test and highPM-test do not worsen by >0.10, and \u22657/12 stations improve on test. WINTER_ONLY if winter-test \u0394MAE \u2264 \u22120.15 but overall promote fails. Otherwise CLOSE_BRANCH."
+  },
+  "started_at": "2026-10-19T11:57:52Z"
+}

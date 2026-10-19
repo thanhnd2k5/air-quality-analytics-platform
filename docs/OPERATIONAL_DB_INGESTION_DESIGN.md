@@ -250,7 +250,8 @@ Artifact chạy demo (tuỳ chọn): `artifacts/cdc_eval/mae_by_batch.json` — 
 1. Watermark tiến (ví dụ từng ngày hoặc từng N giờ).  
 2. Có dòng predict trước khi có actual cùng `target_time`.  
 3. Sau batch kế: `y_true` + `abs_error` được điền; MAE cập nhật.  
-4. Một câu giải thích: *đánh giá liên tục = monitoring; cải thiện model = retrain riêng (ngoài scope).*
+4. Artifact `mae_by_batch.json`: có `mae_above_threshold` (ngưỡng mặc định 12 µg/m³) — **chỉ cờ monitoring**.  
+5. Một câu giải thích (mức 0): *đánh giá liên tục = biết model đang lệch bao nhiêu; không tự retrain, không nút UI. Retrain offline / UI duyệt / auto-retrain = hướng phát triển.*
 
 ---
 
@@ -278,23 +279,38 @@ Artifact chạy demo (tuỳ chọn): `artifacts/cdc_eval/mae_by_batch.json` — 
   - CLI smoke: `scripts/ingest_operational_db_batch.py` (`--fetch-only` / upload MinIO).
 
 ### Giai đoạn 3 — Airflow CDC DAG
-- [ ] **3.1** `airflow/dags/operational_db_cdc_dag.py`: check → delta → MinIO → load staging.
-- [ ] **3.2** Mount `./data/raw/database` vào compose Airflow.
+- [x] **3a** `airflow/dags/operational_db_cdc_dag.py`: check → delta → MinIO.
+  - Conf: `watermark`, `batch_size`, `max_batches`, `persist_watermark`, `load_staging`, `watermark_from_staging`.
+  - Variable fallback: `operational_db_watermark`.
+- [x] **3b** Load staging `source_system = 'operational_db'`:
+  - `src/processing/operational_db_transform.py` — JSON records → canonical + DQ.
+  - `src/staging/operational_db_load.py` — upsert `staging.air_quality_hourly` (PK grain).
+  - CLI: `scripts/load_operational_db_staging.py`.
+  - DAG task: `load_staging_batches` (sau ingest).
+- [x] **3.2** Mount: `./data/raw` đã cover `database/`; env `OPERATIONAL_DB_PATH` trong compose.
 
 ### Giai đoạn 4 — Serving + đánh giá liên tục (phần cải thiện)
-- [ ] **4.1** Task/script sau mỗi batch CDC: predict *t+1* từ feature ≤ *t*, ghi `prediction_log` (`y_true` = NULL).
-- [ ] **4.2** Khi actual *t+1* có mặt: backfill `y_true`, `abs_error`; cập nhật MAE theo batch.
-- [ ] **4.3** Kiểm anti-leakage: tại thời điểm predict, không đọc PM2.5(*t+1*).
-- [ ] **4.4** Xuất artifact hoặc mart để dashboard/báo cáo xem lệch dần.
+- [x] **4.1** `src/forecasting/cdc_serve.py` + DAG `cdc_serve_and_eval`: predict *t+1* từ feature ≤ *t* → `staging.cdc_prediction_log` (`y_true` NULL).
+- [x] **4.2** Backfill `y_true` / `abs_error` khi actual CDC có mặt; MAE theo `eval_batch_id`.
+- [x] **4.3** Anti-leakage: serve features không gồm target; `assert_anti_leakage` trên feature cols.
+- [x] **4.4** Artifact `artifacts/cdc_eval/mae_by_batch.json`; CLI `scripts/run_cdc_eval.py`.
 
 ### Giai đoạn 5 — Kiểm chứng end-to-end
-- [ ] **5.1** Chạy DAG; kiểm MinIO + staging `source_system = 'operational_db'`.
-- [ ] **5.2** Reconcile đủ 420.768 trên staging (File + CDC).
-- [ ] **5.3** `dbt build` + demo watermark tiến → predict → đối soát → MAE cập nhật.
+- [x] **5.1** Chạy DAG; kiểm MinIO + staging `source_system = 'operational_db'`.
+  - Run `manual__2026-10-18T17:55:36+00:00`: `check_source` → `ingest_delta_batches` → `load_staging_batches` success.
+  - MinIO `raw/operational_db/` có batch JSON (+ `.meta.json`); staging `operational_db` = 122.400.
+  - Airflow serve cần mount `./models` + `./artifacts` và `_PIP_ADDITIONAL_REQUIREMENTS` khớp ABI host (numpy 2.5 / sklearn 1.9).
+- [x] **5.2** Reconcile đủ 420.768 trên staging (File + CDC).
+  - `uci_prsa` 298.368 + `operational_db` 122.400 = **420.768**.
+- [x] **5.3** `dbt build` + demo watermark tiến → predict → đối soát → MAE cập nhật.
+  - `dbt build`: core DWH/mart OK; sau đó nạp `staging.pm25_alert_predictions_raw` + `dbt build --select mart_pm25_alerts+` → PASS.
+  - Demo CLI: `p5_demo_week1` MAE≈12.48 (n=1884) → `p5_demo_week2` MAE≈7.79 (n=1880).
+  - DAG `cdc_serve_and_eval` (cùng run): 13 batch, predict≈112.7k, backfill≈108.2k, overall MAE≈9.41; artifact `artifacts/cdc_eval/mae_by_batch.json`.
 
 ### Ngoài scope (ghi rõ, không làm lẫn vào §5)
 - Online learning / partial_fit mỗi giờ.  
-- Tự retrain khi MAE vượt ngưỡng (có thể đề xuất slide “hướng phát triển”).
+- UI gợi ý / nút duyệt retrain; tự retrain khi MAE vượt ngưỡng (slide “hướng phát triển”).  
+- **Đã làm mức 0:** cờ `mae_above_threshold` trong artifact — tín hiệu để nói chuyện bảo vệ, không kích hoạt train.
 
 ---
 

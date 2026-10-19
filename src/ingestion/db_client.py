@@ -5,6 +5,7 @@ Phase 2 of docs/OPERATIONAL_DB_INGESTION_DESIGN.md.
 
 from __future__ import annotations
 
+import os
 import sqlite3
 from dataclasses import asdict, dataclass
 from datetime import datetime
@@ -12,7 +13,16 @@ from pathlib import Path
 from typing import Any, Sequence
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_DB_PATH = ROOT / "data" / "raw" / "database" / "prsa_operational.db"
+_REPO_DB_PATH = ROOT / "data" / "raw" / "database" / "prsa_operational.db"
+
+
+def default_db_path() -> Path:
+    """Prefer OPERATIONAL_DB_PATH env (Airflow); else repo-relative file."""
+    return Path(os.getenv("OPERATIONAL_DB_PATH") or _REPO_DB_PATH)
+
+
+# Back-compat alias for CLI defaults (resolved at import for local runs).
+DEFAULT_DB_PATH = default_db_path()
 
 SOURCE_IDENTIFIER = "operational_db"
 DEFAULT_WATERMARK = "2015-12-31 23:00:00"
@@ -75,7 +85,7 @@ def validate_watermark(watermark: str) -> str:
 
 
 def resolve_db_path(db_path: Path | str | None = None) -> Path:
-    path = Path(db_path) if db_path is not None else DEFAULT_DB_PATH
+    path = Path(db_path) if db_path is not None else default_db_path()
     if not path.is_file():
         raise FileNotFoundError(
             f"operational DB not found: {path}; run: py scripts/setup_operational_db.py"

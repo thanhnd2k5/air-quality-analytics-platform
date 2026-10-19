@@ -39,7 +39,8 @@ create table if not exists staging.pm25_predictions_raw (
 """
 
 
-def _model_version() -> str:
+def model_version() -> str:
+    """Stable version string from metadata.json or model_lock.json."""
     if META_PATH.is_file():
         meta = json.loads(META_PATH.read_text(encoding="utf-8"))
         name = meta.get("model_name", "unknown")
@@ -49,6 +50,10 @@ def _model_version() -> str:
         lock = json.loads(LOCK_PATH.read_text(encoding="utf-8"))
         return str(lock.get("locked_model", "unknown"))
     return "unknown"
+
+
+# Back-compat alias
+_model_version = model_version
 
 
 def load_predictions_frame() -> pd.DataFrame:
@@ -63,7 +68,7 @@ def load_predictions_frame() -> pd.DataFrame:
             "Missing predictions_locked.parquet/csv — run scripts/run_forecasting_phase10c.py"
         )
 
-    version = _model_version()
+    version = model_version()
     out = pd.DataFrame(
         {
             "station_key": df["station_key"].astype(int),

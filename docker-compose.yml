@@ -25,6 +25,8 @@ x-airflow-common: &airflow-common
     MINIO_SECURE: ${MINIO_SECURE:-false}
     UCI_RAW_DIR: /opt/airflow/data/raw/uci
     UCI_INVENTORY_PATH: /opt/airflow/data/raw/reference/file_inventory.csv
+    # Operational DB CDC (mounted via ./data/raw → /opt/airflow/data/raw)
+    OPERATIONAL_DB_PATH: /opt/airflow/data/raw/database/prsa_operational.db
     # Warehouse (not airflow_db). Host .env uses localhost:5433; inside compose use DNS.
     POSTGRES_HOST: postgres
     POSTGRES_PORT: "5432"
@@ -44,6 +46,9 @@ x-airflow-common: &airflow-common
     - ./data/raw:/opt/airflow/data/raw:ro
     # Phase 6: staging DDL applied by the loader (init scripts do not re-run)
     - ./config/postgres/ddl:/opt/airflow/config/postgres/ddl:ro
+    # Phase 4 CDC serve: locked model + cluster map / MAE artifact
+    - ./models:/opt/airflow/models:ro
+    - ./artifacts:/opt/airflow/artifacts
   user: "${AIRFLOW_UID:-50000}:0"
   networks:
     - air_quality_network
@@ -151,7 +156,8 @@ services:
     command: webserver
     environment:
       <<: *airflow-common-env
-      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-minio>=7.1.15 pyarrow==25.0.1}
+      # Match host model ABI (numpy 2.x + sklearn 1.9); pandas>=2.2 for numpy 2 wheels.
+      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-minio>=7.1.15 pyarrow==25.0.1 numpy==2.5.3 pandas==2.2.3 scikit-learn==1.9.1 joblib==1.6.0}
     ports:
       - "${AIRFLOW_WEBSERVER_PORT:-8080}:8080"
     healthcheck:
@@ -175,7 +181,8 @@ services:
     command: scheduler
     environment:
       <<: *airflow-common-env
-      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-minio>=7.1.15 pyarrow==25.0.1}
+      # Match host model ABI (numpy 2.x + sklearn 1.9); pandas>=2.2 for numpy 2 wheels.
+      _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-minio>=7.1.15 pyarrow==25.0.1 numpy==2.5.3 pandas==2.2.3 scikit-learn==1.9.1 joblib==1.6.0}
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
       interval: 30s

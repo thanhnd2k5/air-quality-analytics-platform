@@ -4,6 +4,26 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-18 (Operational DB CDC – Giai đoạn 5 **HOÀN THÀNH**)
+
+### Done
+- **5.1** DAG `operational_db_cdc` run `manual__2026-10-18T17:55:36+00:00` — ingest → MinIO → staging success; `cdc_serve_and_eval` success sau khi mount `models`/`artifacts` + pip ABI khớp host.
+- **5.2** Staging reconcile: `uci_prsa` 298.368 + `operational_db` 122.400 = **420.768**.
+- **5.3** `dbt build` core OK (`mart_pm25_alerts` fail riêng — thiếu raw alerts); demo MAE theo batch + DAG serve 13 batch (~112.7k predict, overall MAE≈9.41).
+
+### Infra notes
+- `docker-compose.yml`: `_PIP_ADDITIONAL_REQUIREMENTS` gồm numpy 2.5.3 / pandas 2.2.3 / scikit-learn 1.9.1 / joblib; volume `./models`, `./artifacts`.
+- DAG eval theo từng batch (tránh OOM khi `max_batches>1`); `src/forecasting/__init__.py` lazy import.
+
+### Follow-up (2026-10-19)
+- Nạp `staging.pm25_alert_predictions_raw` (372.499 rows) + `dbt build --select mart_pm25_alerts+` → 15/15 PASS.
+
+### Mức 0 monitoring (2026-10-19)
+- Artifact MAE: `policy.action_when_above = monitor_only` + `mae_above_threshold` (ngưỡng 12 µg/m³).
+- Narrative bảo vệ: CDC = monitoring; không UI/auto-retrain (hướng mở).
+
+---
+
 ## 2026-10-12 (Phase 13 – Đối chiếu yêu cầu BTL Bài 12 + lấp gap)
 
 ### Gap đã lấp (so với `yeucaubaitap/VI/Bai12_Huong-dan-bai-tap-lon.pptx`)
