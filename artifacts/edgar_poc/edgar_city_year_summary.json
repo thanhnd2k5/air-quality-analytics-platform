@@ -1,0 +1,51 @@
+{
+  "pm25_sources": {
+    "uci_csv": "data/raw/uci/PRSA_Data_*.csv through 2015-12-31",
+    "operational_db": "data/raw/database/prsa_operational.db from 2016-01-01",
+    "null_pm25": "excluded from the mean",
+    "spatial_sum": "9 unique 0.1 degree cells; shared stations not double-counted"
+  },
+  "correlation": {
+    "calendar_overlap": {
+      "n": 3,
+      "energy": {
+        "n": 3,
+        "pearson": 0.8783863987452831,
+        "spearman": 1.0
+      },
+      "industry": {
+        "n": 3,
+        "pearson": 0.9786493978285631,
+        "spearman": 1.0
+      },
+      "residential": {
+        "n": 3,
+        "pearson": 0.9676282689426944,
+        "spearman": 1.0
+      }
+    },
+    "heating_season": {
+      "n": 4,
+      "energy": {
+        "n": 4,
+        "pearson": -0.2014274040110315,
+        "spearman": -0.39999999999999997
+      },
+      "industry": {
+        "n": 4,
+        "pearson": -0.29635866795047494,
+        "spearman": -0.39999999999999997
+      },
+      "residential": {
+        "n": 4,
+        "pearson": -0.4651116267738209,
+        "spearman": -0.39999999999999997
+      }
+    }
+  },
+  "outputs": {
+    "csv": "artifacts/edgar_poc/edgar_city_year_index.csv",
+    "figure": "artifacts/edgar_poc/figures/edgar_vs_pm25_annual.png"
+  },
+  "note": "n is 3 calendar years and 4 heating seasons. Coefficients illustrate co-movement. They are not a significance test and not a reason to add EDGAR to the forecast model."
+}
