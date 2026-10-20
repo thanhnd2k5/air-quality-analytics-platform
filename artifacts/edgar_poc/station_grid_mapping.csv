@@ -1,0 +1,13 @@
+station_id,station_code,station_name,station_lat,station_lon,grid_lat,grid_lon,grid_cell_id,lat_idx,lon_idx,lat_diff,lon_diff,dist_km,shared_with_stations,is_shared_cell
+1,Aotizhongxin,Aotizhongxin,39.982,116.397,39.95,116.35,lat_39.95_lon_116.35,1299,2963,0.032,0.047,5.348,"Aotizhongxin, Guanyuan",True
+2,Changping,Changping,40.217,116.23,40.25,116.25,lat_40.25_lon_116.25,1302,2962,0.033,0.02,4.036,"Changping, Dingling",True
+3,Dingling,Dingling,40.292,116.22,40.25,116.25,lat_40.25_lon_116.25,1302,2962,0.042,0.03,5.309,"Changping, Dingling",True
+4,Dongsi,Dongsi,39.929,116.417,39.95,116.45,lat_39.95_lon_116.45,1299,2964,0.021,0.033,3.65,"Dongsi, Nongzhanguan",True
+5,Guanyuan,Guanyuan,39.929,116.339,39.95,116.35,lat_39.95_lon_116.35,1299,2963,0.021,0.011,2.512,"Aotizhongxin, Guanyuan",True
+6,Gucheng,Gucheng,39.914,116.184,39.95,116.15,lat_39.95_lon_116.15,1299,2961,0.036,0.034,4.934,Gucheng,False
+7,Huairou,Huairou,40.328,116.628,40.35,116.65,lat_40.35_lon_116.65,1303,2966,0.022,0.022,3.071,Huairou,False
+8,Nongzhanguan,Nongzhanguan,39.937,116.461,39.95,116.45,lat_39.95_lon_116.45,1299,2964,0.013,0.011,1.72,"Dongsi, Nongzhanguan",True
+9,Shunyi,Shunyi,40.127,116.655,40.15,116.65,lat_40.15_lon_116.65,1301,2966,0.023,0.005,2.588,Shunyi,False
+10,Tiantan,Tiantan,39.886,116.407,39.85,116.45,lat_39.85_lon_116.45,1298,2964,0.036,0.043,5.42,Tiantan,False
+11,Wanliu,Wanliu,39.987,116.287,39.95,116.25,lat_39.95_lon_116.25,1299,2962,0.037,0.037,5.174,Wanliu,False
+12,Wanshouxigong,Wanshouxigong,39.878,116.352,39.85,116.35,lat_39.85_lon_116.35,1298,2963,0.028,0.002,3.113,Wanshouxigong,False

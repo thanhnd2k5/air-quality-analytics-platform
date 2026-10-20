@@ -1,0 +1,239 @@
+{
+  "bbox": {
+    "north": 40.6,
+    "south": 39.5,
+    "west": 115.8,
+    "east": 117.0
+  },
+  "sectors": {
+    "shipping_intl": "HTAPv3_1_International_Shipping",
+    "aviation_domestic": "HTAPv3_2_1_Domestic_Aviation",
+    "aviation_intl": "HTAPv3_2_2_International_Aviation",
+    "energy": "HTAPv3_3_Energy",
+    "industry": "HTAPv3_4_1_Industry",
+    "fugitive": "HTAPv3_4_2_Fugitive",
+    "solvents": "HTAPv3_4_3_Solvents",
+    "road": "HTAPv3_5_1_Road_Transport",
+    "brake_tyre": "HTAPv3_5_2_Brake_and_Tyre_wear",
+    "shipping_domestic": "HTAPv3_5_3_Domestic_shipping",
+    "other_ground_transport": "HTAPv3_5_4_Other_ground_transport",
+    "residential": "HTAPv3_6_Residential",
+    "waste": "HTAPv3_7_Waste",
+    "agri_waste_burning": "HTAPv3_8_1_Agricultural_waste_burning",
+    "agri_livestock": "HTAPv3_8_2_Agriculture_livestock",
+    "agri_crops": "HTAPv3_8_3_Agriculture_crops"
+  },
+  "derived": {
+    "traffic": "road + brake_tyre"
+  },
+  "years": {
+    "2015": {
+      "year": 2015,
+      "source_nc": "data/raw/edgar_HTAPv3_2015_PM2.5/edgar_HTAPv3_2015_PM2.5.nc",
+      "source_nc_deleted": true,
+      "outputs": {
+        "station_csv": {
+          "path": "artifacts/edgar_poc/edgar_station_monthly_all_sectors.csv",
+          "note": "legacy filename without _2015 suffix"
+        },
+        "beijing_bbox_nc": {
+          "path": "artifacts/edgar_poc/edgar_beijing_bbox_2015.nc"
+        }
+      }
+    },
+    "2013": {
+      "year": 2013,
+      "source_nc": "data\\edgar_HTAPv3_2013_PM2.5\\edgar_HTAPv3_2013_PM2.5.nc",
+      "source_size_bytes": 4976705030,
+      "time_years_in_file": [
+        2013
+      ],
+      "n_stations": 12,
+      "n_months": 12,
+      "n_station_rows": 144,
+      "outputs": {
+        "station_csv": {
+          "path": "artifacts\\edgar_poc\\edgar_station_monthly_all_sectors_2013.csv",
+          "bytes": 46545,
+          "sha256": "28501967d30cbc2a12783d2c1fd820eccde5b7095336c1bf747939d51310dfa8"
+        },
+        "beijing_bbox_nc": {
+          "path": "artifacts\\edgar_poc\\edgar_beijing_bbox_2013.nc",
+          "bytes": 129674,
+          "sha256": "a0a50cdbd53cd3c56e52fc154d8f386746bf0478325ba74c154f4a7e59713cc1",
+          "shape": {
+            "time": 12,
+            "lat": 11,
+            "lon": 12,
+            "vars": [
+              "shipping_intl",
+              "aviation_domestic",
+              "aviation_intl",
+              "energy",
+              "industry",
+              "fugitive",
+              "solvents",
+              "road",
+              "brake_tyre",
+              "shipping_domestic",
+              "other_ground_transport",
+              "residential",
+              "waste",
+              "agri_waste_burning",
+              "agri_livestock",
+              "agri_crops",
+              "traffic"
+            ]
+          }
+        }
+      },
+      "source_nc_deleted": true
+    },
+    "2014": {
+      "year": 2014,
+      "source_nc": "data\\edgar_HTAPv3_2014_PM2.5\\edgar_HTAPv3_2014_PM2.5.nc",
+      "source_size_bytes": 4976705030,
+      "time_years_in_file": [
+        2014
+      ],
+      "n_stations": 12,
+      "n_months": 12,
+      "n_station_rows": 144,
+      "outputs": {
+        "station_csv": {
+          "path": "artifacts\\edgar_poc\\edgar_station_monthly_all_sectors_2014.csv",
+          "bytes": 46450,
+          "sha256": "04e1b8d23aab3a57d091cddbdad2728042ee1dca57ffeb97bd6dc2160eb12304"
+        },
+        "beijing_bbox_nc": {
+          "path": "artifacts\\edgar_poc\\edgar_beijing_bbox_2014.nc",
+          "bytes": 129559,
+          "sha256": "c4d48cc52e8710db924be6c1831b6c6661b5eaecadb82366e6b3e828d3b6fe62",
+          "shape": {
+            "time": 12,
+            "lat": 11,
+            "lon": 12,
+            "vars": [
+              "shipping_intl",
+              "aviation_domestic",
+              "aviation_intl",
+              "energy",
+              "industry",
+              "fugitive",
+              "solvents",
+              "road",
+              "brake_tyre",
+              "shipping_domestic",
+              "other_ground_transport",
+              "residential",
+              "waste",
+              "agri_waste_burning",
+              "agri_livestock",
+              "agri_crops",
+              "traffic"
+            ]
+          }
+        }
+      },
+      "source_nc_deleted": true
+    },
+    "2016": {
+      "year": 2016,
+      "source_nc": "data\\edgar_HTAPv3_2016_PM2.5\\edgar_HTAPv3_2016_PM2.5.nc",
+      "source_size_bytes": 4976705030,
+      "time_years_in_file": [
+        2016
+      ],
+      "n_stations": 12,
+      "n_months": 12,
+      "n_station_rows": 144,
+      "outputs": {
+        "station_csv": {
+          "path": "artifacts\\edgar_poc\\edgar_station_monthly_all_sectors_2016.csv",
+          "bytes": 46485,
+          "sha256": "17e9120e38d63c41fc719851466d038cd9a05d0e5de606474f9b6efb0243f153"
+        },
+        "beijing_bbox_nc": {
+          "path": "artifacts\\edgar_poc\\edgar_beijing_bbox_2016.nc",
+          "bytes": 129633,
+          "sha256": "120983e91f0277e29f0f3e56e39f127a9c01bab668d9159c8e2b16aa9b4eae1c",
+          "shape": {
+            "time": 12,
+            "lat": 11,
+            "lon": 12,
+            "vars": [
+              "shipping_intl",
+              "aviation_domestic",
+              "aviation_intl",
+              "energy",
+              "industry",
+              "fugitive",
+              "solvents",
+              "road",
+              "brake_tyre",
+              "shipping_domestic",
+              "other_ground_transport",
+              "residential",
+              "waste",
+              "agri_waste_burning",
+              "agri_livestock",
+              "agri_crops",
+              "traffic"
+            ]
+          }
+        }
+      },
+      "source_nc_deleted": true
+    },
+    "2017": {
+      "year": 2017,
+      "source_nc": "data\\edgar_HTAPv3_2017_PM2.5\\edgar_HTAPv3_2017_PM2.5.nc",
+      "source_size_bytes": 4976705030,
+      "time_years_in_file": [
+        2017
+      ],
+      "n_stations": 12,
+      "n_months": 12,
+      "n_station_rows": 144,
+      "outputs": {
+        "station_csv": {
+          "path": "artifacts\\edgar_poc\\edgar_station_monthly_all_sectors_2017.csv",
+          "bytes": 46256,
+          "sha256": "68b22a2ba1b7686d8239d1c136ad4ced6856eec947f37a9f9f945513c64f14ae"
+        },
+        "beijing_bbox_nc": {
+          "path": "artifacts\\edgar_poc\\edgar_beijing_bbox_2017.nc",
+          "bytes": 129648,
+          "sha256": "d72bd2582a6d89865e18913d6e79efce44ae81c883cc6147361e507e20a2f44a",
+          "shape": {
+            "time": 12,
+            "lat": 11,
+            "lon": 12,
+            "vars": [
+              "shipping_intl",
+              "aviation_domestic",
+              "aviation_intl",
+              "energy",
+              "industry",
+              "fugitive",
+              "solvents",
+              "road",
+              "brake_tyre",
+              "shipping_domestic",
+              "other_ground_transport",
+              "residential",
+              "waste",
+              "agri_waste_burning",
+              "agri_livestock",
+              "agri_crops",
+              "traffic"
+            ]
+          }
+        }
+      },
+      "source_nc_deleted": true
+    }
+  },
+  "updated_utc": "2026-10-20T02:55:04.790300+00:00",
+  "note": "Per-year station CSV + Beijing bbox NC. Global source NetCDF can be deleted after verify."
+}
