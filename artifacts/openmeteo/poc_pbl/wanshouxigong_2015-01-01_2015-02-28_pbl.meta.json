@@ -1,0 +1,33 @@
+{
+  "end_date": "2015-02-28",
+  "hourly_variables": [
+    "boundary_layer_height",
+    "cloud_cover",
+    "temperature_2m",
+    "wind_speed_10m",
+    "dew_point_2m"
+  ],
+  "http_status": 200,
+  "request_time": "2026-10-19T11:01:04Z",
+  "request_url": "https://archive-api.open-meteo.com/v1/archive?latitude=39.878000&longitude=116.352000&start_date=2015-01-01&end_date=2015-02-28&hourly=boundary_layer_height%2Ccloud_cover%2Ctemperature_2m%2Cwind_speed_10m%2Cdew_point_2m&timezone=Asia%2FShanghai&temperature_unit=celsius&wind_speed_unit=ms&precipitation_unit=mm",
+  "requested_latitude": 39.878,
+  "requested_longitude": 116.352,
+  "returned_latitude": 39.89455,
+  "returned_longitude": 116.35983,
+  "source": "openmeteo_historical",
+  "start_date": "2015-01-01",
+  "station": "Wanshouxigong",
+  "timezone": "Asia/Shanghai",
+  "units": {
+    "hourly.boundary_layer_height": "m",
+    "hourly.cloud_cover": "%",
+    "hourly.dew_point_2m": "\u00b0C",
+    "hourly.temperature_2m": "\u00b0C",
+    "hourly.time": "iso8601",
+    "hourly.wind_speed_10m": "m/s",
+    "precipitation_unit": "mm",
+    "temperature_unit": "celsius",
+    "wind_speed_unit": "ms"
+  },
+  "weather_model": null
+}

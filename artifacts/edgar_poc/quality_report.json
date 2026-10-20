@@ -1,0 +1,355 @@
+{
+  "structural_checks": {
+    "num_extracted_months": 12,
+    "num_extracted_stations": 12,
+    "total_records": 144,
+    "duplicate_records": 0,
+    "missing_counts": {
+      "road_emission": 0,
+      "brake_tyre_emission": 0,
+      "industry_emission": 0,
+      "residential_emission": 0,
+      "energy_emission": 0,
+      "traffic_emission": 0
+    },
+    "units": {
+      "road_emission": "ton/month",
+      "brake_tyre_emission": "ton/month",
+      "industry_emission": "ton/month",
+      "residential_emission": "ton/month",
+      "energy_emission": "ton/month",
+      "traffic_emission": "ton/month"
+    },
+    "num_unique_grid_cells": 9,
+    "all_stations_in_domain": true
+  },
+  "value_checks": {
+    "road_emission": {
+      "min": 2.6211,
+      "max": 23.955,
+      "mean": 12.7554,
+      "median": 15.7139,
+      "std": 6.6887,
+      "q25": 6.3387,
+      "q75": 17.5191,
+      "zero_count": 0,
+      "negative_count": 0,
+      "missing_count": 0
+    },
+    "brake_tyre_emission": {
+      "min": 0.7602,
+      "max": 3.6828,
+      "mean": 1.9823,
+      "median": 1.8853,
+      "std": 1.0755,
+      "q25": 0.9113,
+      "q75": 3.105,
+      "zero_count": 0,
+      "negative_count": 0,
+      "missing_count": 0
+    },
+    "industry_emission": {
+      "min": 0.6493,
+      "max": 56.5356,
+      "mean": 17.9714,
+      "median": 19.1939,
+      "std": 13.9737,
+      "q25": 7.315,
+      "q75": 20.5438,
+      "zero_count": 0,
+      "negative_count": 0,
+      "missing_count": 0
+    },
+    "residential_emission": {
+      "min": 6.326,
+      "max": 95.6701,
+      "mean": 49.7926,
+      "median": 63.2937,
+      "std": 28.3038,
+      "q25": 19.6029,
+      "q75": 70.13,
+      "zero_count": 0,
+      "negative_count": 0,
+      "missing_count": 0
+    },
+    "energy_emission": {
+      "min": 0.2362,
+      "max": 162.747,
+      "mean": 33.2351,
+      "median": 8.4584,
+      "std": 50.4973,
+      "q25": 1.144,
+      "q75": 23.6182,
+      "zero_count": 0,
+      "negative_count": 0,
+      "missing_count": 0
+    },
+    "traffic_emission": {
+      "min": 3.4145,
+      "max": 27.3354,
+      "mean": 14.7377,
+      "median": 17.9919,
+      "std": 7.6352,
+      "q25": 7.2892,
+      "q75": 20.7657,
+      "zero_count": 0,
+      "negative_count": 0,
+      "missing_count": 0
+    }
+  },
+  "temporal_checks": {
+    "months_covered": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "is_continuous_12_months": true,
+    "temporal_cv_mean": {
+      "road_emission": 0.1489,
+      "brake_tyre_emission": 0.0285,
+      "industry_emission": 0.1394,
+      "residential_emission": 0.2495,
+      "energy_emission": 0.2807,
+      "traffic_emission": 0.127
+    },
+    "time_dimension_type": "monthly_midpoint_datetime64[ns]"
+  },
+  "spatial_checks": {
+    "spatial_cv_mean": {
+      "road_emission": 0.5198,
+      "brake_tyre_emission": 0.5638,
+      "industry_emission": 0.7972,
+      "residential_emission": 0.5703,
+      "energy_emission": 1.503,
+      "traffic_emission": 0.5201
+    },
+    "unique_cells_count": 9,
+    "sharing_cells_count": 6,
+    "identical_values_for_shared_cells": true
+  },
+  "uci_join_checks": {
+    "target_year": 2015,
+    "uci_source_rows": 105120,
+    "merged_rows": 105120,
+    "row_inflation": false,
+    "match_rate_pct": 100.0,
+    "missing_features_post_join": {
+      "road_emission": 0,
+      "brake_tyre_emission": 0,
+      "industry_emission": 0,
+      "residential_emission": 0,
+      "energy_emission": 0,
+      "traffic_emission": 0
+    },
+    "shared_cell_consistency": true,
+    "shared_pair_diffs_dongsi_vs_nongzhanguan": {
+      "road_emission": 0.0,
+      "brake_tyre_emission": 0.0,
+      "industry_emission": 0.0,
+      "residential_emission": 0.0,
+      "energy_emission": 0.0,
+      "traffic_emission": 0.0
+    }
+  },
+  "preliminary_eda": {
+    "hourly_correlation_with_pm25": {
+      "road_emission": {
+        "pearson_r": 0.1477,
+        "spearman_rho": 0.1294
+      },
+      "brake_tyre_emission": {
+        "pearson_r": 0.057,
+        "spearman_rho": 0.0607
+      },
+      "industry_emission": {
+        "pearson_r": 0.0026,
+        "spearman_rho": 0.0036
+      },
+      "residential_emission": {
+        "pearson_r": 0.1513,
+        "spearman_rho": 0.1451
+      },
+      "energy_emission": {
+        "pearson_r": 0.0834,
+        "spearman_rho": 0.1139
+      },
+      "traffic_emission": {
+        "pearson_r": 0.1375,
+        "spearman_rho": 0.1266
+      }
+    },
+    "monthly_aggregate_correlation_with_pm25": {
+      "road_emission": {
+        "pearson_r": 0.4023,
+        "spearman_rho": 0.463
+      },
+      "brake_tyre_emission": {
+        "pearson_r": 0.1555,
+        "spearman_rho": 0.1692
+      },
+      "industry_emission": {
+        "pearson_r": 0.0098,
+        "spearman_rho": -0.0733
+      },
+      "residential_emission": {
+        "pearson_r": 0.4122,
+        "spearman_rho": 0.5134
+      },
+      "energy_emission": {
+        "pearson_r": 0.2306,
+        "spearman_rho": 0.342
+      },
+      "traffic_emission": {
+        "pearson_r": 0.3743,
+        "spearman_rho": 0.4504
+      }
+    },
+    "spatial_correlation_per_month": {
+      "road_emission": {
+        "mean_spatial_pearson": 0.7019,
+        "min_spatial_pearson": 0.4677,
+        "max_spatial_pearson": 0.8575,
+        "n_stations": 12,
+        "note": "station-level; shared-grid stations are not independent EDGAR observations"
+      },
+      "brake_tyre_emission": {
+        "mean_spatial_pearson": 0.6359,
+        "min_spatial_pearson": 0.5322,
+        "max_spatial_pearson": 0.7914,
+        "n_stations": 12,
+        "note": "station-level; shared-grid stations are not independent EDGAR observations"
+      },
+      "industry_emission": {
+        "mean_spatial_pearson": 0.4445,
+        "min_spatial_pearson": 0.2833,
+        "max_spatial_pearson": 0.6999,
+        "n_stations": 12,
+        "note": "station-level; shared-grid stations are not independent EDGAR observations"
+      },
+      "residential_emission": {
+        "mean_spatial_pearson": 0.6689,
+        "min_spatial_pearson": 0.4191,
+        "max_spatial_pearson": 0.8211,
+        "n_stations": 12,
+        "note": "station-level; shared-grid stations are not independent EDGAR observations"
+      },
+      "energy_emission": {
+        "mean_spatial_pearson": 0.4906,
+        "min_spatial_pearson": 0.2091,
+        "max_spatial_pearson": 0.6599,
+        "n_stations": 12,
+        "note": "station-level; shared-grid stations are not independent EDGAR observations"
+      },
+      "traffic_emission": {
+        "mean_spatial_pearson": 0.7003,
+        "min_spatial_pearson": 0.4847,
+        "max_spatial_pearson": 0.857,
+        "n_stations": 12,
+        "note": "station-level; shared-grid stations are not independent EDGAR observations"
+      }
+    },
+    "spatial_correlation_unique_grid_cells": {
+      "road_emission": {
+        "mean_spatial_pearson": 0.6723,
+        "min_spatial_pearson": 0.3066,
+        "max_spatial_pearson": 0.8454,
+        "n_unique_cells": 9,
+        "note": "unique-grid; shared-cell stations collapsed by mean PM2.5"
+      },
+      "brake_tyre_emission": {
+        "mean_spatial_pearson": 0.592,
+        "min_spatial_pearson": 0.4035,
+        "max_spatial_pearson": 0.7724,
+        "n_unique_cells": 9,
+        "note": "unique-grid; shared-cell stations collapsed by mean PM2.5"
+      },
+      "industry_emission": {
+        "mean_spatial_pearson": 0.4363,
+        "min_spatial_pearson": 0.2316,
+        "max_spatial_pearson": 0.6667,
+        "n_unique_cells": 9,
+        "note": "unique-grid; shared-cell stations collapsed by mean PM2.5"
+      },
+      "residential_emission": {
+        "mean_spatial_pearson": 0.6307,
+        "min_spatial_pearson": 0.2439,
+        "max_spatial_pearson": 0.7998,
+        "n_unique_cells": 9,
+        "note": "unique-grid; shared-cell stations collapsed by mean PM2.5"
+      },
+      "energy_emission": {
+        "mean_spatial_pearson": 0.4505,
+        "min_spatial_pearson": 0.2069,
+        "max_spatial_pearson": 0.5945,
+        "n_unique_cells": 9,
+        "note": "unique-grid; shared-cell stations collapsed by mean PM2.5"
+      },
+      "traffic_emission": {
+        "mean_spatial_pearson": 0.6701,
+        "min_spatial_pearson": 0.3255,
+        "max_spatial_pearson": 0.8457,
+        "n_unique_cells": 9,
+        "note": "unique-grid; shared-cell stations collapsed by mean PM2.5"
+      }
+    },
+    "sector_shares_pct": {
+      "road_emission": 11.02,
+      "brake_tyre_emission": 1.71,
+      "industry_emission": 15.53,
+      "residential_emission": 43.02,
+      "energy_emission": 28.72
+    },
+    "sector_shares_pct_unique_cells": {
+      "road_emission": 11.18,
+      "brake_tyre_emission": 1.64,
+      "industry_emission": 17.19,
+      "residential_emission": 43.33,
+      "energy_emission": 26.66
+    },
+    "sector_shares_scope": "Percent of the 5 selected sectors only, computed on the extracted 12-station sample for 2015 (not full Beijing inventory / not all 16 HTAP sectors).",
+    "total_emissions_tons_12_stations": {
+      "road_emission": 1836.78,
+      "brake_tyre_emission": 285.45,
+      "industry_emission": 2587.88,
+      "residential_emission": 7170.14,
+      "energy_emission": 4785.85,
+      "traffic_emission": 2122.23
+    },
+    "total_emissions_tons_9_unique_cells": {
+      "road_emission": 1336.4,
+      "brake_tyre_emission": 196.09,
+      "industry_emission": 2054.39,
+      "residential_emission": 5179.88,
+      "energy_emission": 3187.17
+    }
+  },
+  "assessment": {
+    "verdict": "EDA_ONLY",
+    "summary": "EDGAR HTAP v3 2015 is valid and joinable. Valuable for spatial/source EDA. Forecasting uplift not demonstrated (no ablation). Keep out of HistGB FEATURE_COLS and production ingest for now. Availability lag matters for operational replay, not for retrospective explanation.",
+    "year_scope": 2015,
+    "do_not_extrapolate_to": [
+      2013,
+      2014,
+      2016,
+      2017
+    ],
+    "storage_reduction": {
+      "raw_size_bytes": 4976705030,
+      "extracted_csv_bytes": 18618,
+      "reduction_pct": 99.9998
+    }
+  },
+  "eda_figures": [
+    "artifacts\\edgar_poc\\figures\\edgar_spatial_emissions_2015.png",
+    "artifacts\\edgar_poc\\figures\\edgar_sector_structure_2015.png"
+  ]
+}

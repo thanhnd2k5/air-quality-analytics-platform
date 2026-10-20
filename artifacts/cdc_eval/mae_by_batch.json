@@ -1,0 +1,221 @@
+{
+  "updated_at": "2026-10-19T10:31:25Z",
+  "policy": {
+    "mae_alert_threshold": 12.0,
+    "action_when_above": "monitor_only",
+    "note": "Batch MAE above threshold is a monitoring signal only. Model weights stay frozen; retraining is an offline process outside this CDC evaluation loop."
+  },
+  "overall": {
+    "scored_n": 111944,
+    "mae": 9.405002959747366,
+    "rmse": 19.117204130764932,
+    "mae_alert_threshold": 12.0,
+    "mae_above_threshold": false
+  },
+  "by_batch": [
+    {
+      "eval_batch_id": "batch_n12_smoke",
+      "scored_n": 10,
+      "mae": 13.06459331787958,
+      "rmse": 18.207412075285202,
+      "min_predicted_at": "2016-01-01 00:00:00",
+      "max_predicted_at": "2016-01-01 00:00:00",
+      "min_scored_target": "2016-01-01 01:00:00",
+      "max_scored_target": "2016-01-01 01:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": true
+    },
+    {
+      "eval_batch_id": "p4_fix_smoke",
+      "scored_n": 10,
+      "mae": 14.028949133729878,
+      "rmse": 17.715685501423366,
+      "min_predicted_at": "2016-01-01 01:00:00",
+      "max_predicted_at": "2016-01-01 01:00:00",
+      "min_scored_target": "2016-01-01 02:00:00",
+      "max_scored_target": "2016-01-01 02:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": true
+    },
+    {
+      "eval_batch_id": "p5_demo_week1",
+      "scored_n": 1884,
+      "mae": 12.475127908037667,
+      "rmse": 23.67746570113634,
+      "min_predicted_at": "2016-01-01 02:00:00",
+      "max_predicted_at": "2016-01-08 00:00:00",
+      "min_scored_target": "2016-01-01 03:00:00",
+      "max_scored_target": "2016-01-08 01:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": true
+    },
+    {
+      "eval_batch_id": "p5_demo_week2",
+      "scored_n": 1880,
+      "mae": 7.794574133347992,
+      "rmse": 13.130412684906512,
+      "min_predicted_at": "2016-01-08 01:00:00",
+      "max_predicted_at": "2016-01-15 00:00:00",
+      "min_scored_target": "2016-01-08 02:00:00",
+      "max_scored_target": "2016-01-15 01:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2016-01-01T010000_to_2016-02-04T190000",
+      "scored_n": 5703,
+      "mae": 7.856693767771681,
+      "rmse": 13.092588559283481,
+      "min_predicted_at": "2016-01-01 16:00:00",
+      "max_predicted_at": "2016-02-04 19:00:00",
+      "min_scored_target": "2016-01-15 02:00:00",
+      "max_scored_target": "2016-02-04 20:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2016-02-04T190000_to_2016-03-10T130000",
+      "scored_n": 9380,
+      "mae": 9.530680726413825,
+      "rmse": 28.248545875526766,
+      "min_predicted_at": "2016-02-04 20:00:00",
+      "max_predicted_at": "2016-03-10 13:00:00",
+      "min_scored_target": "2016-02-04 21:00:00",
+      "max_scored_target": "2016-03-10 14:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2016-03-10T130000_to_2016-04-14T070000",
+      "scored_n": 8646,
+      "mae": 8.911196876845395,
+      "rmse": 15.375755541340322,
+      "min_predicted_at": "2016-03-10 14:00:00",
+      "max_predicted_at": "2016-04-14 07:00:00",
+      "min_scored_target": "2016-03-10 15:00:00",
+      "max_scored_target": "2016-04-14 08:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2016-04-14T070000_to_2016-05-19T010000",
+      "scored_n": 8472,
+      "mae": 9.913716572928374,
+      "rmse": 18.76444396605216,
+      "min_predicted_at": "2016-04-14 08:00:00",
+      "max_predicted_at": "2016-05-19 01:00:00",
+      "min_scored_target": "2016-04-14 09:00:00",
+      "max_scored_target": "2016-05-19 02:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2016-05-19T010000_to_2016-06-22T190000",
+      "scored_n": 9205,
+      "mae": 7.495675603009646,
+      "rmse": 11.184533339998643,
+      "min_predicted_at": "2016-05-19 02:00:00",
+      "max_predicted_at": "2016-06-22 19:00:00",
+      "min_scored_target": "2016-05-19 03:00:00",
+      "max_scored_target": "2016-06-22 20:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2016-06-22T190000_to_2016-07-27T130000",
+      "scored_n": 9131,
+      "mae": 7.691947444417828,
+      "rmse": 12.154263644961377,
+      "min_predicted_at": "2016-06-22 20:00:00",
+      "max_predicted_at": "2016-07-27 13:00:00",
+      "min_scored_target": "2016-06-22 21:00:00",
+      "max_scored_target": "2016-07-27 14:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2016-07-27T130000_to_2016-08-31T070000",
+      "scored_n": 9253,
+      "mae": 6.5610329991975425,
+      "rmse": 10.31536104704165,
+      "min_predicted_at": "2016-07-27 14:00:00",
+      "max_predicted_at": "2016-08-31 07:00:00",
+      "min_scored_target": "2016-07-27 15:00:00",
+      "max_scored_target": "2016-08-31 08:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2016-08-31T070000_to_2016-10-05T010000",
+      "scored_n": 8607,
+      "mae": 7.395799266553517,
+      "rmse": 12.323510545492,
+      "min_predicted_at": "2016-08-31 08:00:00",
+      "max_predicted_at": "2016-10-05 01:00:00",
+      "min_scored_target": "2016-08-31 09:00:00",
+      "max_scored_target": "2016-10-05 02:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2016-10-05T010000_to_2016-11-08T190000",
+      "scored_n": 9229,
+      "mae": 7.854633310726762,
+      "rmse": 12.560536337068093,
+      "min_predicted_at": "2016-10-05 02:00:00",
+      "max_predicted_at": "2016-11-08 19:00:00",
+      "min_scored_target": "2016-10-05 03:00:00",
+      "max_scored_target": "2016-11-08 20:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2016-11-08T190000_to_2016-12-13T130000",
+      "scored_n": 9739,
+      "mae": 11.333313863084589,
+      "rmse": 19.461215100212737,
+      "min_predicted_at": "2016-11-08 20:00:00",
+      "max_predicted_at": "2016-12-13 13:00:00",
+      "min_scored_target": "2016-11-08 21:00:00",
+      "max_scored_target": "2016-12-13 14:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2016-12-13T130000_to_2017-01-17T070000",
+      "scored_n": 9579,
+      "mae": 15.963821939135087,
+      "rmse": 29.820628939525456,
+      "min_predicted_at": "2016-12-13 14:00:00",
+      "max_predicted_at": "2017-01-17 07:00:00",
+      "min_scored_target": "2016-12-13 15:00:00",
+      "max_scored_target": "2017-01-17 08:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": true
+    },
+    {
+      "eval_batch_id": "wm_2017-01-17T070000_to_2017-02-21T010000",
+      "scored_n": 9563,
+      "mae": 11.445474428983974,
+      "rmse": 27.797283073900385,
+      "min_predicted_at": "2017-01-17 08:00:00",
+      "max_predicted_at": "2017-02-21 01:00:00",
+      "min_scored_target": "2017-01-17 09:00:00",
+      "max_scored_target": "2017-02-21 02:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    },
+    {
+      "eval_batch_id": "wm_2017-02-21T010000_to_2017-02-28T230000",
+      "scored_n": 1653,
+      "mae": 6.250589988796497,
+      "rmse": 10.75476711798764,
+      "min_predicted_at": "2017-02-21 02:00:00",
+      "max_predicted_at": "2017-02-28 23:00:00",
+      "min_scored_target": "2017-02-21 03:00:00",
+      "max_scored_target": "2017-02-28 23:00:00",
+      "mae_alert_threshold": 12.0,
+      "mae_above_threshold": false
+    }
+  ]
+}

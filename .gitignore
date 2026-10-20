@@ -55,6 +55,7 @@ ehthumbs.db
 
 # Local Datasets (Raw datasets are kept out of Git)
 data/raw/uci/*.csv
+data/raw/database/*.db
 data/temp/
 data/processed/
 

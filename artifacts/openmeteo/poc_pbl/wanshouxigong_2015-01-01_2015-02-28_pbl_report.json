@@ -1,0 +1,139 @@
+{
+  "base_fallback_error": null,
+  "base_source": "dwh",
+  "base_source_detail": "dwh.fact_air_quality_hourly",
+  "end": "2015-02-28",
+  "join": {
+    "base_rows": 1416,
+    "joined_rows": 1416,
+    "om_rows": 1416,
+    "pm25_non_null": 1409
+  },
+  "metrics": {
+    "corr_with_pm25": {
+      "boundary_layer_height_m": {
+        "column": "boundary_layer_height_m",
+        "n": 1409,
+        "pearson": -0.32256288376643705,
+        "spearman": -0.41551430982233273
+      },
+      "cloud_cover_pct": {
+        "column": "cloud_cover_pct",
+        "n": 1409,
+        "pearson": 0.15941627250221715,
+        "spearman": 0.2660869385080947
+      },
+      "hour": {
+        "column": "hour",
+        "n": 1409,
+        "pearson": 0.01054816310083718,
+        "spearman": 0.03319055115542191
+      },
+      "relative_humidity_pct": {
+        "column": "relative_humidity_pct",
+        "n": 1409,
+        "pearson": 0.5667536389852847,
+        "spearman": 0.6467502745340754
+      },
+      "temperature_c": {
+        "column": "temperature_c",
+        "n": 1409,
+        "pearson": -0.1640122850497134,
+        "spearman": -0.1683863054720328
+      },
+      "wind_speed_m_s": {
+        "column": "wind_speed_m_s",
+        "n": 1409,
+        "pearson": -0.4089278864647501,
+        "spearman": -0.5143066598203909
+      }
+    },
+    "episode_contrast": {
+      "cloud_mean_inside": 35.859022556390975,
+      "cloud_mean_outside": 23.501131221719458,
+      "hours_inside": 532,
+      "hours_outside": 884,
+      "pbl_mean_inside": 195.0845864661654,
+      "pbl_mean_inside_minus_outside": -342.97536828496584,
+      "pbl_mean_outside": 538.0599547511313,
+      "threshold_ug_m3": 115.0
+    },
+    "partial_corr": {
+      "cloud_vs_pm25_ctrl_hour_temp_wind": {
+        "controls": [
+          "hour",
+          "temperature_c",
+          "wind_speed_m_s"
+        ],
+        "n": 1409,
+        "partial_pearson": 0.10117140046673712
+      },
+      "pbl_lag1_vs_pm25_ctrl_hour_temp_wind": {
+        "controls": [
+          "hour",
+          "temperature_c",
+          "wind_speed_m_s"
+        ],
+        "n": 1408,
+        "partial_pearson": -0.12599133660107353
+      },
+      "pbl_vs_pm25_ctrl_hour_temp_wind": {
+        "controls": [
+          "hour",
+          "temperature_c",
+          "wind_speed_m_s"
+        ],
+        "n": 1409,
+        "partial_pearson": -0.09900305119934728
+      },
+      "pbl_vs_pm25_ctrl_hour_temp_wind_rh": {
+        "controls": [
+          "hour",
+          "temperature_c",
+          "wind_speed_m_s",
+          "relative_humidity_pct"
+        ],
+        "n": 1409,
+        "partial_pearson": -0.04489603334181527
+      }
+    },
+    "seasonal": {
+      "summer_jja_pearson_cloud": null,
+      "summer_jja_pearson_pbl": null,
+      "winter_djf_pearson_cloud": 0.15941627250221715,
+      "winter_djf_pearson_pbl": -0.32256288376643705
+    }
+  },
+  "om_meta_path": "artifacts/openmeteo/poc_pbl/wanshouxigong_2015-01-01_2015-02-28_pbl.meta.json",
+  "om_raw_path": "artifacts/openmeteo/poc_pbl/wanshouxigong_2015-01-01_2015-02-28_pbl.json",
+  "om_request_url": "https://archive-api.open-meteo.com/v1/archive?latitude=39.878000&longitude=116.352000&start_date=2015-01-01&end_date=2015-02-28&hourly=boundary_layer_height%2Ccloud_cover%2Ctemperature_2m%2Cwind_speed_10m%2Cdew_point_2m&timezone=Asia%2FShanghai&temperature_unit=celsius&wind_speed_unit=ms&precipitation_unit=mm",
+  "recommendation": {
+    "abs_partial_pbl": 0.09900305119934728,
+    "abs_pearson_cloud": 0.15941627250221715,
+    "abs_pearson_pbl": 0.32256288376643705,
+    "decision": "PROMOTE_CANDIDATE",
+    "rationale": "|partial PBL|=0.099 after hour+temp+wind; |r_PBL|=0.323 beats |r_cloud|=0.159 \u2014 worth ablation. Episode contrast OK: PBL inside episodes lower by 343.0 m."
+  },
+  "sanity": {
+    "boundary_layer_height_m": {
+      "in_range": true,
+      "max": 2950.0,
+      "mean": 409.20197740112997,
+      "min": 10.0,
+      "n": 1416,
+      "null_pct": 0.0,
+      "std": 570.7786190527976
+    },
+    "cloud_cover_pct": {
+      "in_range": true,
+      "max": 100.0,
+      "mean": 28.14406779661017,
+      "min": 0.0,
+      "n": 1416,
+      "null_pct": 0.0,
+      "std": 40.42738646130261
+    }
+  },
+  "start": "2015-01-01",
+  "station": "Wanshouxigong"
+}
