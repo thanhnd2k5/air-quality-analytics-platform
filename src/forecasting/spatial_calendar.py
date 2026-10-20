@@ -144,6 +144,20 @@ SPATIAL_FEATURES: tuple[str, ...] = (
     "neighbor_pm25_mean",
     "spatial_gradient",
 )
+# Same three neighbors and the same clocks as SPATIAL_FEATURES. The IDW mean is
+# replaced by the median. spatial_gradient_median is own PM2.5(t) minus that
+# median. Counts are diagnostics, not model inputs.
+SPATIAL_MEDIAN_FEATURES: tuple[str, ...] = (
+    "neighbor_pm25_median_lag1",
+    "neighbor_pm25_median_lag3",
+    "neighbor_pm25_median",
+    "spatial_gradient_median",
+)
+NEIGHBOR_COUNT_FEATURES: tuple[str, ...] = (
+    "neighbor_n_finite",
+    "neighbor_n_finite_lag1",
+    "neighbor_n_finite_lag3",
+)
 N_NEIGHBORS = 3
 
 
@@ -244,6 +258,24 @@ def add_calendar_features(df: pd.DataFrame, *, time_col: str = "event_time_local
     return out
 
 
+def _median_finite(values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Median of finite neighbors. Null only when every neighbor is null.
+
+    One finite neighbor returns that value. Two finite neighbors return their
+    midpoint. This is the same null pattern as ``_idw`` when every weight is
+    positive: a row is finite exactly when at least one neighbor is finite.
+    """
+    finite = np.isfinite(values)
+    count = finite.sum(axis=1).astype(int)
+    out = np.full(len(values), np.nan, dtype=float)
+    for n_obs in range(1, values.shape[1] + 1):
+        selected = count == n_obs
+        if not np.any(selected):
+            continue
+        out[selected] = np.nanmedian(values[selected], axis=1)
+    return out, count
+
+
 def _idw(values: np.ndarray, weights: np.ndarray) -> np.ndarray:
     """Inverse-distance mean. Renormalize over neighbors that are finite at that hour."""
     mask = np.isfinite(values)
@@ -264,6 +296,7 @@ def add_spatial_features(
     n_neighbors: int = N_NEIGHBORS,
     time_col: str = "event_time_local",
     pm_col: str = "pm25_ug_m3",
+    include_median: bool = False,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Neighbor PM2.5 at t, t−1h and t−3h for the three nearest stations.
@@ -271,6 +304,9 @@ def add_spatial_features(
     ``neighbor_pm25_mean`` is the inverse-distance mean at origin t.
     ``spatial_gradient`` is own PM2.5(t) minus that mean.
     Lags are clock lags on an hourly grid, not "previous non-null row".
+
+    ``include_median`` adds the median of the same neighbor block at the same
+    clocks, plus how many of those neighbors were finite. It does not drop rows.
     """
     if "station_name" not in df.columns:
         raise KeyError("add_spatial_features requires station_name")
@@ -298,6 +334,12 @@ def add_spatial_features(
     lag1 = np.full(len(out), np.nan)
     lag3 = np.full(len(out), np.nan)
     mean_t = np.full(len(out), np.nan)
+    med_lag1 = np.full(len(out), np.nan)
+    med_lag3 = np.full(len(out), np.nan)
+    med_t = np.full(len(out), np.nan)
+    n_lag1 = np.zeros(len(out), dtype=int)
+    n_lag3 = np.zeros(len(out), dtype=int)
+    n_t = np.zeros(len(out), dtype=int)
 
     for station, sub in out.groupby("station_name", sort=False):
         idx = sub.index.to_numpy()
@@ -309,21 +351,46 @@ def add_spatial_features(
         pos = wide.index.get_indexer(pd.to_datetime(sub[time_col]))
         valid = pos >= 0
 
-        def _lookup(shift: int, pos=pos, valid=valid, keys=keys, weights=weights) -> np.ndarray:
+        def _lookup(
+            shift: int,
+            pos=pos,
+            valid=valid,
+            keys=keys,
+            weights=weights,
+        ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
             take = pos.copy()
             take[valid] = pos[valid] - shift
             ok = valid & (take >= 0) & (take < len(wide))
             block = np.full((len(pos), len(keys)), np.nan)
             if ok.any():
                 block[ok] = wide.iloc[take[ok]].loc[:, keys].to_numpy(dtype=float)
-            return _idw(block, weights)
+            reduced, count = _median_finite(block)
+            return _idw(block, weights), reduced, count
 
-        lag1[idx] = _lookup(1)
-        lag3[idx] = _lookup(3)
-        mean_t[idx] = _lookup(0)
+        idw_1, med_1, count_1 = _lookup(1)
+        idw_3, med_3, count_3 = _lookup(3)
+        idw_0, med_0, count_0 = _lookup(0)
+        lag1[idx] = idw_1
+        lag3[idx] = idw_3
+        mean_t[idx] = idw_0
+        med_lag1[idx] = med_1
+        med_lag3[idx] = med_3
+        med_t[idx] = med_0
+        n_lag1[idx] = count_1
+        n_lag3[idx] = count_3
+        n_t[idx] = count_0
 
+    own = out[pm_col].to_numpy(dtype=float)
     out["neighbor_pm25_lag1"] = lag1
     out["neighbor_pm25_lag3"] = lag3
     out["neighbor_pm25_mean"] = mean_t
-    out["spatial_gradient"] = out[pm_col].to_numpy(dtype=float) - mean_t
+    out["spatial_gradient"] = own - mean_t
+    if include_median:
+        out["neighbor_pm25_median_lag1"] = med_lag1
+        out["neighbor_pm25_median_lag3"] = med_lag3
+        out["neighbor_pm25_median"] = med_t
+        out["spatial_gradient_median"] = own - med_t
+        out["neighbor_n_finite_lag1"] = n_lag1
+        out["neighbor_n_finite_lag3"] = n_lag3
+        out["neighbor_n_finite"] = n_t
     return out, neighbors

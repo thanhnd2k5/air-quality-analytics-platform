@@ -77,6 +77,69 @@ def test_idw_uses_distance_and_clock_lag():
     assert weights["C"] > weights["B"]
 
 
+def test_median_uses_the_same_neighbors_and_ignores_the_next_hour():
+    times = pd.date_range("2016-12-20 14:00:00", periods=5, freq="h")
+    stations = pd.DataFrame(
+        {
+            "station_name": ["A", "B", "C", "D"],
+            "latitude": [40.00, 40.01, 40.02, 40.03],
+            "longitude": [116.0, 116.0, 116.0, 116.0],
+        }
+    )
+    values = {
+        "A": [600, 628, 630, 640, 650],
+        "B": [300, 338, 999, 340, 350],
+        "C": [400, 420, 999, 430, 440],
+        "D": [10, 3, 999, 20, 30],
+    }
+    rows = []
+    for name, series in values.items():
+        for time, value in zip(times, series):
+            rows.append(
+                {
+                    "station_key": {"A": 1, "B": 2, "C": 3, "D": 4}[name],
+                    "station_name": name,
+                    "event_time_local": time,
+                    "pm25_ug_m3": value,
+                }
+            )
+    out, _ = add_spatial_features(pd.DataFrame(rows), stations, include_median=True)
+    origin = pd.Timestamp("2016-12-20 15:00:00")
+    row = out[(out["station_name"] == "A") & (out["event_time_local"] == origin)].iloc[0]
+    assert row["neighbor_pm25_median"] == 338
+    assert row["spatial_gradient_median"] == 628 - 338
+    assert row["neighbor_n_finite"] == 3
+    assert row["neighbor_pm25_mean"] < row["neighbor_pm25_median"]
+    assert 999 not in (
+        row["neighbor_pm25_median"],
+        row["neighbor_pm25_median_lag1"],
+        row["neighbor_pm25_median_lag3"],
+        row["neighbor_pm25_mean"],
+    )
+    # One missing neighbor: median stays finite, same null rule as IDW.
+    sparse = pd.DataFrame(rows)
+    sparse.loc[
+        sparse["station_name"].eq("D") & sparse["event_time_local"].eq(origin),
+        "pm25_ug_m3",
+    ] = np.nan
+    sparse_out, _ = add_spatial_features(sparse, stations, include_median=True)
+    sparse_row = sparse_out[
+        sparse_out["station_name"].eq("A") & sparse_out["event_time_local"].eq(origin)
+    ].iloc[0]
+    assert sparse_row["neighbor_n_finite"] == 2
+    assert sparse_row["neighbor_pm25_median"] == (338 + 420) / 2
+    assert np.isfinite(sparse_row["neighbor_pm25_mean"])
+    empty = sparse.copy()
+    empty.loc[empty["event_time_local"].eq(origin) & empty["station_name"].ne("A"), "pm25_ug_m3"] = np.nan
+    empty_out, _ = add_spatial_features(empty, stations, include_median=True)
+    empty_row = empty_out[
+        empty_out["station_name"].eq("A") & empty_out["event_time_local"].eq(origin)
+    ].iloc[0]
+    assert empty_row["neighbor_n_finite"] == 0
+    assert np.isnan(empty_row["neighbor_pm25_median"])
+    assert np.isnan(empty_row["neighbor_pm25_mean"])
+
+
 def test_calendar_flags_match_beijing_windows():
     times = pd.to_datetime(
         [
