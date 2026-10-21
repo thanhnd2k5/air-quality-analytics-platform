@@ -1,0 +1,94 @@
+{
+  "question": "PM2.5(t) < 115 and an episode of at least 3 hours starts in t+1..t+6",
+  "confirm_hours": 8,
+  "primary_fa_per_station_day": 0.5,
+  "sensitivity_fa_per_station_day": 1.0,
+  "recall_margin": 0.05,
+  "published_split_census": [
+    {
+      "split": "train",
+      "n_rows": 276380,
+      "n_eligible": 206833,
+      "n_positive": 20738
+    },
+    {
+      "split": "val",
+      "n_rows": 47338,
+      "n_eligible": 39779,
+      "n_positive": 2662
+    },
+    {
+      "split": "test",
+      "n_rows": 48781,
+      "n_eligible": 37135,
+      "n_positive": 3467
+    }
+  ],
+  "baselines": {
+    "2015": "level",
+    "2015h2": "level",
+    "2016h1": "level"
+  },
+  "decisions": [
+    {
+      "variant": "histgb_cluster",
+      "baseline_by_fold": {
+        "2015": "level",
+        "2015h2": "level",
+        "2016h1": "level"
+      },
+      "val_clears_baseline": [
+        false,
+        false,
+        false
+      ],
+      "val_supported": false,
+      "test_clears_baseline": false,
+      "spatial_clears_local_on_val": null,
+      "spatial_supported_over_local": null
+    },
+    {
+      "variant": "histgb_local",
+      "baseline_by_fold": {
+        "2015": "level",
+        "2015h2": "level",
+        "2016h1": "level"
+      },
+      "val_clears_baseline": [
+        false,
+        false,
+        false
+      ],
+      "val_supported": false,
+      "test_clears_baseline": false,
+      "spatial_clears_local_on_val": null,
+      "spatial_supported_over_local": null
+    },
+    {
+      "variant": "histgb_spatial",
+      "baseline_by_fold": {
+        "2015": "level",
+        "2015h2": "level",
+        "2016h1": "level"
+      },
+      "val_clears_baseline": [
+        false,
+        true,
+        true
+      ],
+      "val_supported": true,
+      "test_clears_baseline": true,
+      "spatial_clears_local_on_val": [
+        true,
+        true,
+        true
+      ],
+      "spatial_supported_over_local": true
+    }
+  ],
+  "unchanged": [
+    "artifacts/classification/model_lock.json",
+    "artifacts/clustering/cluster_lock.json",
+    "artifacts/forecasting/model_lock.json"
+  ]
+}

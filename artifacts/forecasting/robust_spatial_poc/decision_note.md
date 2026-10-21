@@ -103,7 +103,8 @@ Spatial variants on this dataset stop here. The research record is the contribut
 | Spatial M2 | `PROMOTE_CANDIDATE` — best candidate; lock not updated, extreme-episode safety still open |
 | Upwind M4 | `KEEP_M2` |
 | Robust spatial M5 | `KEEP_M2` — branch closed |
+| Forecast reliability | `RELIABILITY_FLAG` — evaluation marks only; lock unchanged. See `artifacts/forecasting/reliability/decision_note.md` |
 
-## Open direction, not started
+## Forecast reliability
 
-Forecast reliability: an evaluation layer outside the current model, not an M6. The question is whether large errors can be recognized at forecast time from conditions already visible then — a fast rise or drop at the target station, a large gap between the target and its neighbors, an input that looks anomalous, a very high PM2.5 episode. Any such study uses train and validation. Test has already been read often enough that it is not an independent check for a new method.
+Ran once on train and validation. Two marks visible at the origin hour clear the pre-registered bar: the previous-hour PM2.5 change of at least 20 µg/m³, and a gap of at least 50 µg/m³ against the neighbor median. The causal suspect flag, the episode flag, and the union of the four conditions do not. The lock is unchanged. See `artifacts/forecasting/reliability/decision_note.md`.

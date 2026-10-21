@@ -1,0 +1,9 @@
+variant,split,threshold,f1,fp,onsets,onset_detected
+locked_cluster,val,0.45,0.897702,845,844,282
+locked_cluster,val,0.50,0.897965,751,844,241
+locked_cluster,test,0.45,0.926162,992,1000,353
+locked_cluster,test,0.50,0.925786,889,1000,299
+no_cluster,val,0.45,0.897948,847,844,285
+no_cluster,val,0.50,0.897268,754,844,238
+no_cluster,test,0.45,0.925887,999,1000,355
+no_cluster,test,0.50,0.925907,879,1000,295
