@@ -6,6 +6,7 @@ import { MapPage } from './pages/MapPage'
 import { OlapPage } from './pages/OlapPage'
 import { OverviewPage } from './pages/OverviewPage'
 import { PredictionsPage } from './pages/PredictionsPage'
+import { ReplayPage } from './pages/ReplayPage'
 import { StationsPage } from './pages/StationsPage'
 import { WeatherPage } from './pages/WeatherPage'
 
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/thoi-tiet" element={<WeatherPage />} />
           <Route path="/du-bao" element={<PredictionsPage />} />
           <Route path="/canh-bao" element={<AlertsPage />} />
+          <Route path="/phat-lai" element={<ReplayPage />} />
           <Route path="/olap" element={<OlapPage />} />
           <Route path="/ban-do" element={<MapPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

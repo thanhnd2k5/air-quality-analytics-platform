@@ -1,5 +1,7 @@
 # IMPLEMENTATION_PLAN.md
 
+> **Phạm vi gọn đã chốt — 21/10/2026:** Giữ phân loại tại t+1; thêm cảnh báo đợt ô nhiễm khởi phát **trong 6 giờ tới** khi trạm hiện dưới ngưỡng. Đợt = PM2.5 ≥115 µg/m³ liên tục **ít nhất 3 giờ**. Chưa dự đoán thời lượng đợt; cửa sổ 3 giờ và 12 giờ chỉ là mở rộng tùy chọn sau khi đánh giá kết quả 6 giờ. Làm chặt quy trình đánh giá trước thí nghiệm; đo thời gian báo trước, tỷ lệ phát hiện và cảnh báo nhầm. Trạng thái: **thí nghiệm đợt 6 giờ đã chạy** (`artifacts/classification/onset_6h/decision_note.md`); khóa phân loại t+1 giữ nguyên. Demo phát lại theo mốc dữ liệu: `artifacts/classification/replay/decision_note.md`, trang `/phat-lai`. Chi tiết tại [RESEARCH_NEXT_DIRECTIONS.md](RESEARCH_NEXT_DIRECTIONS.md#hướng-đã-thống-nhất-với-người-dùng--21102026).
+
 > **Project:** Phân tích và dự báo ô nhiễm không khí theo khu vực và điều kiện thời tiết  
 > **Quy mô nhóm:** 2 thành viên  
 > **Vai trò tài liệu:** Kế hoạch triển khai dự án theo phase và milestone  

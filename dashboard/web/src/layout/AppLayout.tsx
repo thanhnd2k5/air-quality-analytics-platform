@@ -8,6 +8,7 @@ import {
   IconMap2,
   IconRadar2,
   IconHome,
+  IconHistory,
   IconBuildingFactory2,
 } from '@tabler/icons-react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
@@ -20,6 +21,7 @@ const NAV = [
   { to: '/olap', label: 'OLAP', icon: IconCube },
   { to: '/du-bao', label: 'Dự báo', icon: IconChartLine },
   { to: '/canh-bao', label: 'Cảnh báo', icon: IconAlertTriangle },
+  { to: '/phat-lai', label: 'Phát lại', icon: IconHistory },
   { to: '/ban-do', label: 'Bản đồ', icon: IconMap2 },
 ] as const
 

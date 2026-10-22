@@ -1,0 +1,451 @@
+{
+  "predictions": "artifacts/forecasting/predictions_locked.parquet",
+  "signed_error_definition": "prediction - actual; negative means underprediction",
+  "rapid_rise_ug_m3": 20.0,
+  "episode_rule": "actual target PM2.5 >= 115.0 for >= 3 clock hours",
+  "summaries": {
+    "test": {
+      "n": 48781,
+      "mae": 8.871842776028974,
+      "mean_signed_error": 0.9558820979035774,
+      "median_signed_error": 0.7809979839602192,
+      "mean_actual": 80.18771652897645,
+      "mean_pred": 81.14359862688002,
+      "persistence_mae": 9.78268178184129,
+      "persistence_mean_signed_error": -0.019700293146921958,
+      "mean_actual_delta": 0.019700293146921958,
+      "mean_pred_delta": 0.9755823910504994,
+      "response_ratio": 49.52121188120126
+    },
+    "test_winter": {
+      "n": 8478,
+      "mae": 14.080199969436988,
+      "mean_signed_error": 1.0077125172127228,
+      "median_signed_error": 1.3748901876508164,
+      "mean_actual": 130.48690728945505,
+      "mean_pred": 131.4946198066678,
+      "persistence_mae": 15.61099315876386,
+      "persistence_mean_signed_error": -0.37249351262090113,
+      "mean_actual_delta": 0.37249351262090113,
+      "mean_pred_delta": 1.3802060298336243,
+      "response_ratio": 3.705315617773739
+    },
+    "test_heating_statutory": {
+      "n": 12983,
+      "mae": 12.939984780967963,
+      "mean_signed_error": 0.9460027011330556,
+      "median_signed_error": 1.1569746730234272,
+      "mean_actual": 116.29061079873681,
+      "mean_pred": 117.23661349986988,
+      "persistence_mae": 14.476161133790342,
+      "persistence_mean_signed_error": -0.2209042594161596,
+      "mean_actual_delta": 0.2209042594161596,
+      "mean_pred_delta": 1.1669069605492153,
+      "response_ratio": 5.282410414508529
+    },
+    "val_winter": {
+      "n": 16317,
+      "mae": 8.991657450279252,
+      "mean_signed_error": 1.2597215040257348,
+      "median_signed_error": 1.6319693103240187,
+      "mean_actual": 55.43402586259729,
+      "mean_pred": 56.693747366623015,
+      "persistence_mae": 9.42446528160814,
+      "persistence_mean_signed_error": 0.045903045903045905,
+      "mean_actual_delta": -0.045903045903045905,
+      "mean_pred_delta": 1.213818458122689,
+      "response_ratio": -26.443091830691476
+    },
+    "val_heating_statutory": {
+      "n": 20102,
+      "mae": 9.001985199952392,
+      "mean_signed_error": 0.8619282500009652,
+      "median_signed_error": 1.3025020881475111,
+      "mean_actual": 63.30390010944185,
+      "mean_pred": 64.16582835944283,
+      "persistence_mae": 9.51756044174709,
+      "persistence_mean_signed_error": -0.0028852850462640534,
+      "mean_actual_delta": 0.0028852850462640534,
+      "mean_pred_delta": 0.8648135350472291,
+      "response_ratio": 299.73244278481724
+    },
+    "test_december": {
+      "n": 8478,
+      "mae": 14.080199969436988,
+      "mean_signed_error": 1.0077125172127228,
+      "median_signed_error": 1.3748901876508164,
+      "mean_actual": 130.48690728945505,
+      "mean_pred": 131.4946198066678,
+      "persistence_mae": 15.61099315876386,
+      "persistence_mean_signed_error": -0.37249351262090113,
+      "mean_actual_delta": 0.37249351262090113,
+      "mean_pred_delta": 1.3802060298336243,
+      "response_ratio": 3.705315617773739
+    }
+  },
+  "winter_test_by_actual_bin": [
+    {
+      "bin": "[0, 35)",
+      "n": 2705,
+      "mae": 5.586545369654088,
+      "mean_signed_error": 3.3104800600816855,
+      "mean_actual": 14.070609981515712,
+      "mean_pred": 17.381090041597396,
+      "mean_actual_delta": -2.56007393715342,
+      "mean_pred_delta": 0.7504061229282658
+    },
+    {
+      "bin": "[35, 75)",
+      "n": 1109,
+      "mae": 11.882558448136805,
+      "mean_signed_error": 5.138080869571053,
+      "mean_actual": 55.294860234445444,
+      "mean_pred": 60.43294110401651,
+      "mean_actual_delta": -2.3787195671776376,
+      "mean_pred_delta": 2.759361302393415
+    },
+    {
+      "bin": "[75, 115)",
+      "n": 808,
+      "mae": 13.938767633678875,
+      "mean_signed_error": 4.72693196949299,
+      "mean_actual": 93.50247524752476,
+      "mean_pred": 98.22940721701775,
+      "mean_actual_delta": -1.3576732673267327,
+      "mean_pred_delta": 3.3692587021662574
+    },
+    {
+      "bin": "[115, 150)",
+      "n": 761,
+      "mae": 16.497010729497656,
+      "mean_signed_error": 3.1259895375776363,
+      "mean_actual": 132.31537450722735,
+      "mean_pred": 135.44136404480497,
+      "mean_actual_delta": -0.316688567674113,
+      "mean_pred_delta": 2.8093009699035236
+    },
+    {
+      "bin": "[150, 250)",
+      "n": 1745,
+      "mae": 18.250428162580192,
+      "mean_signed_error": -1.859006630210572,
+      "mean_actual": 195.17650429799426,
+      "mean_pred": 193.3174976677837,
+      "mean_actual_delta": 3.1249283667621777,
+      "mean_pred_delta": 1.2659217365516056
+    },
+    {
+      "bin": "[250, 500)",
+      "n": 1273,
+      "mae": 25.19552272855062,
+      "mean_signed_error": -5.593372742394274,
+      "mean_actual": 352.58601728201097,
+      "mean_pred": 346.9926445396167,
+      "mean_actual_delta": 5.3220738413197175,
+      "mean_pred_delta": -0.2712989010745561
+    },
+    {
+      "bin": "[500, 1000)",
+      "n": 77,
+      "mae": 43.440594891963,
+      "mean_signed_error": -25.24029252736818,
+      "mean_actual": 535.2987012987013,
+      "mean_pred": 510.058408771333,
+      "mean_actual_delta": 23.77922077922078,
+      "mean_pred_delta": -1.4610717481473972
+    }
+  ],
+  "winter_test_by_actual_delta": [
+    {
+      "bin": "[-1000, -40)",
+      "n": 386,
+      "mae": 57.65655892282169,
+      "mean_signed_error": 57.08499758331907,
+      "mean_actual": 177.53626943005182,
+      "mean_pred": 234.62126701337093,
+      "mean_actual_delta": -76.99222797927462,
+      "mean_pred_delta": -19.90723039595554
+    },
+    {
+      "bin": "[-40, -20)",
+      "n": 532,
+      "mae": 23.63337813645178,
+      "mean_signed_error": 22.003241356210083,
+      "mean_actual": 181.91917293233084,
+      "mean_pred": 203.9224142885409,
+      "mean_actual_delta": -28.727443609022558,
+      "mean_pred_delta": -6.724202252812472
+    },
+    {
+      "bin": "[-20, -5)",
+      "n": 1378,
+      "mae": 12.434431306820148,
+      "mean_signed_error": 10.062409374706458,
+      "mean_actual": 148.04136429608127,
+      "mean_pred": 158.10377367078772,
+      "mean_actual_delta": -11.237300435413642,
+      "mean_pred_delta": -1.1748910607071856
+    },
+    {
+      "bin": "[-5, 5)",
+      "n": 3217,
+      "mae": 4.7158370600981225,
+      "mean_signed_error": 2.034599733953696,
+      "mean_actual": 72.6241840223811,
+      "mean_pred": 74.6587837563348,
+      "mean_actual_delta": -0.34597451041342864,
+      "mean_pred_delta": 1.6886252235402672
+    },
+    {
+      "bin": "[5, 20)",
+      "n": 1921,
+      "mae": 8.660118973569231,
+      "mean_signed_error": -5.481350200584072,
+      "mean_actual": 136.11452368558042,
+      "mean_pred": 130.63317348499635,
+      "mean_actual_delta": 10.108797501301405,
+      "mean_pred_delta": 4.627447300717334
+    },
+    {
+      "bin": "[20, 40)",
+      "n": 635,
+      "mae": 20.375394008751673,
+      "mean_signed_error": -19.5893501190829,
+      "mean_actual": 210.1811023622047,
+      "mean_pred": 190.59175224312185,
+      "mean_actual_delta": 27.696062992125984,
+      "mean_pred_delta": 8.10671287304308
+    },
+    {
+      "bin": "[40, 1000)",
+      "n": 409,
+      "mae": 55.41219687327056,
+      "mean_signed_error": -55.35340623293486,
+      "mean_actual": 264.99755501222495,
+      "mean_pred": 209.6441487792901,
+      "mean_actual_delta": 67.85330073349633,
+      "mean_pred_delta": 12.499894500561478
+    }
+  ],
+  "episode_phases": {
+    "test_winter": [
+      {
+        "n": 591,
+        "mae": 24.119610743944715,
+        "mean_signed_error": -13.664939382246526,
+        "median_signed_error": -9.752849833126632,
+        "mean_actual": 175.77495769881557,
+        "mean_pred": 162.11001831656904,
+        "persistence_mae": 30.612521150592215,
+        "persistence_mean_signed_error": -23.617597292724195,
+        "mean_actual_delta": 23.617597292724195,
+        "mean_pred_delta": 9.952657910477669,
+        "response_ratio": 0.42140857036053175,
+        "phase": "onset",
+        "n_episodes": 197
+      },
+      {
+        "n": 806,
+        "mae": 36.917232336318314,
+        "mean_signed_error": -36.314868923731794,
+        "median_signed_error": -28.402211363663938,
+        "mean_actual": 272.6712158808933,
+        "mean_pred": 236.35634695716152,
+        "persistence_mae": 46.1985111662531,
+        "persistence_mean_signed_error": -46.1985111662531,
+        "mean_actual_delta": 46.1985111662531,
+        "mean_pred_delta": 9.88364224252131,
+        "response_ratio": 0.21393854462004985,
+        "phase": "rising",
+        "n_episodes": 168
+      },
+      {
+        "n": 197,
+        "mae": 24.13748065248442,
+        "mean_signed_error": -17.82897982182319,
+        "median_signed_error": -13.534468839641107,
+        "mean_actual": 266.2994923857868,
+        "mean_pred": 248.47051256396364,
+        "persistence_mae": 24.578680203045685,
+        "persistence_mean_signed_error": -22.893401015228427,
+        "mean_actual_delta": 22.893401015228427,
+        "mean_pred_delta": 5.0644211934052406,
+        "response_ratio": 0.221217511108832,
+        "phase": "peak",
+        "n_episodes": 197
+      },
+      {
+        "n": 612,
+        "mae": 35.470887295897576,
+        "mean_signed_error": 33.87079141219148,
+        "median_signed_error": 28.407458488497355,
+        "mean_actual": 250.13725490196077,
+        "mean_pred": 284.0080463141523,
+        "persistence_mae": 43.826797385620914,
+        "persistence_mean_signed_error": 43.826797385620914,
+        "mean_actual_delta": -43.826797385620914,
+        "mean_pred_delta": -9.956005973429438,
+        "response_ratio": 0.2271670887979575,
+        "phase": "falling",
+        "n_episodes": 144
+      },
+      {
+        "n": 1969,
+        "mae": 11.154479201844124,
+        "mean_signed_error": -0.03900606611792587,
+        "median_signed_error": 0.6379778048090259,
+        "mean_actual": 239.6485525647537,
+        "mean_pred": 239.60954649863578,
+        "persistence_mae": 8.220416455053327,
+        "persistence_mean_signed_error": 0.38395124428643984,
+        "mean_actual_delta": -0.38395124428643984,
+        "mean_pred_delta": -0.42295731040436574,
+        "response_ratio": 1.101591196013487,
+        "phase": "body",
+        "n_episodes": 162
+      }
+    ],
+    "val_winter": [
+      {
+        "n": 598,
+        "mae": 23.893137150777484,
+        "mean_signed_error": -15.73259355835605,
+        "median_signed_error": -5.528418163865425,
+        "mean_actual": 161.80267558528428,
+        "mean_pred": 146.07008202692822,
+        "persistence_mae": 29.47324414715719,
+        "persistence_mean_signed_error": -20.429765886287626,
+        "mean_actual_delta": 20.429765886287626,
+        "mean_pred_delta": 4.6971723279315745,
+        "response_ratio": 0.22991806925620703,
+        "phase": "onset",
+        "n_episodes": 200
+      },
+      {
+        "n": 423,
+        "mae": 51.681880365152175,
+        "mean_signed_error": -51.41585992774451,
+        "median_signed_error": -29.58855962527278,
+        "mean_actual": 243.7659574468085,
+        "mean_pred": 192.350097519064,
+        "persistence_mae": 54.45862884160756,
+        "persistence_mean_signed_error": -54.45862884160756,
+        "mean_actual_delta": 54.45862884160756,
+        "mean_pred_delta": 3.0427689138630485,
+        "response_ratio": 0.055873035707764786,
+        "phase": "rising",
+        "n_episodes": 147
+      },
+      {
+        "n": 203,
+        "mae": 38.87018177053669,
+        "mean_signed_error": -37.25152211629022,
+        "median_signed_error": -10.69878119075824,
+        "mean_actual": 233.04433497536945,
+        "mean_pred": 195.79281285907925,
+        "persistence_mae": 34.30049261083744,
+        "persistence_mean_signed_error": -31.561576354679804,
+        "mean_actual_delta": 31.561576354679804,
+        "mean_pred_delta": -5.689945761610418,
+        "response_ratio": -0.18028078501746758,
+        "phase": "peak",
+        "n_episodes": 203
+      },
+      {
+        "n": 344,
+        "mae": 45.73341335311997,
+        "mean_signed_error": 19.54593562969553,
+        "median_signed_error": 26.896013142053107,
+        "mean_actual": 226.84011627906978,
+        "mean_pred": 246.3860519087653,
+        "persistence_mae": 51.14244186046512,
+        "persistence_mean_signed_error": 51.14244186046512,
+        "mean_actual_delta": -51.14244186046512,
+        "mean_pred_delta": -31.59650623076959,
+        "response_ratio": 0.6178137977255009,
+        "phase": "falling",
+        "n_episodes": 128
+      },
+      {
+        "n": 1295,
+        "mae": 9.99116342755921,
+        "mean_signed_error": 0.09450949444772572,
+        "median_signed_error": 0.8693898484927445,
+        "mean_actual": 175.62239382239383,
+        "mean_pred": 175.71690331684155,
+        "persistence_mae": 7.674903474903475,
+        "persistence_mean_signed_error": 0.637065637065637,
+        "mean_actual_delta": -0.637065637065637,
+        "mean_pred_delta": -0.5425561426179115,
+        "response_ratio": 0.8516487329578127,
+        "phase": "body",
+        "n_episodes": 157
+      }
+    ]
+  },
+  "neighbor_lead_on_rapid_rise": {
+    "test_winter": {
+      "n_rapid": 1044,
+      "mean_signed_error": -33.600364439547896,
+      "mean_actual_delta": 43.42816091954023,
+      "mean_pred_delta": 9.827796479992339,
+      "response_ratio": 0.22630008436692475,
+      "frac_neighbors_higher_by_10": 0.514367816091954,
+      "frac_neighbors_lower_by_10": 0.24042145593869732,
+      "mean_signed_when_neighbors_higher": -37.08001814531267,
+      "mean_signed_when_neighbors_lower": -30.788431423110776,
+      "mean_signed_when_gradient_near_zero": -29.058259545524578,
+      "corr_gradient_vs_signed_error": 0.24422954761824678,
+      "mean_spatial_gradient": -16.627638534263582
+    },
+    "val_winter": {
+      "n_rapid": 848,
+      "mean_signed_error": -38.01946503734624,
+      "mean_actual_delta": 43.03891509433962,
+      "mean_pred_delta": 5.019450056993384,
+      "response_ratio": 0.11662585002412225,
+      "frac_neighbors_higher_by_10": 0.35495283018867924,
+      "frac_neighbors_lower_by_10": 0.2606132075471698,
+      "mean_signed_when_neighbors_higher": -43.005560981625486,
+      "mean_signed_when_neighbors_lower": -45.300748101867846,
+      "mean_signed_when_gradient_near_zero": -28.479653882477137,
+      "corr_gradient_vs_signed_error": -0.005775625555170237,
+      "mean_spatial_gradient": -4.411245562030758
+    },
+    "test_all": {
+      "n_rapid": 2777,
+      "mean_signed_error": -29.115283381885256,
+      "mean_actual_delta": 36.606049693914294,
+      "mean_pred_delta": 7.490766312029037,
+      "response_ratio": 0.20463192217308188,
+      "frac_neighbors_higher_by_10": 0.4519265394310407,
+      "frac_neighbors_lower_by_10": 0.19409434641699677,
+      "mean_signed_when_neighbors_higher": -32.32318306531254,
+      "mean_signed_when_neighbors_lower": -29.14633210589462,
+      "mean_signed_when_gradient_near_zero": -25.002720447050784,
+      "corr_gradient_vs_signed_error": 0.22552985671073547,
+      "mean_spatial_gradient": -11.44846651264066
+    }
+  },
+  "cny_coverage": {
+    "test_cny_hours": 0,
+    "val_cny_hours": 535,
+    "val_cny": {
+      "n": 535,
+      "mae": 40.1750580011748,
+      "mean_signed_error": -20.696056690562585,
+      "median_signed_error": 1.6656791325214897,
+      "mean_actual": 103.87102803738318,
+      "mean_pred": 83.1749713468206,
+      "persistence_mae": 35.31028037383177,
+      "persistence_mean_signed_error": 1.0560747663551402,
+      "mean_actual_delta": -1.0560747663551402,
+      "mean_pred_delta": -21.752131456917727,
+      "response_ratio": 20.597151025576963
+    },
+    "note": "Locked test is 2016-07-01 to 2016-12-31, so winter-test is December only and contains no \u9664\u5915/\u6625\u8282. The 2016 firework window is in validation."
+  },
+  "test_winter_months": [
+    12
+  ]
+}
