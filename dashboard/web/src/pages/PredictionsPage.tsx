@@ -37,6 +37,28 @@ const SPLIT_LABEL: Record<string, string> = {
   test: 'Giai đoạn đánh giá',
 }
 
+const STAGE_WINDOW: Record<string, { start: string; end: string; label: string }> = {
+  train: { start: '2013-03-01', end: '2015-12-31', label: 'Học' },
+  val: { start: '2016-01-01', end: '2016-06-30', label: 'Tinh chỉnh' },
+  test: { start: '2016-07-01', end: '2016-12-31', label: 'Đánh giá' },
+}
+
+function addDays(iso: string, days: number) {
+  const [year, month, day] = iso.split('-').map(Number)
+  const date = new Date(Date.UTC(year, month - 1, day))
+  date.setUTCDate(date.getUTCDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
+function datesForStage(split: string, dataMin: string, dataMax: string) {
+  const stage = STAGE_WINDOW[split]
+  if (!stage) return null
+  const end = stage.end < dataMax ? stage.end : dataMax
+  const floor = stage.start > dataMin ? stage.start : dataMin
+  const start = addDays(end, -13)
+  return { from: start < floor ? floor : start, to: end }
+}
+
 function splitLabel(split: string) {
   return SPLIT_LABEL[split] ?? split
 }
@@ -199,10 +221,20 @@ export function PredictionsPage() {
             { value: 'train', label: 'Học' },
           ]}
           value={split}
-          onChange={setSplit}
+          onChange={(value) => {
+            setSplit(value)
+            if (!value || !meta) return
+            const window = datesForStage(value, meta.data_min, meta.data_max)
+            if (!window) return
+            setDateFrom(window.from)
+            setDateTo(window.to)
+          }}
           w={200}
         />
       </Group>
+      <Text size="xs" c="dimmed">
+        Đổi giai đoạn sẽ đưa ngày về 14 ngày cuối của giai đoạn đó. Học đến 31/12/2015, tinh chỉnh đến 30/06/2016, đánh giá đến 31/12/2016.
+      </Text>
 
       {loading && (
         <Group>
@@ -271,7 +303,9 @@ export function PredictionsPage() {
             </SimpleGrid>
           ) : (
             <Alert color="yellow" title="Chưa có điểm dự báo">
-              Không có dữ liệu trong khoảng đã chọn. Thử đổi ngày, trạm hoặc giai đoạn.
+              {split && STAGE_WINDOW[split]
+                ? `Giai đoạn ${STAGE_WINDOW[split].label} chỉ có giờ từ ${STAGE_WINDOW[split].start} đến ${STAGE_WINDOW[split].end}. Khoảng ngày đang chọn nằm ngoài giai đoạn này.`
+                : 'Không có dữ liệu trong khoảng đã chọn. Thử đổi ngày hoặc trạm.'}
             </Alert>
           )}
 
