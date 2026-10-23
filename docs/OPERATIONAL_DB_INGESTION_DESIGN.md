@@ -54,43 +54,13 @@ Phân mốc thời gian **khớp** split ML đã chốt (Train ≤2015 | Val 201
 
 ## 2. Sơ đồ luồng dữ liệu
 
-```mermaid
-flowchart TD
-    subgraph Data_Sources ["3 NGUỒN DỮ LIỆU THÔ"]
-        S1["Nguồn 1: Historical File CSV<br/>2013-03-01 -> 2015-12-31<br/>298.368 dòng"]
-        S2["Nguồn 2: Simulated Operational DB<br/>SQLite — 2016-01-01 -> 2017-02-28<br/>122.400 dòng"]
-        S3["Nguồn 3: Open-Meteo REST API<br/>Weather hourly"]
-    end
+Sơ đồ Mermaid tổng thể được duy trì tại
+[Kiến trúc tổng thể](ARCHITECTURE.md#2-kiến-trúc-tổng-thể).
 
-    subgraph Airflow_Orchestration ["AIRFLOW"]
-        D1["DAG: uci_ingest_raw_dag<br/>Batch CSV"]
-        D2["DAG: operational_db_cdc_dag<br/>Watermark CDC"]
-        D3["DAG: openmeteo_ingest_raw_dag<br/>REST client"]
-    end
-
-    subgraph Data_Lake ["MINIO DATA LAKE"]
-        L1[("raw/uci/")]
-        L2[("raw/operational_db/")]
-        L3[("raw/openmeteo/")]
-        L_Proc[("processed/air_quality/")]
-    end
-
-    subgraph Data_Warehouse ["POSTGRESQL"]
-        STG["staging.air_quality_hourly<br/>grain: station + event_time_local<br/>source_system: uci_file | operational_db"]
-        DWH["Star schema + marts"]
-    end
-
-    subgraph Downstream ["PHÂN TÍCH & ML"]
-        ML["PM2.5 t+1<br/>Train: File | Val/Test: DB via CDC"]
-        DASH["Dashboard"]
-    end
-
-    S1 --> D1 --> L1
-    S2 --> D2 --> L2
-    S3 --> D3 --> L3
-    L1 & L2 --> L_Proc --> STG --> DWH
-    DWH --> ML --> DASH
-```
+Nhánh CSV và Open-Meteo đi qua Parquet; nhánh CDC JSON được chuẩn hóa rồi
+upsert staging trực tiếp. Open-Meteo được hợp nhất ở dbt. CDC serving hiện
+đọc lịch sử staging và ghi prediction log / artifact MAE; chưa nối log này
+vào dashboard và chưa chạy dbt trong DAG CDC.
 
 ---
 
