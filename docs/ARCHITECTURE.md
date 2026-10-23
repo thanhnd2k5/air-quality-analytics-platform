@@ -2,8 +2,8 @@
 
 > **Project:** Phân tích và dự báo ô nhiễm không khí theo khu vực và điều kiện thời tiết  
 > **Vai trò tài liệu:** Mô tả kiến trúc kỹ thuật và luồng dữ liệu của dự án  
-> **Phiên bản:** 1.1  
-> **Cập nhật:** 15/09/2026
+> **Phiên bản:** 1.2
+> **Cập nhật:** 23/10/2026
 >
 > Tài liệu này cần được đọc cùng:
 >
@@ -37,85 +37,128 @@ Kiến trúc cần đáp ứng các yêu cầu:
 
 # 2. Kiến trúc tổng thể
 
-```text
-┌────────────────────────────────────┐
-│            DATA SOURCES            │
-│                                    │
-│  UCI PRSA CSV                      │
-│  Open-Meteo REST API / JSON        │
-│  Station Reference Data            │
-└─────────────────┬──────────────────┘
-                  │
-                  ▼
-┌────────────────────────────────────┐
-│          APACHE AIRFLOW            │
-│                                    │
-│  Scheduling                        │
-│  Orchestration                     │
-│  Dependency management             │
-│  Monitoring                        │
-└─────────────────┬──────────────────┘
-                  │
-                  ▼
-┌────────────────────────────────────┐
-│               MINIO                │
-│            DATA LAKE               │
-│                                    │
-│  Raw source data                   │
-│  Processed data                    │
-│  API responses                     │
-│  Reference data                    │
-└─────────────────┬──────────────────┘
-                  │
-                  ▼
-┌────────────────────────────────────┐
-│        PYTHON / PANDAS             │
-│                                    │
-│  Validation                        │
-│  Cleaning                          │
-│  Standardization                   │
-│  Data quality                      │
-└─────────────────┬──────────────────┘
-                  │
-                  ▼
-┌────────────────────────────────────┐
-│          POSTGRESQL                │
-│          STAGING LAYER             │
-└─────────────────┬──────────────────┘
-                  │
-                  ▼
-┌────────────────────────────────────┐
-│                dbt                 │
-│                                    │
-│  Transformation                    │
-│  Dimensional modeling              │
-│  Tests                             │
-│  Analytical marts                  │
-└─────────────────┬──────────────────┘
-                  │
-                  ▼
-┌────────────────────────────────────┐
-│          POSTGRESQL DWH            │
-│                                    │
-│  Dimensions                        │
-│  Facts                             │
-│  Analytical marts                 │
-└──────────────┬─────────────┬───────┘
-               │             │
-               ▼             ▼
-┌────────────────────┐ ┌────────────────────┐
-│ DATA MINING / ML   │ │  WEB DASHBOARD     │
-│                    │ │                    │
-│ Scikit-learn       │ │ FastAPI + React    │
-│ Feature datasets   │ │ Mantine / ECharts  │
-│ Models             │ │ Leaflet (map)      │
-└──────────┬─────────┘ └────────────────────┘
-           │
-           ▼
-┌────────────────────────────────────┐
-│      MODEL OUTPUT / PREDICTION     │
-└────────────────────────────────────┘
+Sơ đồ luồng dữ liệu phân tầng. Mũi tên liền biểu diễn dữ liệu;
+mũi tên nét đứt biểu diễn điều phối.
+
+```mermaid
+flowchart TB
+    subgraph AF["ĐIỀU PHỐI — APACHE AIRFLOW"]
+        direction LR
+        INGEST["Ingestion"]
+        PROCESS["Processing"]
+        LOAD["Staging Load"]
+    end
+
+    subgraph SOURCES["1. NGUỒN DỮ LIỆU"]
+        direction LR
+        REF["Danh mục trạm"]
+        CSV["UCI PRSA — CSV lịch sử"]
+        DB[("SQLite tác nghiệp mô phỏng")]
+        API["Open-Meteo API"]
+    end
+
+    subgraph LAKE["2. DATA LAKE — MINIO"]
+        subgraph RAW["Raw Zone"]
+            direction LR
+            UCI_RAW["CSV quan trắc"]
+            CDC_RAW["JSON theo batch CDC"]
+            WEATHER_RAW["JSON thời tiết"]
+        end
+        subgraph PROCESSED["Processed Zone"]
+            direction LR
+            AQ_PARQUET["Quan trắc chuẩn hóa<br/>Parquet"]
+            WEATHER_PARQUET["Thời tiết chuẩn hóa<br/>Parquet"]
+            QUARANTINE["Bản ghi lỗi"]
+        end
+        UCI_RAW -->|Làm sạch và chuẩn hóa| AQ_PARQUET
+        WEATHER_RAW -->|Làm sạch và chuẩn hóa| WEATHER_PARQUET
+        UCI_RAW -->|Lỗi kiểm tra dữ liệu| QUARANTINE
+    end
+
+    CSV --> UCI_RAW
+    DB -->|SQL theo watermark CDC| CDC_RAW
+    API --> WEATHER_RAW
+    CDC_RAW --> CDC_CLEAN["Chuẩn hóa batch CDC"]
+
+    subgraph WAREHOUSE["3. KHO DỮ LIỆU — POSTGRESQL & DBT"]
+        subgraph STAGING["Staging"]
+            direction LR
+            STG_REF["station_reference"]
+            STG_AQ["air_quality_hourly"]
+            STG_WEATHER["weather_openmeteo_hourly"]
+        end
+        INTEGRATE["dbt — Tích hợp dữ liệu<br/>Bổ sung thời tiết thiếu · Tính RH"]
+        subgraph STAR["DWH — Lược đồ sao"]
+            direction LR
+            DIM_DATE["dim_date"]
+            DIM_TIME["dim_time"]
+            DIM_STATION["dim_station"]
+            DIM_WIND["dim_wind_direction"]
+            FACT["fact_air_quality_hourly"]
+        end
+        subgraph MARTS["Marts"]
+            direction LR
+            DAILY["Tổng hợp ngày / tháng"]
+            EPISODES["Các đợt ô nhiễm"]
+            CUBE["Khối dữ liệu OLAP"]
+        end
+        STG_REF & STG_AQ & STG_WEATHER --> INTEGRATE
+        INTEGRATE --> FACT
+        INTEGRATE --> DIM_DATE & DIM_TIME & DIM_STATION & DIM_WIND
+        FACT --> DAILY & EPISODES & CUBE
+    end
+
+    REF --> STG_REF
+    AQ_PARQUET --> STG_AQ
+    CDC_CLEAN -->|Upsert| STG_AQ
+    WEATHER_PARQUET --> STG_WEATHER
+
+    subgraph ANALYTICS["4. PHÂN TÍCH OLAP & KHAI PHÁ DỮ LIỆU"]
+        subgraph OLAP["Phân tích đa chiều — OLAP"]
+            OLAP_QUERY["Roll-up · Drill-down<br/>Slice · Dice · Pivot"]
+        end
+        subgraph ML["Khai phá dữ liệu / Machine Learning"]
+            FEATURES["Đặc trưng trạm / chuỗi thời gian"]
+            CLUSTER["Phân cụm trạm"]
+            CLASSIFY["Phân loại cảnh báo"]
+            FORECAST["Dự báo PM2.5 t+1h"]
+            ML_MARTS["Kết quả ML<br/>Nạp vào marts phục vụ"]
+            FEATURES --> CLUSTER & CLASSIFY & FORECAST
+            CLUSTER & CLASSIFY & FORECAST --> ML_MARTS
+        end
+    end
+
+    DAILY & CUBE --> OLAP_QUERY
+    FACT --> FEATURES
+
+    subgraph WEB["5. GIAO DIỆN TRỰC QUAN"]
+        BACKEND["FastAPI"]
+        FRONTEND["React Dashboard<br/>Tổng quan · Bản đồ · OLAP · Cảnh báo · Dự báo"]
+        BACKEND --> FRONTEND
+    end
+    DAILY & EPISODES --> BACKEND
+    OLAP_QUERY --> BACKEND
+    ML_MARTS --> BACKEND
+
+    INGEST -.-> RAW
+    PROCESS -.-> PROCESSED
+    LOAD -.-> STAGING
+
+    style AF fill:#ecfeff,stroke:#0891b2
+    style SOURCES fill:#fdf4ff,stroke:#c026d3
+    style LAKE fill:#fff7ed,stroke:#ea580c
+    style WAREHOUSE fill:#f5f3ff,stroke:#7c3aed
+    style ANALYTICS fill:#eff6ff,stroke:#2563eb
+    style WEB fill:#f0fdf4,stroke:#16a34a
 ```
+
+CSV và SQLite là hai kênh lấy dữ liệu từ cùng bộ UCI. Nhánh CDC được chuẩn hóa
+rồi upsert staging trực tiếp; nhánh CSV và API đi qua Parquet. Open-Meteo bổ sung
+thời tiết thiếu khi tích hợp bằng dbt.
+
+Sơ đồ thể hiện luồng dữ liệu tổng thể. Chi tiết replay CDC, dự báo và đánh giá
+liên tục từ staging nằm trong [thiết kế CDC](OPERATIONAL_DB_INGESTION_DESIGN.md).
+Các phần dưới lưu các nguyên tắc và lựa chọn thiết kế ban đầu.
 
 ---
 
@@ -583,7 +626,8 @@ Full historical load
 
 Sau đó API data có thể hỗ trợ incremental.
 
-Không cần CDC.
+Bổ sung CDC kiểu watermark cho nguồn SQLite mô phỏng; xem
+`OPERATIONAL_DB_INGESTION_DESIGN.md`. Nhánh CSV lịch sử vẫn chạy batch.
 
 Không cần streaming.
 
