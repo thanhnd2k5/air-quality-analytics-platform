@@ -24,6 +24,7 @@ from datetime import datetime
 
 from airflow import DAG
 from airflow.models import Variable
+from airflow.models.param import Param
 from airflow.operators.python import PythonOperator
 
 logger = logging.getLogger(__name__)
@@ -32,19 +33,24 @@ VARIABLE_WATERMARK = "operational_db_watermark"
 
 
 def _conf(**context) -> dict:
-    return (context.get("dag_run") and context["dag_run"].conf) or {}
+    dag_run = context.get("dag_run")
+    dag_run_conf = (dag_run and dag_run.conf) or {}
+    raw_params = context.get("params") or {}
+    params_dict = dict(raw_params) if hasattr(raw_params, "items") else {}
+    return {**params_dict, **dag_run_conf}
 
 
 def _resolve_watermark(**context) -> str:
     from src.ingestion.db_client import DEFAULT_WATERMARK, validate_watermark
 
     conf = _conf(**context)
-    if conf.get("watermark"):
-        return validate_watermark(str(conf["watermark"]))
     if conf.get("watermark_from_staging"):
         from src.staging.operational_db_load import staging_operational_watermark
 
         return validate_watermark(staging_operational_watermark())
+    custom_wm = str(conf.get("watermark") or "").strip()
+    if custom_wm:
+        return validate_watermark(custom_wm)
     stored = Variable.get(VARIABLE_WATERMARK, default_var=DEFAULT_WATERMARK)
     return validate_watermark(str(stored))
 
@@ -264,6 +270,45 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["phase3", "phase4", "ingestion", "operational_db", "cdc", "minio", "staging", "ml"],
+    params={
+        "batch_size": Param(
+            5000,
+            type="integer",
+            minimum=1,
+            description="Số lượng bản ghi mỗi batch CDC cần trích xuất",
+        ),
+        "max_batches": Param(
+            1,
+            type="integer",
+            minimum=1,
+            description="Số batch tối đa chạy trong lần kích hoạt này",
+        ),
+        "watermark": Param(
+            "2015-12-31 23:00:00",
+            type="string",
+            description="Mốc watermark bắt đầu quét (YYYY-MM-DD HH:MM:SS)",
+        ),
+        "watermark_from_staging": Param(
+            False,
+            type="boolean",
+            description="Tự động lấy watermark tiếp nối từ staging MAX (bỏ qua ô watermark trên)",
+        ),
+        "persist_watermark": Param(
+            False,
+            type="boolean",
+            description="Lưu mốc watermark mới vào Airflow Variable (operational_db_watermark)",
+        ),
+        "load_staging": Param(
+            True,
+            type="boolean",
+            description="Tự động upsert dữ liệu từ MinIO vào staging.air_quality_hourly",
+        ),
+        "cdc_eval": Param(
+            True,
+            type="boolean",
+            description="Chạy serving ML dự báo t+1 và đối soát tính sai số MAE",
+        ),
+    },
 ) as dag:
     check = PythonOperator(
         task_id="check_source",
