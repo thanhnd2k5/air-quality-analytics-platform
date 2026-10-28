@@ -215,6 +215,9 @@ services:
       # Avoid \\d / \\. in compose defaults — YAML+env over-escapes and breaks CORS
       # (browser then shows "Failed to fetch" even when /api/health is OK).
       CORS_ORIGIN_REGEX: ${CORS_ORIGIN_REGEX:-https?://(localhost|127[.]0[.]0[.]1)(:[0-9]+)?$}
+      # In-memory GET response cache (dashboard/api/app/cache.py); 0 turns it off.
+      RESPONSE_CACHE_MB: ${RESPONSE_CACHE_MB:-128}
+      RESPONSE_CACHE_CHECK_SECONDS: ${RESPONSE_CACHE_CHECK_SECONDS:-15}
     ports:
       # Host 8100 → container 8000 (avoid clash with other apps on :8000)
       - "${DASHBOARD_API_PORT:-8100}:8000"
