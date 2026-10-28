@@ -14,6 +14,7 @@ import { Metric } from '../components/Metric'
 import { PageHeader } from '../components/PageHeader'
 import { FilterBar, Panel } from '../components/Panel'
 import { ErrorAlert, LoadingBlock } from '../components/States'
+import { fmtNum, fmtSigned } from '../format'
 import { NEUTRAL_SERIES, SERIES } from '../theme'
 
 const VARIABLES: {
@@ -262,7 +263,7 @@ export function WeatherPage() {
     const point = shown?.series[params[0]?.dataIndex ?? -1]
     if (!point) return ''
     const fmt = (v: number | null | undefined, unit: string) =>
-      v == null ? '—' : `${v.toFixed(1)}${unit === '%' ? '' : ' '}${unit}`
+      v == null ? '—' : `${fmtNum(v)}${unit === '%' ? '' : ' '}${unit}`
     return [
       `<b>${point.date_day.slice(8, 10)}/${point.date_day.slice(5, 7)}/${point.date_day.slice(0, 4)}</b>`,
       `PM2.5: <b>${fmt(point.pm25_ug_m3_avg, 'µg/m³')}</b>`,
@@ -413,10 +414,10 @@ export function WeatherPage() {
               fit &&
               perStep != null && (
                 <Group gap="xl" wrap="nowrap">
-                  <Metric label="Hệ số tương quan r" value={fit.r.toFixed(2)} hint={`${fit.n} ngày`} size="sm" />
+                  <Metric label="Hệ số tương quan r" value={fmtNum(fit.r, 2)} hint={`${fit.n} ngày`} size="sm" />
                   <Metric
                     label="Độ dốc"
-                    value={`${perStep >= 0 ? '+' : '−'}${Math.abs(perStep).toFixed(1)}`}
+                    value={fmtSigned(perStep)}
                     unit="µg/m³"
                     hint={`mỗi +${spec.step}${spec.unit === '%' ? '' : ' '}${spec.unit} ${spec.seriesName.toLowerCase()}`}
                     size="sm"

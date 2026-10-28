@@ -44,6 +44,7 @@ import { PageHeader } from '../components/PageHeader'
 import { Panel } from '../components/Panel'
 import { Dot } from '../components/Pm25Badge'
 import { ErrorAlert, LoadingBlock } from '../components/States'
+import { fmtNum, fmtPct } from '../format'
 import { SERIES, pm25Level } from '../theme'
 
 type Filters = Record<string, string[]>
@@ -122,9 +123,9 @@ function memberLabel(v: string) {
 
 function fmtValue(v: number | null | undefined, measure: string) {
   if (v === null || v === undefined) return '—'
-  if (measure === 'hours' || measure === 'exceed_hours') return Math.round(v).toLocaleString('vi-VN')
-  if (measure === 'exceed_pct') return `${v.toFixed(1)}%`
-  return v.toFixed(1)
+  if (measure === 'hours' || measure === 'exceed_hours') return fmtNum(v, 0)
+  if (measure === 'exceed_pct') return fmtPct(v)
+  return fmtNum(v)
 }
 
 const UNIT: Record<string, string> = { pm25_avg: 'µg/m³', exceed_hours: 'giờ', hours: 'giờ' }

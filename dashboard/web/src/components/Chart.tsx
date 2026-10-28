@@ -2,6 +2,7 @@ import { Box } from '@mantine/core'
 import * as echarts from 'echarts'
 import ReactECharts from 'echarts-for-react'
 import { useMemo } from 'react'
+import { fmtAxis } from '../format'
 import { FONT_FAMILY, INK, SERIES_ORDER } from '../theme'
 
 // One ECharts theme for every chart: recessive axes and grid, thin marks, card-like tooltip.
@@ -49,6 +50,18 @@ echarts.registerTheme('aq', {
   visualMap: { textStyle: { color: INK.muted, fontSize: 11 } },
 })
 
+type Axis = { type?: string; axisLabel?: { formatter?: unknown } }
+
+// Value axes get vi-VN tick labels ("0,25", "1.000") unless the page set a formatter.
+function withViTicks(axes: unknown, defaultType: string) {
+  if (!axes) return axes
+  const fix = (a: Axis) =>
+    (a.type ?? defaultType) === 'value' && !a.axisLabel?.formatter
+      ? { ...a, axisLabel: { ...a.axisLabel, formatter: fmtAxis } }
+      : a
+  return Array.isArray(axes) ? axes.map(fix) : fix(axes as Axis)
+}
+
 const reducedMotion =
   typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
@@ -67,6 +80,8 @@ export function Chart({ option, height, label }: Props) {
     return {
       animationDuration: 400,
       ...option,
+      ...(option.xAxis ? { xAxis: withViTicks(option.xAxis, 'category') } : {}),
+      ...(option.yAxis ? { yAxis: withViTicks(option.yAxis, 'value') } : {}),
       ...(legend ? { legend } : {}),
       ...(reducedMotion ? { animation: false } : {}),
     }

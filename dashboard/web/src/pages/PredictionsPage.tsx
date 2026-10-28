@@ -15,15 +15,13 @@ import { PageHeader } from '../components/PageHeader'
 import { FilterBar, Panel } from '../components/Panel'
 import { Pm25Badge } from '../components/Pm25Badge'
 import { EmptyState, ErrorAlert, LoadingBlock } from '../components/States'
+import { fmtNum, fmtSigned } from '../format'
 import { NEUTRAL_SERIES, SERIES } from '../theme'
 
-function fmt(n: number | null | undefined, d = 1) {
-  if (n === null || n === undefined) return '—'
-  return n.toFixed(d)
-}
 
-function fmtTime(iso: string) {
-  return iso.replace('T', ' ').slice(0, 16)
+/** "2016-12-31T23:00" → "31/12/2016 23:00", as the date pickers show it. */
+function fmtTimeVi(iso: string) {
+  return `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)} ${iso.slice(11, 16)}`
 }
 
 const SPLIT_LABEL: Record<string, string> = {
@@ -66,7 +64,7 @@ function reduction(model: number | null, baseline: number | null) {
 
 /** "−7.0%" when the model's error is lower, "+x%" when higher. */
 function fmtReduction(r: number | null) {
-  return r == null ? '—' : `${r >= 0 ? '−' : '+'}${Math.abs(r).toFixed(1)}%`
+  return r == null ? '—' : `${fmtSigned(-r)}%`
 }
 
 function pickHeadline(metrics: PredictionsResponse['metrics']) {
@@ -134,7 +132,7 @@ export function PredictionsPage() {
     tooltip: {
       trigger: 'axis',
       valueFormatter: (v: number | string) =>
-        v == null || v === '' ? '—' : `${Number(v).toFixed(1)} µg/m³`,
+        v == null || v === '' ? '—' : `${fmtNum(Number(v))} µg/m³`,
     },
     legend: {
       data: ['Dự báo của mô hình', 'Thực tế đo được', 'Cách đơn giản (giờ trước)'],
@@ -144,8 +142,9 @@ export function PredictionsPage() {
     grid: { left: 8, right: 16, top: 48, bottom: 8, containLabel: true },
     xAxis: {
       type: 'category',
-      data: series.map((p) => fmtTime(p.target_time)),
-      axisLabel: { formatter: (t: string) => `${t.slice(8, 10)}/${t.slice(5, 7)} ${t.slice(11, 13)}h` },
+      // Categories are already "DD/MM/YYYY HH:MM", so the tooltip header reads like the date pickers.
+      data: series.map((p) => fmtTimeVi(p.target_time)),
+      axisLabel: { formatter: (t: string) => `${t.slice(0, 5)} ${t.slice(11, 13)}h` },
     },
     yAxis: { type: 'value', name: 'PM2.5 (µg/m³)' },
     series: [
@@ -231,16 +230,16 @@ export function PredictionsPage() {
             <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
               <StatCard
                 label="Dự báo gần nhất"
-                value={fmt(latest.predicted_pm25)}
+                value={fmtNum(latest.predicted_pm25)}
                 unit="µg/m³"
-                hint={`${fmtTime(latest.target_time)} · ${stationName ?? 'trung bình các trạm'}`}
+                hint={`${fmtTimeVi(latest.target_time)} · ${stationName ?? 'trung bình các trạm'}`}
               >
                 {latest.predicted_pm25 != null && <Pm25Badge value={latest.predicted_pm25} />}
               </StatCard>
-              <StatCard label="Thực tế đo được" value={fmt(latest.actual_pm25)} unit="µg/m³" />
+              <StatCard label="Thực tế đo được" value={fmtNum(latest.actual_pm25)} unit="µg/m³" />
               <StatCard
                 label="Lệch giữa dự báo và thực tế"
-                value={fmt(latest.absolute_error)}
+                value={fmtNum(latest.absolute_error)}
                 unit="µg/m³"
               />
             </SimpleGrid>
@@ -269,9 +268,9 @@ export function PredictionsPage() {
             description={
               headline && headline.mae_model != null ? (
                 <>
-                  Trung bình mỗi giờ lệch khoảng <strong>{fmt(headline.mae_model)} µg/m³</strong>
+                  Trung bình mỗi giờ lệch khoảng <strong>{fmtNum(headline.mae_model)} µg/m³</strong>
                   {headline.mae_persistence != null
-                    ? `, so với ${fmt(headline.mae_persistence)} µg/m³ của cách đơn giản (giảm ${fmt(reduction(headline.mae_model, headline.mae_persistence))}%).`
+                    ? `, so với ${fmtNum(headline.mae_persistence)} µg/m³ của cách đơn giản (giảm ${fmtNum(reduction(headline.mae_model, headline.mae_persistence))}%).`
                     : '.'}
                 </>
               ) : undefined
@@ -293,15 +292,15 @@ export function PredictionsPage() {
                   {data.metrics.map((m) => (
                     <Table.Tr key={m.split}>
                       <Table.Td>{splitLabel(m.split)}</Table.Td>
-                      <Table.Td ta="right">{m.n.toLocaleString('vi-VN')}</Table.Td>
+                      <Table.Td ta="right">{fmtNum(m.n, 0)}</Table.Td>
                       <Table.Td ta="right" fw={600}>
-                        {fmt(m.mae_model)}{' '}
+                        {fmtNum(m.mae_model)}{' '}
                         <Text span size="xs" c="dimmed" fw={400}>
                           µg/m³
                         </Text>
                       </Table.Td>
                       <Table.Td ta="right">
-                        {fmt(m.mae_persistence)}{' '}
+                        {fmtNum(m.mae_persistence)}{' '}
                         <Text span size="xs" c="dimmed">
                           µg/m³
                         </Text>

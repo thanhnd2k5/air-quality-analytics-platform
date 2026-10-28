@@ -7,15 +7,8 @@ import { PageHeader } from '../components/PageHeader'
 import { Panel } from '../components/Panel'
 import { Dot } from '../components/Pm25Badge'
 import { ErrorAlert, LoadingBlock } from '../components/States'
+import { fmtNum, fmtPct } from '../format'
 import { CLUSTER, INK, NEUTRAL_SERIES, SERIES, clusterInfo } from '../theme'
-
-function fmt(n: number | null | undefined, digits = 1) {
-  if (n == null) return '—'
-  return n.toLocaleString('vi-VN', {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  })
-}
 
 function day(iso: string) {
   const [year, month, d] = iso.split('-')
@@ -27,8 +20,7 @@ function silAt(grid: KSelectionPoint[], method: string, k: number) {
 }
 
 function silText(value: number | undefined) {
-  if (value == null) return '—'
-  return value.toLocaleString('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return fmtNum(value, 2)
 }
 
 // KMeans is the chosen method (series slot 1); Ward is the comparison, kept neutral.
@@ -104,7 +96,7 @@ function GroupGap({ groups }: { groups: ClusterGroup[] }) {
         const row = rows[i]
         if (!row) return ''
         const [name, a, b, digits] = row
-        return `<b>${name}</b><br/>Nhóm A: ${fmt(a, digits)} µg/m³ · Nhóm B: ${fmt(b, digits)} µg/m³<br/>Nhóm A cao hơn <b>${pct[i].toFixed(0)}%</b>`
+        return `<b>${name}</b><br/>Nhóm A: ${fmtNum(a, digits)} µg/m³ · Nhóm B: ${fmtNum(b, digits)} µg/m³<br/>Nhóm A cao hơn <b>${fmtPct(pct[i], 0)}</b>`
       },
     },
     grid: { left: 8, right: 56, top: 8, bottom: 8, containLabel: true },
@@ -148,9 +140,9 @@ function GroupCard({ group }: { group: ClusterGroup }) {
         {group.n_stations} trạm
       </Text>
       <SimpleGrid cols={3} spacing="md" mt="md">
-        <Metric label="PM2.5" value={fmt(group.pm25_avg)} unit="µg/m³" />
-        <Metric label="NO₂" value={fmt(group.no2_avg)} unit="µg/m³" size="sm" />
-        <Metric label="CO" value={fmt(group.co_avg, 0)} unit="µg/m³" size="sm" />
+        <Metric label="PM2.5" value={fmtNum(group.pm25_avg)} unit="µg/m³" />
+        <Metric label="NO₂" value={fmtNum(group.no2_avg)} unit="µg/m³" size="sm" />
+        <Metric label="CO" value={fmtNum(group.co_avg, 0)} unit="µg/m³" size="sm" />
       </SimpleGrid>
       <Text size="xs" c="dimmed" fw={500} mt="md" mb={4}>
         Các trạm

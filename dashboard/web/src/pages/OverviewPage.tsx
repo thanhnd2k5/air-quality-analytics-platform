@@ -20,12 +20,8 @@ import { FilterBar, Panel } from '../components/Panel'
 import { Dot, Pm25Badge } from '../components/Pm25Badge'
 import { EmptyState, ErrorAlert, LoadingBlock } from '../components/States'
 import { TrendChart } from '../components/TrendChart'
+import { fmtNum, fmtPct } from '../format'
 import { CLUSTER, INK, PM25_LEVELS, clusterInfo, pm25Level } from '../theme'
-
-function fmt(n: number | null | undefined, digits = 1) {
-  if (n === null || n === undefined) return '—'
-  return n.toFixed(digits)
-}
 
 function fmtDate(iso: string) {
   const [year, month, day] = iso.slice(0, 10).split('-')
@@ -34,7 +30,7 @@ function fmtDate(iso: string) {
 }
 
 function count(n: number) {
-  return n.toLocaleString('vi-VN')
+  return fmtNum(n, 0)
 }
 
 /** All 12 stations ranked by mean PM2.5 over the period, coloured by cluster. */
@@ -53,14 +49,14 @@ function StationRanking({ rows }: { rows: StationCompareRow[] }) {
           if (!r) return ''
           return [
             `<b>${r.station_name}</b>${r.district ? ` · ${r.district}` : ''}`,
-            `PM2.5 trung bình: <b>${fmt(r.pm25_avg)} µg/m³</b> (${pm25Level(r.pm25_avg).label.toLowerCase()})`,
+            `PM2.5 trung bình: <b>${fmtNum(r.pm25_avg)} µg/m³</b> (${pm25Level(r.pm25_avg).label.toLowerCase()})`,
             `Số đợt ô nhiễm: <b>${r.episode_count}</b>`,
             `Nhóm: ${clusterInfo(r.cluster_label).label}`,
           ].join('<br/>')
         },
       },
       grid: { left: 8, right: 40, top: 8, bottom: 24, containLabel: true },
-      xAxis: { type: 'value', name: 'µg/m³', nameLocation: 'end', nameGap: 6 },
+      xAxis: { type: 'value' },
       yAxis: {
         type: 'category',
         inverse: true,
@@ -76,7 +72,13 @@ function StationRanking({ rows }: { rows: StationCompareRow[] }) {
             value: Number((r.pm25_avg ?? 0).toFixed(1)),
             itemStyle: { color: clusterInfo(r.cluster_label).color, borderRadius: [0, 4, 4, 0] },
           })),
-          label: { show: true, position: 'right', color: INK.secondary, fontSize: 11 },
+          label: {
+            show: true,
+            position: 'right',
+            color: INK.secondary,
+            fontSize: 11,
+            formatter: (p: { value: number }) => fmtNum(p.value),
+          },
         },
       ],
     }),
@@ -111,7 +113,7 @@ function LevelDays({ points }: { points: TrendPoint[] }) {
           const i = params[0]?.dataIndex ?? -1
           const band = PM25_LEVELS[i]
           if (!band) return ''
-          return `<b>${band.level.label}</b> (${band.range} µg/m³)<br/><b>${counts[i]} ngày</b> · ${((counts[i] / total) * 100).toFixed(0)}% số ngày`
+          return `<b>${band.level.label}</b> (${band.range} µg/m³)<br/><b>${counts[i]} ngày</b> · ${fmtPct((counts[i] / total) * 100, 0)} số ngày`
         },
       },
       grid: { left: 8, right: 8, top: 32, bottom: 8, containLabel: true },
@@ -156,7 +158,7 @@ function OverviewBody({
     { label: 'Số đợt', value: count(kpis.episode_count), unit: 'đợt' },
     {
       label: 'Đợt trung bình',
-      value: kpis.duration_hours_avg == null ? '—' : fmt(kpis.duration_hours_avg, 1),
+      value: kpis.duration_hours_avg == null ? '—' : fmtNum(kpis.duration_hours_avg, 1),
       unit: kpis.duration_hours_avg == null ? '' : 'giờ',
     },
     {
@@ -203,7 +205,7 @@ function OverviewBody({
             </Group>
             <Group align="baseline" gap={8} mt="sm" wrap="nowrap">
               <Text fz={{ base: 44, sm: 52 }} fw={650} lh={1} className="tabular">
-                {fmt(kpis.pm25_avg)}
+                {fmtNum(kpis.pm25_avg)}
               </Text>
               <Text size="md" c="dimmed">
                 µg/m³
@@ -228,7 +230,7 @@ function OverviewBody({
             </Text>
             <SimpleGrid cols={{ base: 2, xs: 3, lg: 5 }} spacing="lg" verticalSpacing="md">
               {pollutants.map(([label, value]) => (
-                <Metric key={label} label={label} value={fmt(value)} unit="µg/m³" size="sm" />
+                <Metric key={label} label={label} value={fmtNum(value)} unit="µg/m³" size="sm" />
               ))}
             </SimpleGrid>
           </Box>

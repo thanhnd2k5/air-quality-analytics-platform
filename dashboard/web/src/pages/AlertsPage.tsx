@@ -17,10 +17,11 @@ import { PageHeader } from '../components/PageHeader'
 import { FilterBar, Panel } from '../components/Panel'
 import { Dot } from '../components/Pm25Badge'
 import { ErrorAlert, LoadingBlock } from '../components/States'
+import { fmtPct, fmtSigned } from '../format'
 import { INK, NEUTRAL_SERIES, SERIES, STATUS } from '../theme'
 
 function pct(v: number | null | undefined, d = 1) {
-  return v == null ? '—' : `${(v * 100).toFixed(d)}%`
+  return v == null ? '—' : fmtPct(v * 100, d)
 }
 
 function num(v: number) {
@@ -53,7 +54,11 @@ function ConfusionCard({ title, m, highlight }: { title: string; m: ConfusionMat
       <Group gap={6} justify="center" wrap="nowrap">
         {color && <Dot color={color} />}
         <Text size="xs" c="dimmed">
-          {code} · {label}
+          {code}
+          {/* Phones show the code only, so the 2×2 table fits without sideways scrolling. */}
+          <Text span inherit visibleFrom="sm">
+            {' '}· {label}
+          </Text>
         </Text>
       </Group>
     </Table.Td>
@@ -80,9 +85,14 @@ function ConfusionCard({ title, m, highlight }: { title: string; m: ConfusionMat
           <Table.Thead>
             {/* Positive class first (Han, Kamber & Pei layout): TP top-left, TN bottom-right. */}
             <Table.Tr>
-              <Table.Th>Thực tế \ Dự đoán</Table.Th>
+              <Table.Th style={{ whiteSpace: 'normal' }}>Thực tế \ Dự đoán</Table.Th>
               <Table.Th style={{ textAlign: 'center' }}>Cảnh báo</Table.Th>
-              <Table.Th style={{ textAlign: 'center' }}>Không cảnh báo</Table.Th>
+              <Table.Th style={{ textAlign: 'center' }}>
+                Không
+                <Text span inherit visibleFrom="sm">
+                  {' '}cảnh báo
+                </Text>
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -182,7 +192,7 @@ export function AlertsPage() {
       return [
         `<b>${t.slice(8, 10)}/${t.slice(5, 7)}/${t.slice(0, 4)} ${t.slice(11, 16)}</b>`,
         `PM2.5 thực tế: <b>${p.actual_pm25 == null ? '—' : `${Math.round(p.actual_pm25)} µg/m³`}</b>`,
-        `Xác suất cảnh báo: <b>${proba == null ? '—' : `${(proba * 100).toFixed(1)}%`}</b>` +
+        `Xác suất cảnh báo: <b>${proba == null ? '—' : fmtPct(proba * 100)}</b>` +
           (proba == null ? '' : proba >= cutoff ? ' (≥ ngưỡng cắt → báo)' : ' (< ngưỡng cắt → không báo)'),
         outcome ? `${dot(outcome.color)}${outcome.label}` : '',
       ]
@@ -379,7 +389,7 @@ export function AlertsPage() {
                         {pct(s.f1_persistence)}
                       </Table.Td>
                       <Table.Td ta="right" fw={600}>
-                        {gap == null ? '—' : `${gap >= 0 ? '+' : '−'}${Math.abs(gap).toFixed(1)}`}
+                        {fmtSigned(gap)}
                       </Table.Td>
                       <Table.Td ta="right">{pct(s.recall_model)}</Table.Td>
                       <Table.Td ta="right">{pct(s.recall_persistence)}</Table.Td>

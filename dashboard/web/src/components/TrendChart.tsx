@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import type { TrendPoint } from '../api/overview'
+import { fmtNum } from '../format'
 import { INK, NEUTRAL_SERIES, SERIES } from '../theme'
 import { Chart } from './Chart'
 
@@ -14,7 +15,20 @@ export function TrendChart({ points, height = 360 }: Props) {
     () => ({
       tooltip: {
         trigger: 'axis',
-        valueFormatter: (v: number | null) => (v == null ? '—' : `${v.toFixed(1)} µg/m³`),
+        // Date as the pickers show it, PM2.5 first (series order puts PM10 underneath).
+        formatter: (params: { dataIndex: number }[]) => {
+          const p = points[params[0]?.dataIndex ?? 0]
+          if (!p) return ''
+          const d = p.date_day
+          const row = (color: string, name: string, v: number | null) =>
+            `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:6px"></span>` +
+            `${name}: <b>${v == null ? '—' : `${fmtNum(v)} µg/m³`}</b>`
+          return [
+            `<b>${d.slice(8, 10)}/${d.slice(5, 7)}/${d.slice(0, 4)}</b>`,
+            row(SERIES.blue, 'PM2.5', p.pm25_ug_m3_avg),
+            row(NEUTRAL_SERIES.soft, 'PM10', p.pm10_ug_m3_avg),
+          ].join('<br/>')
+        },
       },
       legend: { data: ['PM2.5', 'PM10'] },
       grid: { left: 8, right: 16, top: 48, bottom: 8, containLabel: true },

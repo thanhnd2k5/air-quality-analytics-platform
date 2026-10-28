@@ -9,6 +9,7 @@ import { PageHeader } from '../components/PageHeader'
 import { FilterBar } from '../components/Panel'
 import { Dot, Pm25Legend } from '../components/Pm25Badge'
 import { ErrorAlert, LoadingBlock } from '../components/States'
+import { fmtNum } from '../format'
 import { CLUSTER, INK, clusterInfo, pm25Level } from '../theme'
 
 // Fix default marker assets unused; we use CircleMarker only.
@@ -152,7 +153,7 @@ export function MapPage() {
                     <Text size="xs">
                       PM2.5 ngày:{' '}
                       {p.pm25_ug_m3_avg != null
-                        ? `${p.pm25_ug_m3_avg.toFixed(1)} µg/m³ (${level.label})`
+                        ? `${fmtNum(p.pm25_ug_m3_avg)} µg/m³ (${level.label})`
                         : '—'}
                     </Text>
                   </Popup>
