@@ -23,27 +23,30 @@ function silText(value: number | undefined) {
   return fmtNum(value, 2)
 }
 
-// KMeans is the chosen method (series slot 1); Ward is the comparison, kept neutral.
-function selectionOption(grid: KSelectionPoint[]) {
-  const ks = [2, 3, 4]
+function kValues(grid: KSelectionPoint[]) {
+  return [...new Set(grid.filter((p) => p.method === 'kmeans').map((p) => p.k))].sort((a, b) => a - b)
+}
+
+// KMeans is the chosen method (series slot 1); Ward is the comparison, kept neutral. Only the
+// chosen K carries a label; every other point reads from the tooltip.
+function selectionOption(grid: KSelectionPoint[], chosen: number) {
+  const ks = kValues(grid)
   const series = (method: string, name: string, color: string, dashed = false) => ({
     name,
     type: 'line' as const,
     data: ks.map((k) => silAt(grid, method, k) ?? null),
     symbol: 'circle',
-    symbolSize: 9,
+    symbolSize: 7,
     color,
     lineStyle: { type: dashed ? ('dashed' as const) : ('solid' as const) },
     itemStyle: { borderColor: '#fff', borderWidth: 2 },
   })
-  // KMeans points carry their value; the chosen K is called out directly on the chart.
-  // KMeans sits above Ward (they meet at K = 2); its labels go below the line, Ward runs above it.
   const kmeans = {
     ...series('kmeans', 'KMeans', SERIES.blue),
     z: 3,
     data: ks.map((k) => {
       const v = silAt(grid, 'kmeans', k) ?? null
-      return k === 2
+      return k === chosen
         ? {
             value: v,
             symbolSize: 12,
@@ -52,19 +55,26 @@ function selectionOption(grid: KSelectionPoint[]) {
               position: 'top' as const,
               align: 'left' as const,
               offset: [-6, -2],
-              formatter: `Chọn K = 2 · ${silText(v ?? undefined)}`,
+              formatter: `Chọn K = ${chosen} · ${silText(v ?? undefined)}`,
               color: INK.primary,
               fontWeight: 600,
             },
           }
-        : {
-            value: v,
-            label: { show: true, position: 'bottom' as const, formatter: silText(v ?? undefined), color: INK.secondary },
-          }
+        : v
     }),
   }
   return {
-    tooltip: { trigger: 'axis' as const, valueFormatter: (v: number) => silText(v) },
+    tooltip: {
+      trigger: 'axis' as const,
+      formatter: (params: { dataIndex: number }[]) => {
+        const k = ks[params[0]?.dataIndex ?? 0]
+        return [
+          `<b>K = ${k}</b>${k === chosen ? ' (đã chọn)' : ''}`,
+          `KMeans: <b>${silText(silAt(grid, 'kmeans', k))}</b>`,
+          `Phân cấp Ward: <b>${silText(silAt(grid, 'agglomerative_ward', k))}</b>`,
+        ].join('<br/>')
+      },
+    },
     legend: {},
     grid: { left: 8, right: 24, top: 48, bottom: 8, containLabel: true },
     xAxis: { type: 'category' as const, name: 'K', data: ks.map(String), boundaryGap: false },
@@ -186,10 +196,10 @@ export function ClustersPage() {
         <>
           <Panel
             title="Chọn K theo silhouette"
-            description={`Chọn K = 2 vì silhouette KMeans cao nhất (${silText(silAt(data.k_grid, 'kmeans', 2))}). K = 3 còn ${silText(silAt(data.k_grid, 'kmeans', 3))}, K = 4 còn ${silText(silAt(data.k_grid, 'kmeans', 4))}. Phân cấp Ward cũng cao nhất ở K = 2.`}
+            description={`Chọn K = ${data.k} vì silhouette KMeans cao nhất (${silText(silAt(data.k_grid, 'kmeans', data.k))}); K lớn hơn thì nhìn chung giảm dần, còn ${silText(silAt(data.k_grid, 'kmeans', Math.max(...kValues(data.k_grid))))} ở K = ${Math.max(...kValues(data.k_grid))} (${data.groups.reduce((s, g) => s + g.n_stations, 0)} trạm nên K tối đa là ${Math.max(...kValues(data.k_grid))}). Phân cấp Ward cũng cao nhất ở K = ${data.k}.`}
           >
             <Chart
-              option={selectionOption(data.k_grid)}
+              option={selectionOption(data.k_grid, data.k)}
               height={280}
               label="Silhouette của KMeans và phân cấp Ward theo K = 2, 3, 4; cao nhất ở K = 2."
             />

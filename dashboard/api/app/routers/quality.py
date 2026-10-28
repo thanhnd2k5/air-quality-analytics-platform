@@ -12,7 +12,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.config import get_settings
+from app.artifacts import artifacts_path
 from app.db import fetch_all, fetch_one, get_db
 from app.schemas.quality import (
     ColumnMissing,
@@ -56,12 +56,6 @@ DATASET_VI = {
 }
 
 
-def _artifacts() -> Path:
-    configured = get_settings().artifacts_dir
-    # Outside Docker the API runs from the repo: dashboard/api/app/routers → repo/artifacts.
-    return Path(configured) if configured else Path(__file__).resolve().parents[4] / "artifacts"
-
-
 # The artifact files this endpoint reads, relative to the artifacts directory.
 RECONCILE = "staging/reconcile.json"
 LAST_RUN = "run_all/run_summary.json"
@@ -74,7 +68,7 @@ def artifacts_fingerprint() -> str:
     parts = []
     for rel in (RECONCILE, LAST_RUN, LAST_FULL_RUN, DBT_TEST_LOG):
         try:
-            st = (_artifacts() / rel).stat()
+            st = (artifacts_path() / rel).stat()
             parts.append(f"{rel}:{st.st_size}:{st.st_mtime_ns}")
         except OSError:
             parts.append(f"{rel}:-")
@@ -203,7 +197,7 @@ def quality_summary(db: Session = Depends(get_db)) -> QualitySummary:
             )
         )
 
-    art = _artifacts()
+    art = artifacts_path()
     return QualitySummary(
         warehouse=WarehouseCounts(
             fact_rows=int(fact.get("fact_rows") or 0),
