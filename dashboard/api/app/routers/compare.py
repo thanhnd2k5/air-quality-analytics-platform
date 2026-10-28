@@ -45,10 +45,19 @@ def compare_stations(
             a.pm10_avg,
             a.o3_avg,
             a.day_count,
+            COALESCE(ep.episode_count, 0) AS episode_count,
             RANK() OVER (ORDER BY a.pm25_avg DESC NULLS LAST)::int AS rank_pm25
         FROM agg AS a
         LEFT JOIN mart.mart_station_cluster AS c
             ON a.station_key = c.station_key
+        LEFT JOIN (
+            SELECT station_key, COUNT(*)::int AS episode_count
+            FROM mart.mart_pm25_episodes
+            WHERE start_time::date <= :end
+              AND end_time::date >= :start
+            GROUP BY station_key
+        ) AS ep
+            ON ep.station_key = a.station_key
         ORDER BY rank_pm25, a.station_name
         """,
         {"start": start, "end": end},
@@ -67,6 +76,7 @@ def compare_stations(
                 pm10_avg=as_float(r["pm10_avg"]),
                 o3_avg=as_float(r["o3_avg"]),
                 day_count=r["day_count"],
+                episode_count=r["episode_count"],
                 rank_pm25=r["rank_pm25"],
             )
             for r in rows

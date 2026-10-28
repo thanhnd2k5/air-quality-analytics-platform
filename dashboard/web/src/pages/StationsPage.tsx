@@ -19,6 +19,12 @@ function fmt(n: number | null | undefined) {
   return n.toFixed(1)
 }
 
+function groupName(label: string | null) {
+  if (label === 'elevated_core') return 'Lõi ô nhiễm cao'
+  if (label === 'cleaner_outskirts') return 'Ngoại ô phía bắc'
+  return label
+}
+
 export function StationsPage() {
   const [meta, setMeta] = useState<OverviewMeta | null>(null)
   const [stations, setStations] = useState<Station[]>([])
@@ -71,7 +77,7 @@ export function StationsPage() {
       <div>
         <Title order={2}>Trạm</Title>
         <Text size="sm" c="dimmed">
-          Xếp hạng PM2.5 TB theo khoảng ngày + nhãn cluster (Phase 9).
+          Xếp hạng PM2.5 và số đợt theo trạm.
         </Text>
       </div>
 
@@ -104,14 +110,12 @@ export function StationsPage() {
         <Table striped highlightOnHover withTableBorder>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Hạng PM2.5</Table.Th>
-              <Table.Th>Tên trạm</Table.Th>
+              <Table.Th>Hạng</Table.Th>
+              <Table.Th>Trạm</Table.Th>
               <Table.Th>Quận</Table.Th>
-              <Table.Th>Cluster</Table.Th>
+              <Table.Th>Nhóm</Table.Th>
               <Table.Th>PM2.5 TB</Table.Th>
-              <Table.Th>PM10 TB</Table.Th>
-              <Table.Th>O3 TB</Table.Th>
-              <Table.Th>Số ngày</Table.Th>
+              <Table.Th>Số đợt</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -121,23 +125,22 @@ export function StationsPage() {
                 <Table.Td>{r.station_name}</Table.Td>
                 <Table.Td>{r.district ?? '—'}</Table.Td>
                 <Table.Td>
-                  {r.cluster_label ? (
+                  {groupName(r.cluster_label) ? (
                     <Badge
                       variant="light"
+                      tt="none"
                       color={
                         r.cluster_label === 'elevated_core' ? 'orange' : 'teal'
                       }
                     >
-                      {r.cluster_label}
+                      {groupName(r.cluster_label)}
                     </Badge>
                   ) : (
                     '—'
                   )}
                 </Table.Td>
                 <Table.Td>{fmt(r.pm25_avg)}</Table.Td>
-                <Table.Td>{fmt(r.pm10_avg)}</Table.Td>
-                <Table.Td>{fmt(r.o3_avg)}</Table.Td>
-                <Table.Td>{r.day_count}</Table.Td>
+                <Table.Td>{r.episode_count}</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>

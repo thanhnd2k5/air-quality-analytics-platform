@@ -14,9 +14,16 @@ export type OverviewKpis = {
   pm25_avg: number | null
   pm10_avg: number | null
   o3_avg: number | null
+  so2_avg: number | null
+  no2_avg: number | null
+  co_avg: number | null
   station_day_rows: number
   pm25_day_rows: number
+  days_pm25_ge_115: number
   episode_count: number
+  duration_hours_avg: number | null
+  duration_hours_max: number | null
+  multi_station_event_count: number | null
 }
 
 export type TrendPoint = {

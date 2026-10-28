@@ -10,6 +10,7 @@ export type StationCompareRow = {
   pm10_avg: number | null
   o3_avg: number | null
   day_count: number
+  episode_count: number
   rank_pm25: number
 }
 

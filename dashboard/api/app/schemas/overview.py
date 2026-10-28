@@ -17,9 +17,16 @@ class OverviewKpis(BaseModel):
     pm25_avg: float | None
     pm10_avg: float | None
     o3_avg: float | None
+    so2_avg: float | None
+    no2_avg: float | None
+    co_avg: float | None
     station_day_rows: int
     pm25_day_rows: int
+    days_pm25_ge_115: int
     episode_count: int
+    duration_hours_avg: float | None
+    duration_hours_max: int | None
+    multi_station_event_count: int | None = None
 
 
 class TrendPoint(BaseModel):

@@ -210,8 +210,7 @@ export function AlertsPage() {
       <div>
         <Title order={2}>Cảnh báo vượt ngưỡng PM2.5</Title>
         <Text size="sm" c="dimmed">
-          Bài toán khai phá chính: dự đoán giờ tới PM2.5 có ≥ {summary?.alert_threshold ?? 115} µg/m³ không, để phát cảnh
-          báo hạn chế hoạt động ngoài trời. Đánh giá trên tập test 07–12/2016 (mô hình chưa từng thấy).
+          Giờ tới PM2.5 có từ {summary?.alert_threshold ?? 115} µg/m³ trở lên hay không. Đánh giá trên 07–12/2016.
         </Text>
       </div>
 
@@ -222,16 +221,10 @@ export function AlertsPage() {
       )}
 
       {summary && (
-        <>
-          <SimpleGrid cols={{ base: 1, md: 2 }}>
-            <ConfusionCard title="Mô hình HistGradientBoosting" m={summary.model} highlight />
-            <ConfusionCard title="Cách hiện tại: persistence (giờ này ≥ ngưỡng)" m={summary.persistence} />
-          </SimpleGrid>
-          <Text size="xs" c="dimmed">
-            {num(summary.n)} giờ × trạm trong tập test · ngưỡng xác suất {summary.probability_cutoff?.toFixed(2)} (chọn trên
-            tập val) · {summary.model_version}
-          </Text>
-        </>
+        <SimpleGrid cols={{ base: 1, md: 2 }}>
+          <ConfusionCard title="Mô hình HistGradientBoosting" m={summary.model} highlight />
+          <ConfusionCard title="Giờ này đã vượt ngưỡng" m={summary.persistence} />
+        </SimpleGrid>
       )}
 
       <Paper withBorder p="md">
@@ -275,9 +268,9 @@ export function AlertsPage() {
                 <Table.Th>Trạm</Table.Th>
                 <Table.Th>Số giờ vượt ngưỡng</Table.Th>
                 <Table.Th>F1 mô hình</Table.Th>
-                <Table.Th>F1 persistence</Table.Th>
+                <Table.Th>F1 cách đơn giản</Table.Th>
                 <Table.Th>Recall mô hình</Table.Th>
-                <Table.Th>Recall persistence</Table.Th>
+                <Table.Th>Recall cách đơn giản</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>

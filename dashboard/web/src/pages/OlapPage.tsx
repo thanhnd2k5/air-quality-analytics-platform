@@ -232,8 +232,7 @@ export function OlapPage() {
       <div>
         <Title order={2}>Phân tích OLAP</Title>
         <Text size="sm" c="dimmed">
-          Khối PM2.5 trên lược đồ hình sao (fact giờ × Thời gian × Giờ × Địa điểm × Hướng gió). Bấm vào một dòng để
-          khoan xuống; dùng bộ lọc để cắt lát / cắt khối; đổi hàng ↔ cột để xoay trục.
+          PM2.5 theo thời gian, địa điểm và hướng gió.
         </Text>
       </div>
 
@@ -289,7 +288,7 @@ export function OlapPage() {
         </Group>
         <Group mt="md" align="flex-end" gap="sm" wrap="wrap">
           <Select
-            label="Lọc theo (slice / dice)"
+            label="Lọc theo"
             placeholder="Chọn thuộc tính"
             data={attrOptions}
             value={filterAttr}
@@ -415,7 +414,7 @@ export function OlapPage() {
 
           <Accordion variant="contained">
             <Accordion.Item value="sql">
-              <Accordion.Control>Câu SQL đã sinh (GROUPING SETS cho tổng hàng/cột)</Accordion.Control>
+              <Accordion.Control>Xem câu truy vấn</Accordion.Control>
               <Accordion.Panel>
                 <Code block>{data.sql}</Code>
               </Accordion.Panel>

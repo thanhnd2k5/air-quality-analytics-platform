@@ -12,7 +12,7 @@ import {
   Title,
 } from '@mantine/core'
 import ReactECharts from 'echarts-for-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   fetchPredictionMeta,
   fetchPredictions,
@@ -133,11 +133,6 @@ export function PredictionsPage() {
   const latest = series.length ? series[series.length - 1] : null
   const headline = data ? pickHeadline(data.metrics) : null
 
-  const recentRows = useMemo(() => {
-    if (!series.length) return []
-    return [...series].slice(-12).reverse()
-  }, [series])
-
   const chartOption = {
     color: ['#0d9488', '#334155', '#94a3b8'],
     tooltip: {
@@ -194,8 +189,7 @@ export function PredictionsPage() {
       <div>
         <Title order={2}>Dự báo PM2.5 giờ tới</Title>
         <Text size="sm" c="dimmed" maw={720}>
-          Đây là số PM2.5 mô hình đã đoán cho từng giờ (trước khi biết kết quả đo).
-          Phần sai số chỉ để xem dự báo có sát thực tế không — không phải nội dung chính.
+          Số PM2.5 mô hình đoán cho từng giờ, đặt cạnh số đo thật và cách lấy nguyên giờ trước.
         </Text>
       </div>
 
@@ -216,7 +210,7 @@ export function PredictionsPage() {
           clearable
           placeholder="Tất cả"
           data={[
-            { value: 'test', label: 'Đánh giá (khuyên dùng)' },
+            { value: 'test', label: 'Đánh giá' },
             { value: 'val', label: 'Tinh chỉnh' },
             { value: 'train', label: 'Học' },
           ]}
@@ -232,9 +226,6 @@ export function PredictionsPage() {
           w={200}
         />
       </Group>
-      <Text size="xs" c="dimmed">
-        Đổi giai đoạn sẽ đưa ngày về 14 ngày cuối của giai đoạn đó. Học đến 31/12/2015, tinh chỉnh đến 30/06/2016, đánh giá đến 31/12/2016.
-      </Text>
 
       {loading && (
         <Group>
@@ -282,9 +273,6 @@ export function PredictionsPage() {
                     µg/m³
                   </Text>
                 </Text>
-                <Text size="sm" c="dimmed">
-                  Cùng giờ đó máy quan trắc ghi nhận
-                </Text>
               </Paper>
               <Paper withBorder p="md" radius="sm">
                 <Text size="xs" c="dimmed" tt="uppercase">
@@ -295,9 +283,6 @@ export function PredictionsPage() {
                   <Text span size="sm" fw={500} c="dimmed">
                     µg/m³
                   </Text>
-                </Text>
-                <Text size="sm" c="dimmed">
-                  |dự báo − thực tế| ở giờ gần nhất
                 </Text>
               </Paper>
             </SimpleGrid>
@@ -310,14 +295,8 @@ export function PredictionsPage() {
           )}
 
           <Paper withBorder p="md" radius="sm">
-            <Text fw={600} mb={4}>
+            <Text fw={600} mb="xs">
               Số dự báo theo thời gian
-            </Text>
-            <Text size="sm" c="dimmed" mb="sm">
-              Đường xanh là số mô hình đoán. Đường đậm là thực tế. Càng sát nhau càng tốt.
-              {!stationKey
-                ? ' Đang lấy trung bình mọi trạm — chọn 1 trạm để xem rõ hơn.'
-                : null}
             </Text>
             {series.length === 0 ? (
               <Text size="sm" c="dimmed">
@@ -330,59 +309,14 @@ export function PredictionsPage() {
 
           <Paper withBorder p="md" radius="sm">
             <Text fw={600} mb={4}>
-              12 giờ gần nhất trong khoảng chọn
-            </Text>
-            <Text size="sm" c="dimmed" mb="sm">
-              Cột chính là <strong>số dự báo</strong>; thực tế và lệch để đối chiếu.
-            </Text>
-            {recentRows.length === 0 ? (
-              <Text size="sm" c="dimmed">
-                Không có dòng nào.
-              </Text>
-            ) : (
-              <Table striped withTableBorder>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Thời điểm</Table.Th>
-                    <Table.Th>Dự báo</Table.Th>
-                    <Table.Th>Thực tế</Table.Th>
-                    <Table.Th>Lệch</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {recentRows.map((p) => (
-                    <Table.Tr key={p.target_time}>
-                      <Table.Td>{fmtTime(p.target_time)}</Table.Td>
-                      <Table.Td>
-                        <Text fw={600}>{fmt(p.predicted_pm25)} µg/m³</Text>
-                        <Text size="xs" c="dimmed">
-                          {aqiHint(p.predicted_pm25)}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>{fmt(p.actual_pm25)} µg/m³</Table.Td>
-                      <Table.Td>{fmt(p.absolute_error)} µg/m³</Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            )}
-          </Paper>
-
-          <Paper withBorder p="md" radius="sm">
-            <Text fw={600} mb={4}>
-              Độ tin cậy (phụ)
-            </Text>
-            <Text size="sm" c="dimmed" mb="sm">
-              Sai số trung bình trên cả khoảng lọc — dùng để biết mô hình có đáng tin không,
-              không thay cho số dự báo từng giờ ở trên.
+              Sai số trung bình
             </Text>
             {headline && headline.mae_model != null && (
               <Text size="sm" mb="sm">
                 Trung bình mỗi giờ lệch khoảng <strong>{fmt(headline.mae_model)} µg/m³</strong>
                 {headline.mae_persistence != null
-                  ? ` (cách đơn giản: ${fmt(headline.mae_persistence)} µg/m³)`
-                  : ''}
-                .
+                  ? ` (cách đơn giản: ${fmt(headline.mae_persistence)} µg/m³).`
+                  : '.'}
               </Text>
             )}
             <Table striped withTableBorder>

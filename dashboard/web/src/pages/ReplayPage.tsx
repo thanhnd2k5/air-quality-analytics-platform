@@ -1,12 +1,10 @@
 import {
   Alert,
-  Badge,
   Group,
   Paper,
   Select,
   SimpleGrid,
   Stack,
-  Table,
   Text,
   Title,
 } from '@mantine/core'
@@ -90,7 +88,6 @@ export function ReplayPage() {
   const [error, setError] = useState<string | null>(null)
   const [watermark, setWatermark] = useState<string | null>(null)
   const [station, setStation] = useState<string | null>(null)
-  const [selectedKey, setSelectedKey] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/replay/replay.json')
@@ -113,13 +110,10 @@ export function ReplayPage() {
     [data, watermark],
   )
   const stationRows = visible.filter((row) => row.station_name === station)
-  const attention = visible
+  const selected = stationRows
     .filter((row) => row.issued_watermark === watermark && row.alert)
-    .sort((a, b) => b.probability - a.probability)
-  const selected =
-    visible.find((row) => `${row.station_name}|${row.origin_time}` === selectedKey) ??
-    attention[0] ??
-    null
+    .sort((a, b) => a.origin_time.localeCompare(b.origin_time))
+    .at(-1)
 
   const chart = useMemo(() => {
     return {
@@ -164,13 +158,12 @@ export function ReplayPage() {
     <Stack gap="md">
       <Alert color="orange" title={data.label}>
         Đây là phát lại 18–21/12/2016 theo từng mốc dữ liệu, không phải quan trắc trực tiếp. Mô hình khóa phát cảnh báo
-        cho giờ tới. PM2.5 thực tế và cờ hậu kiểm chỉ hiện sau khi mốc dữ liệu đã đi qua giờ đó.
+        cho giờ tới. Số đo thật chỉ hiện sau khi mốc dữ liệu đã đi qua giờ đó.
       </Alert>
       <div>
         <Title order={2}>Phát lại cảnh báo</Title>
         <Text size="sm" c="dimmed">
-          {data.task}. Ngưỡng xác suất {data.probability_cutoff.toFixed(2)} · {data.model_version} · batch{' '}
-          {data.batch_hours} giờ.
+          Chọn một mốc dữ liệu. Cảnh báo phát cho giờ tới. Số đo thật chỉ hiện khi mốc đã đi qua giờ đó.
         </Text>
       </div>
 
@@ -198,7 +191,7 @@ export function ReplayPage() {
 
       <SimpleGrid cols={{ base: 2, md: 4 }}>
         <Paper withBorder p="md">
-          <Text size="xs" c="dimmed">Trạm đủ đặc trưng trong batch</Text>
+          <Text size="xs" c="dimmed">Trạm có đủ dữ liệu</Text>
           <Text fw={700} size="xl">{batch.n_stations}</Text>
         </Paper>
         <Paper withBorder p="md">
@@ -210,7 +203,7 @@ export function ReplayPage() {
           <Text fw={700} size="xl">{batch.n_waiting}</Text>
         </Paper>
         <Paper withBorder p="md">
-          <Text size="xs" c="dimmed">F1 đã chấm / persistence</Text>
+          <Text size="xs" c="dimmed">F1 mô hình / giờ trước</Text>
           <Text fw={700} size="xl">{pct(batch.model.f1)} / {pct(batch.persistence.f1)}</Text>
         </Paper>
       </SimpleGrid>
@@ -220,73 +213,27 @@ export function ReplayPage() {
         <ReactECharts option={chart} style={{ height: 280 }} />
       </Paper>
 
-      <Paper withBorder p="md">
-        <Text fw={600} mb="xs">Trạm cần chú ý tại mốc này</Text>
-        <Table striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Trạm</Table.Th>
-              <Table.Th>Giờ gốc</Table.Th>
-              <Table.Th>Giờ mục tiêu</Table.Th>
-              <Table.Th>Xác suất</Table.Th>
-              <Table.Th>Trạng thái</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {attention.length === 0 && (
-              <Table.Tr>
-                <Table.Td colSpan={5}>Batch này không phát cảnh báo mới.</Table.Td>
-              </Table.Tr>
-            )}
-            {attention.map((row) => {
-              const key = `${row.station_name}|${row.origin_time}`
-              return (
-                <Table.Tr key={key} onClick={() => setSelectedKey(key)} style={{ cursor: 'pointer' }}>
-                  <Table.Td>{row.station_name}</Table.Td>
-                  <Table.Td>{stamp(row.origin_time)}</Table.Td>
-                  <Table.Td>{stamp(row.target_time)}</Table.Td>
-                  <Table.Td>{row.probability.toFixed(2)}</Table.Td>
-                  <Table.Td>
-                    <Badge color={row.status === 'scored' ? 'teal' : 'gray'} variant="light">
-                      {row.status === 'scored' ? 'Đã chấm' : 'Chờ quan trắc'}
-                    </Badge>
-                  </Table.Td>
-                </Table.Tr>
-              )
-            })}
-          </Table.Tbody>
-        </Table>
-      </Paper>
-
-      {selected && (
+      {selected ? (
         <Paper withBorder p="md">
-          <Text fw={600} mb="xs">Truy vết cảnh báo {selected.station_name} · {stamp(selected.origin_time)}</Text>
+          <Text fw={600} mb="xs">
+            {selected.station_name} · phát lúc {stamp(selected.origin_time)}
+          </Text>
           <Stack gap={4}>
-            <Text size="sm">Mốc dữ liệu lúc phát: {stamp(selected.issued_watermark)}</Text>
-            <Text size="sm">Giờ mục tiêu: {stamp(selected.target_time)}</Text>
-            <Text size="sm">Mô hình: {selected.model_version} · {data.model_path}</Text>
-            <Text size="sm">Ma trận đặc trưng: {data.source_matrix}</Text>
-            <Text size="sm">Nguồn: {selected.source_file}</Text>
+            <Text size="sm">Giờ cần dự báo: {stamp(selected.target_time)}</Text>
+            <Text size="sm">PM2.5 lúc phát: {selected.origin_pm25.toFixed(0)} µg/m³</Text>
             <Text size="sm">
-              PM2.5 lúc phát {selected.origin_pm25.toFixed(0)} µg/m³
-              {selected.origin_pm10 != null ? ` · PM10 ${selected.origin_pm10.toFixed(0)}` : ''}
-              {selected.origin_co != null ? ` · CO ${selected.origin_co.toFixed(0)}` : ''}
+              Cách lấy nguyên giờ trước: {selected.persistence_alert ? 'có cảnh báo' : 'không cảnh báo'}
             </Text>
-            <Text size="sm">Persistence lúc phát: {selected.persistence_alert ? 'có cảnh báo' : 'không'}</Text>
-          </Stack>
-          <Paper withBorder p="sm" mt="sm" bg="gray.0">
-            <Text fw={600} size="sm">Hậu kiểm</Text>
             {selected.status === 'waiting' ? (
-              <Text size="sm">Giờ mục tiêu chưa tới mốc đang xem. Chưa gắn actual và chưa gắn cờ review.</Text>
+              <Text size="sm">Giờ cần dự báo chưa tới mốc đang xem, nên chưa có số đo thật.</Text>
             ) : (
-              <Text size="sm">
-                PM2.5 giờ tới {selected.y_true?.toFixed(0)} µg/m³
-                {selected.suspect_spatiotemporal
-                  ? ' · Cờ review suspect_spatiotemporal: có. Cờ này dùng giờ sau, không phải đầu vào lúc phát.'
-                  : ' · Cờ review suspect_spatiotemporal: không.'}
-              </Text>
+              <Text size="sm">Số đo thật của giờ đó: {selected.y_true?.toFixed(0)} µg/m³</Text>
             )}
-          </Paper>
+          </Stack>
+        </Paper>
+      ) : (
+        <Paper withBorder p="md">
+          <Text size="sm">Mốc này không phát cảnh báo mới cho {station}.</Text>
         </Paper>
       )}
     </Stack>

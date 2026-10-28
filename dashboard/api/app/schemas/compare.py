@@ -13,6 +13,7 @@ class StationCompareRow(BaseModel):
     pm10_avg: float | None
     o3_avg: float | None
     day_count: int
+    episode_count: int
     rank_pm25: int
 
 

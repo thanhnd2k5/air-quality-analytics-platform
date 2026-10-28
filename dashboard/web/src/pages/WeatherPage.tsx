@@ -25,60 +25,36 @@ const VARIABLES: {
   label: string
   seriesName: string
   unit: string
-  what: string
   up: string
   down: string
   flat: string
 }[] = [
   {
-    value: 'temperature_c_avg',
-    label: 'Nhiệt độ (°C)',
-    seriesName: 'Nhiệt độ',
-    unit: '°C',
-    what: 'Cột này là nhiệt độ trung bình ngày, đơn vị °C.',
-    up: 'Đám điểm dốc lên: ngày nóng hơn thường có PM2.5 cao hơn.',
-    down: 'Đám điểm dốc xuống: ngày nóng hơn thường có PM2.5 thấp hơn.',
-    flat: 'Đám điểm gần như nằm ngang: PM2.5 ít đi cùng nhiệt độ trong khoảng ngày này.',
-  },
-  {
     value: 'relative_humidity_pct_avg',
     label: 'Độ ẩm (%)',
     seriesName: 'Độ ẩm',
     unit: '%',
-    what: 'Cột này là độ ẩm tương đối trung bình ngày, đơn vị %. Số này tính từ nhiệt độ và điểm sương, không phải cột °C.',
-    up: 'Đám điểm dốc lên: ngày ẩm hơn thường có PM2.5 cao hơn.',
-    down: 'Đám điểm dốc xuống: ngày ẩm hơn thường có PM2.5 thấp hơn.',
-    flat: 'Đám điểm gần như nằm ngang: PM2.5 ít đi cùng độ ẩm trong khoảng ngày này.',
+    up: 'Ngày ẩm hơn thường có PM2.5 cao hơn.',
+    down: 'Ngày ẩm hơn thường có PM2.5 thấp hơn.',
+    flat: 'PM2.5 ít đi cùng độ ẩm trong khoảng ngày này.',
   },
   {
     value: 'wind_speed_m_s_avg',
     label: 'Gió (m/s)',
     seriesName: 'Gió',
     unit: 'm/s',
-    what: 'Cột này là tốc độ gió trung bình ngày, đơn vị m/s.',
-    up: 'Đám điểm dốc lên: ngày gió mạnh hơn thường có PM2.5 cao hơn.',
-    down: 'Đám điểm dốc xuống: ngày gió mạnh hơn thường có PM2.5 thấp hơn.',
-    flat: 'Đám điểm gần như nằm ngang: PM2.5 ít đi cùng tốc độ gió trong khoảng ngày này.',
+    up: 'Ngày gió mạnh hơn thường có PM2.5 cao hơn.',
+    down: 'Ngày gió mạnh hơn thường có PM2.5 thấp hơn.',
+    flat: 'PM2.5 ít đi cùng tốc độ gió trong khoảng ngày này.',
   },
   {
-    value: 'rain_mm_sum',
-    label: 'Mưa (mm)',
-    seriesName: 'Mưa',
-    unit: 'mm',
-    what: 'Cột này là tổng mưa trong ngày, đơn vị mm, lấy từ Open-Meteo.',
-    up: 'Đám điểm dốc lên: ngày mưa nhiều hơn thường có PM2.5 cao hơn.',
-    down: 'Đám điểm dốc xuống: ngày mưa nhiều hơn thường có PM2.5 thấp hơn.',
-    flat: 'Đám điểm gần như nằm ngang: PM2.5 ít đi cùng lượng mưa trong khoảng ngày này.',
-  },
-  {
-    value: 'cloud_cover_pct_avg',
-    label: 'Mây (%)',
-    seriesName: 'Mây',
-    unit: '%',
-    what: 'Cột này là độ che phủ mây trung bình ngày, đơn vị %, lấy từ Open-Meteo.',
-    up: 'Đám điểm dốc lên: ngày nhiều mây hơn thường có PM2.5 cao hơn.',
-    down: 'Đám điểm dốc xuống: ngày nhiều mây hơn thường có PM2.5 thấp hơn.',
-    flat: 'Đám điểm gần như nằm ngang: PM2.5 ít đi cùng độ che phủ mây trong khoảng ngày này.',
+    value: 'temperature_c_avg',
+    label: 'Nhiệt độ (°C)',
+    seriesName: 'Nhiệt độ',
+    unit: '°C',
+    up: 'Ngày nóng hơn thường có PM2.5 cao hơn.',
+    down: 'Ngày nóng hơn thường có PM2.5 thấp hơn.',
+    flat: 'PM2.5 ít đi cùng nhiệt độ trong khoảng ngày này.',
   },
 ]
 
@@ -115,21 +91,21 @@ function readCloud(value: ScatterVariable, data: WeatherResponse): string {
       Number.isFinite(point.pm25_ug_m3_avg),
   )
   if (data.scatter_variable !== value) {
-    return spec.what
+    return ''
   }
   if (pairs.length < 10) {
-    return `${spec.what} Khoảng ngày này có ${pairs.length} ngày đủ số, chưa đủ để đọc độ dốc.`
+    return `Khoảng ngày này có ${pairs.length} ngày đủ số, chưa đủ để đọc độ dốc.`
   }
   const association = pearson(
     pairs.map((point) => point.weather_value),
     pairs.map((point) => point.pm25_ug_m3_avg),
   )
   if (association == null) {
-    return `${spec.what} Biến này gần như không đổi trên ${pairs.length} ngày đang xem, nên không có độ dốc để đọc.`
+    return `Biến này gần như không đổi trên ${pairs.length} ngày đang xem, nên không có độ dốc để đọc.`
   }
   const slope = Math.abs(association) < 0.2 ? spec.flat : association > 0 ? spec.up : spec.down
   const grain = data.station_key == null ? 'trung bình 12 trạm' : 'một trạm'
-  return `${spec.what} ${slope} Câu này đọc ${pairs.length} điểm trên hình, mỗi điểm là một ngày (${grain}).`
+  return `${slope} Mỗi điểm là một ngày (${grain}).`
 }
 
 export function WeatherPage() {
@@ -138,7 +114,7 @@ export function WeatherPage() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [stationKey, setStationKey] = useState<string | null>(null)
-  const [scatterVar, setScatterVar] = useState<ScatterVariable>('temperature_c_avg')
+  const [scatterVar, setScatterVar] = useState<ScatterVariable>('relative_humidity_pct_avg')
   const [data, setData] = useState<WeatherResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -260,7 +236,7 @@ export function WeatherPage() {
       <div>
         <Title order={2}>Thời tiết</Title>
         <Text size="sm" c="dimmed">
-          Chọn một biến. Cả hai hình dùng đúng cột đó và đúng đơn vị của cột đó. Mỗi điểm là một ngày.
+          PM2.5 đi cùng độ ẩm, gió và nhiệt độ. Mỗi điểm là một ngày.
         </Text>
       </div>
 
@@ -308,7 +284,7 @@ export function WeatherPage() {
           </Paper>
           <Paper withBorder p="md" radius="sm">
             <Text fw={600} mb="xs">
-              Scatter PM2.5 và {spec.label}
+              Biểu đồ phân tán PM2.5 và {spec.label}
             </Text>
             <Text size="sm" mb="xs">
               {readCloud(scatterVar, shown)}

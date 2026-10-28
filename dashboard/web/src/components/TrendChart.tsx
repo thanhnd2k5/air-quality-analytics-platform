@@ -28,6 +28,16 @@ export function TrendChart({ points, height = 360 }: Props) {
         type: 'line',
         showSymbol: false,
         data: points.map((p) => p.pm25_ug_m3_avg),
+        markLine: {
+          symbol: 'none',
+          label: {
+            formatter: 'Ngưỡng PM2.5',
+            position: 'insideStartTop',
+            color: '#dc2626',
+          },
+          lineStyle: { color: '#dc2626', type: 'dashed' },
+          data: [{ yAxis: 115 }],
+        },
       },
       {
         name: 'PM10',

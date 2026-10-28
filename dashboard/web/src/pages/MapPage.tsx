@@ -83,7 +83,7 @@ export function MapPage() {
       <div>
         <Title order={2}>Bản đồ</Title>
         <Text size="sm" c="dimmed">
-          12 trạm Bắc Kinh · Leaflet + OSM
+          12 trạm quan trắc tại Bắc Kinh
         </Text>
       </div>
 
@@ -107,7 +107,7 @@ export function MapPage() {
             color="teal"
             onClick={() => setColorMode('cluster')}
           >
-            Màu theo cluster
+            Màu theo nhóm
           </Badge>
           <Badge
             style={{ cursor: 'pointer' }}
@@ -122,7 +122,7 @@ export function MapPage() {
 
       {data && (
         <Text size="xs" c="dimmed">
-          {data.coordinate_note} · ngày hiển thị: {data.date_day}
+          Ngày hiển thị: {data.date_day}
         </Text>
       )}
 
@@ -173,14 +173,17 @@ export function MapPage() {
                     <br />
                     Quận: {p.district ?? '—'}
                     <br />
-                    Cluster: {p.cluster_label ?? '—'}
+                    Nhóm:{' '}
+                    {p.cluster_label === 'elevated_core'
+                      ? 'Lõi ô nhiễm cao'
+                      : p.cluster_label === 'cleaner_outskirts'
+                        ? 'Ngoại ô phía bắc'
+                        : (p.cluster_label ?? '—')}
                     <br />
                     PM2.5 ngày:{' '}
                     {p.pm25_ug_m3_avg != null
                       ? `${p.pm25_ug_m3_avg.toFixed(1)} µg/m³`
                       : '—'}
-                    <br />
-                    Coords: {p.coordinate_status ?? '—'}
                   </Popup>
                 </CircleMarker>
               )
