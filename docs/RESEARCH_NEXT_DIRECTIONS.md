@@ -1,10 +1,12 @@
 # Hướng nâng cấp bài tập lớn — nghiên cứu ngày 21/10/2026
 
+> **Cập nhật 28/10/2026:** tài liệu này ghi lại hướng nghiên cứu ngày 21/10. Trạng thái mới nhất nằm ở [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) mục 0: bài toán chính vẫn là phân loại cảnh báo **t+1**; cảnh báo khởi phát đợt trong 6 giờ (cách hiểu C) vẫn là **thí nghiệm, nhóm chưa chốt** đưa thành bài toán chính; trang `/phat-lai` đã bỏ khỏi menu dashboard.
+
 Phạm vi: đọc mã nguồn, báo cáo kết quả, các nhánh thí nghiệm và đối chiếu tài liệu phương pháp. Khóa mô hình không đổi. Demo phát lại lịch sử nằm ở mục 4.
 
 ## Hướng đã thống nhất với người dùng — 21/10/2026
 
-**Trạng thái: thí nghiệm đợt 6 giờ đã chạy (21/10/2026). Khóa t+1 giữ nguyên. Demo phát lại đã có tại `/phat-lai`.**
+**Trạng thái: thí nghiệm đợt 6 giờ đã chạy (21/10/2026). Khóa t+1 giữ nguyên. Demo phát lại từng có tại `/phat-lai` (đã bỏ khỏi menu ngày 28/10).**
 
 Báo cáo đánh giá sạch: `artifacts/classification/evaluation_hygiene/decision_note.md`. Báo cáo đợt: `artifacts/classification/onset_6h/decision_note.md`. Với trần 0,5 cảnh báo nhầm trên mỗi trạm-ngày, quy tắc mức PM2.5(t) ≥ 105 là baseline. HistGB local không vượt baseline đủ 0,05. Thêm bốn đặc trưng lân cận M2 vượt trên 2/3 fold phát triển và trên 2016 H2 (recall đợt 0,693 so với 0,641; lead trung vị 3 giờ so với 1 giờ). M2 không được đưa vào khóa hồi quy.
 
