@@ -172,12 +172,6 @@ export function ClustersPage() {
       .catch((err: unknown) => setError(err instanceof Error ? err.message : String(err)))
   }, [])
 
-  const shunyiInCore = data?.groups.some(
-    (group) =>
-      group.cluster_label === 'elevated_core' &&
-      group.stations.some((station) => station.station_name === 'Shunyi'),
-  )
-
   return (
     <Stack gap="lg">
       <PageHeader
@@ -212,12 +206,6 @@ export function ClustersPage() {
                 <GroupCard key={group.cluster_id} group={group} />
               ))}
             </SimpleGrid>
-            {shunyiInCore && (
-              <Text size="sm" c="dimmed">
-                Nhóm B gồm ba trạm sát dãy núi phía bắc: Changping, Dingling và Huairou. Shunyi tuy thuộc quận
-                ngoại thành nhưng có hồ sơ ô nhiễm giống nhóm A.
-              </Text>
-            )}
           </Stack>
 
           <GroupGap groups={data.groups} />
