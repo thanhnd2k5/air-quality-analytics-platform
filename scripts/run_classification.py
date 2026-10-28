@@ -92,14 +92,15 @@ def _plot_confusion(results, df: pd.DataFrame, path: Path) -> None:
     fig, axes = plt.subplots(1, len(results), figsize=(4.2 * len(results), 4))
     for ax, r in zip(axes, results):
         m = r.metrics["test"]
-        cm = np.array([[m["tn"], m["fp"]], [m["fn"], m["tp"]]])
+        # Positive class first, so TP sits top-left as on the dashboard's /canh-bao page.
+        cm = np.array([[m["tp"], m["fn"]], [m["fp"], m["tn"]]])
         ax.imshow(cm, cmap="Blues")
         for i in range(2):
             for j in range(2):
                 ax.text(j, i, f"{cm[i, j]:,}", ha="center", va="center",
                         color="white" if cm[i, j] > cm.max() / 2 else "black", fontsize=11)
-        ax.set_xticks([0, 1], ["Không", "Cảnh báo"])
-        ax.set_yticks([0, 1], ["Không", "Cảnh báo"])
+        ax.set_xticks([0, 1], ["Cảnh báo", "Không"])
+        ax.set_yticks([0, 1], ["Cảnh báo", "Không"])
         ax.set_xlabel("Dự đoán")
         ax.set_ylabel("Thực tế")
         ax.set_title(f"{MODEL_LABELS[r.name]}\nF1={m['f1']:.3f}  Recall={m['recall']:.3f}", fontsize=9)

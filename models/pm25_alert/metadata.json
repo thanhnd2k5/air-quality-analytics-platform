@@ -113,6 +113,6 @@
       "pr_auc": 0.9779671033022089
     }
   },
-  "created_at": "2026-10-12T08:48:15.529975+00:00",
+  "created_at": "2026-10-28T10:17:57.592058+00:00",
   "dataset": "artifacts/forecasting/feature_matrix_v2.parquet"
 }
