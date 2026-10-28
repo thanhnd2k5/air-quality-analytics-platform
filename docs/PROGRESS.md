@@ -4,6 +4,14 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-28 (Làm lại dashboard)
+
+### Done
+- Dashboard: bộ nhớ đệm phản hồi API (`dashboard/api/app/cache.py`) + cache phía trình duyệt; giao diện thiết kế lại; bỏ `/phat-lai`, `/tram`, `/dot-o-nhiem` khỏi menu (nội dung trạm/đợt gộp vào Tổng quan); thêm `/phan-cum`; thêm áp suất, điểm sương vào `mart_pollution_weather`.
+- Báo cáo, slide sinh lại; ảnh dashboard chụp lại theo giao diện mới. Đã thử đổi bài toán chính sang t+6 rồi hoàn tác (bài toán chính vẫn là t+1).
+
+---
+
 ## 2026-10-18 (Operational DB CDC – Giai đoạn 5 **HOÀN THÀNH**)
 
 ### Done

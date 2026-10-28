@@ -25,6 +25,23 @@
 - Toàn bộ chuỗi đã được chạy lại từ trạng thái trống (`docker compose down -v`, xoá dữ liệu thô, rồi `python scripts/run_all.py`): 14/14 bước thành công, 130/130 dbt test pass, 58/58 unit test pass.
 - AI không commit thay nhóm, không bịa tên thành viên hay biên bản họp.
 
+## 1b. Claude Code — phiên ngày 28/10/2026
+
+- **Công cụ:** Claude Code (Anthropic), mô hình Claude Opus 5.5, chạy trên máy của thành viên nhóm.
+- **Yêu cầu của nhóm:** tăng tốc dashboard, làm lại giao diện cho chuyên nghiệp, kiểm tra vai trò của biến thời tiết. Nhóm có thử đổi bài toán chính sang PM2.5(t+6) rồi yêu cầu hoàn tác; bài toán chính vẫn là t+1.
+
+| Hạng mục | Việc AI đã làm | File chính |
+|---|---|---|
+| Hiệu năng | Bộ nhớ đệm phản hồi phía API (tự làm mới khi dữ liệu trong kho thay đổi) và bộ nhớ đệm phía trình duyệt | `dashboard/api/app/cache.py`, `dashboard/web/src/api/client.ts` |
+| Giao diện | Thiết kế lại dashboard (theme, bảng màu mức PM2.5, các trang Tổng quan, OLAP, Cảnh báo, Phân cụm, Thời tiết, Dự báo, Bản đồ); bỏ trang Phát lại khỏi menu | `dashboard/web/src/` |
+| OLAP | Thêm độ đo "Số giờ PM2.5 ≥ 115"; nhóm thuộc tính, roll-up/drill-down theo phân cấp, bộ lọc, mẫu nhanh, liên kết URL | `routers/olap.py`, `OlapPage.tsx` |
+| Thời tiết | Thêm áp suất, điểm sương vào mart và API | `mart_pollution_weather.sql`, `routers/weather.py` |
+| Thử nghiệm | Bỏ biến thời tiết khỏi mô hình ở tầm 1/3/6 giờ để đo đóng góp (kết quả: đóng góp tăng theo tầm) | script thử nghiệm ngoài repo |
+| Khai phá | Thử `HORIZON_HOURS` = 6 rồi hoàn tác về 1 và chạy lại `run_all.py --from classify` | `src/classification/constants.py` |
+| Báo cáo & slide | Đoạn diễn giải cây quyết định đọc từ artifacts; chụp lại ảnh dashboard; ma trận nhầm lẫn đặt TP ở góc trên trái | `bao_cao/`, `artifacts/dashboard_screenshots/` |
+
+Nguyên tắc như phiên trước: số liệu đọc từ `artifacts/`, AI không commit thay nhóm.
+
 ## 2. Các công cụ AI khác — NHÓM ĐIỀN
 
 `docs/PROJECT_CONTEXT.md` có ghi tài liệu được viết để "các phiên ChatGPT/AI sau hiểu dự án", tức là nhóm đã dùng AI ở các phase trước. Khai báo cụ thể:
