@@ -19,6 +19,8 @@ type NavItem = {
   to: string
   label: string
   icon: ComponentType<{ size?: number; stroke?: number; color?: string }>
+  /** Reachable by URL (and named in the breadcrumb) but not listed in the sidebar. */
+  hidden?: boolean
 }
 
 type NavSection = {
@@ -43,19 +45,18 @@ const SECTIONS: NavSection[] = [
     id: 'mining',
     label: 'Khai phá dữ liệu',
     hint: 'Giờ tới có vượt ngưỡng 115 µg/m³ hay không',
-    items: [
-      { to: '/canh-bao', label: 'Cảnh báo', icon: IconAlertTriangle },
-    ],
+    items: [{ to: '/canh-bao', label: 'Cảnh báo', icon: IconAlertTriangle }],
   },
   {
     id: 'support',
     label: 'Phân tích bổ trợ',
-    hint: 'Phân cụm, bản đồ, khí tượng và hồi quy',
+    hint: 'Phân cụm, bản đồ và khí tượng',
     items: [
       { to: '/phan-cum', label: 'Phân cụm', icon: IconCircles },
       { to: '/ban-do', label: 'Bản đồ', icon: IconMap2 },
       { to: '/thoi-tiet', label: 'Thời tiết', icon: IconCloud },
-      { to: '/du-bao', label: 'Dự báo giá trị', icon: IconChartLine },
+      // Regression is not one of the course's mining tasks; kept for the report, off the menu.
+      { to: '/du-bao', label: 'Dự báo giá trị', icon: IconChartLine, hidden: true },
     ],
   },
 ]
@@ -153,29 +154,31 @@ export function AppLayout() {
                 <Text size="xs" fw={500} c="dimmed" px="sm" pb={4} title={group.hint}>
                   {group.label}
                 </Text>
-                {group.items.map((nav) => {
-                  const active = location.pathname === nav.to
-                  return (
-                    <NavLink
-                      key={nav.to}
-                      component={Link}
-                      to={nav.to}
-                      label={nav.label}
-                      leftSection={
-                        <nav.icon
-                          size={18}
-                          stroke={1.6}
-                          color={active ? 'var(--mantine-color-brand-6)' : 'var(--mantine-color-gray-6)'}
-                        />
-                      }
-                      active={active}
-                      variant="subtle"
-                      aria-current={active ? 'page' : undefined}
-                      className="side-link"
-                      onClick={close}
-                    />
-                  )
-                })}
+                {group.items
+                  .filter((nav) => !nav.hidden)
+                  .map((nav) => {
+                    const active = location.pathname === nav.to
+                    return (
+                      <NavLink
+                        key={nav.to}
+                        component={Link}
+                        to={nav.to}
+                        label={nav.label}
+                        leftSection={
+                          <nav.icon
+                            size={18}
+                            stroke={1.6}
+                            color={active ? 'var(--mantine-color-brand-6)' : 'var(--mantine-color-gray-6)'}
+                          />
+                        }
+                        active={active}
+                        variant="subtle"
+                        aria-current={active ? 'page' : undefined}
+                        className="side-link"
+                        onClick={close}
+                      />
+                    )
+                  })}
               </Stack>
             ))}
           </Stack>
