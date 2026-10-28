@@ -46,6 +46,7 @@ import { Dot } from '../components/Pm25Badge'
 import { ErrorAlert, LoadingBlock } from '../components/States'
 import { fmtNum, fmtPct } from '../format'
 import { SERIES, pm25Level } from '../theme'
+import { COMPASS_VI, QUADRANT_VI } from '../wind'
 
 type Filters = Record<string, string[]>
 type Axis = 'rows' | 'cols'
@@ -61,10 +62,13 @@ const SEASON_VI: Record<string, string> = {
   evening: 'Tối',
   northerly: 'Gió bắc',
   southerly: 'Gió nam',
-  NE: 'Đông Bắc',
-  SE: 'Đông Nam',
-  SW: 'Tây Nam',
-  NW: 'Tây Bắc',
+  UNKNOWN: 'Không rõ',
+}
+
+// Quadrant and 16-point codes overlap (NE, SE, SW, NW), so wind members are named per attribute.
+const ATTR_MEMBER_VI: Record<string, Record<string, string>> = {
+  wind_quadrant: QUADRANT_VI,
+  wind_direction: COMPASS_VI,
 }
 
 // Dropdown groups: which dimension hierarchies (from /api/olap/meta) sit under which heading.
@@ -126,8 +130,8 @@ const EXAMPLES: { label: string; hint: string; rows: string; cols: string | null
   },
 ]
 
-function memberLabel(v: string) {
-  return SEASON_VI[v] ?? v
+function memberLabel(attr: string | null, v: string) {
+  return ATTR_MEMBER_VI[attr ?? '']?.[v] ?? SEASON_VI[v] ?? v
 }
 
 function fmtValue(v: number | null | undefined, measure: string) {
@@ -402,7 +406,7 @@ export function OlapPage() {
     const child = step(axis, 1)
     if (!from || !child) return
     setFilters((f) => ({ ...f, [from]: [member] }))
-    setLastOp(`Drill-down vào ${attrLabel(from)} = ${memberLabel(member)} → ${attrLabel(child)}`)
+    setLastOp(`Drill-down vào ${attrLabel(from)} = ${memberLabel(from, member)} → ${attrLabel(child)}`)
     setAxis(axis, child)
   }
 
@@ -417,8 +421,11 @@ export function OlapPage() {
     const entries = Object.entries(next)
     if (!entries.length) return 'Bỏ mọi bộ lọc'
     if (entries.length === 1 && entries[0][1].length === 1)
-      return `Slice: ${attrLabel(entries[0][0])} = ${memberLabel(entries[0][1][0])}`
-    return 'Dice: ' + entries.map(([a, v]) => `${attrLabel(a)} ∈ {${v.map(memberLabel).join(', ')}}`).join(' × ')
+      return `Slice: ${attrLabel(entries[0][0])} = ${memberLabel(entries[0][0], entries[0][1][0])}`
+    return (
+      'Dice: ' +
+      entries.map(([a, v]) => `${attrLabel(a)} ∈ {${v.map((m) => memberLabel(a, m)).join(', ')}}`).join(' × ')
+    )
   }
 
   const setFilterValues = (attr: string, values: string[]) => {
@@ -468,7 +475,7 @@ export function OlapPage() {
         valueFormatter: (v: number | null) => fmtWithUnit(v, data.measure),
       },
       grid: { left: 8, right: 16, top: 40, bottom: 8, containLabel: true },
-      xAxis: { type: 'category', data: data.row_members.map(memberLabel) },
+      xAxis: { type: 'category', data: data.row_members.map((m) => memberLabel(data.rows, m)) },
       yAxis: { type: 'value', name: data.measure_label },
       series: [
         {
@@ -496,7 +503,7 @@ export function OlapPage() {
             ? data.col_totals[col]
             : data.grand_total
     const part = (attr: string | null, member: string | null) =>
-      member == null ? `mọi ${attrLabel(attr).toLowerCase()}` : `${attrLabel(attr)} ${memberLabel(member)}`
+      member == null ? `mọi ${attrLabel(attr).toLowerCase()}` : `${attrLabel(attr)} ${memberLabel(attr, member)}`
     const scope =
       row == null && col == null
         ? 'Tổng chung'
@@ -555,7 +562,7 @@ export function OlapPage() {
   const colChild = data?.cols ? step('cols', 1) : null
   const editorMembers = (attrs.find((a) => a.name === editor.attr)?.members ?? []).map((m) => ({
     value: m,
-    label: memberLabel(m),
+    label: memberLabel(editor.attr, m),
   }))
 
   return (
@@ -641,7 +648,7 @@ export function OlapPage() {
                     fw="inherit"
                     c="inherit"
                   >
-                    {attrLabel(attr)}: {values.map(memberLabel).join(', ')}
+                    {attrLabel(attr)}: {values.map((m) => memberLabel(attr, m)).join(', ')}
                   </UnstyledButton>
                 </Badge>
               ))}
@@ -799,18 +806,18 @@ export function OlapPage() {
                           {colChild ? (
                             <UnstyledButton
                               onClick={() => drillInto('cols', c)}
-                              title={`Drill-down vào ${memberLabel(c)} → ${attrLabel(colChild)}`}
+                              title={`Drill-down vào ${memberLabel(data.cols, c)} → ${attrLabel(colChild)}`}
                               fz="inherit"
                               fw="inherit"
                               c="inherit"
                             >
                               <Group gap={2} wrap="nowrap" justify="flex-end">
-                                {memberLabel(c)}
+                                {memberLabel(data.cols, c)}
                                 <IconChevronDown size={12} />
                               </Group>
                             </UnstyledButton>
                           ) : (
-                            memberLabel(c)
+                            memberLabel(data.cols, c)
                           )}
                         </Table.Th>
                       ))
@@ -828,17 +835,17 @@ export function OlapPage() {
                         {rowChild ? (
                           <UnstyledButton
                             onClick={() => drillInto('rows', r)}
-                            title={`Drill-down vào ${memberLabel(r)} → ${attrLabel(rowChild)}`}
+                            title={`Drill-down vào ${memberLabel(data.rows, r)} → ${attrLabel(rowChild)}`}
                             fw={600}
                             fz="sm"
                           >
                             <Group gap={4} wrap="nowrap">
-                              {memberLabel(r)}
+                              {memberLabel(data.rows, r)}
                               <IconChevronDown size={14} color="var(--mantine-color-dimmed)" />
                             </Group>
                           </UnstyledButton>
                         ) : (
-                          memberLabel(r)
+                          memberLabel(data.rows, r)
                         )}
                       </Table.Td>
                       {data.cols ? (

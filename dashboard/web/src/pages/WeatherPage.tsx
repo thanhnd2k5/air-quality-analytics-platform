@@ -4,9 +4,12 @@ import { fetchOverviewMeta, type OverviewMeta } from '../api/overview'
 import { fetchStations, type Station } from '../api/stations'
 import {
   fetchWeather,
+  fetchWindRose,
   type ScatterVariable,
   type WeatherResponse,
   type WeatherSeriesPoint,
+  type WindRosePoint,
+  type WindRoseResponse,
 } from '../api/weather'
 import { Chart } from '../components/Chart'
 import { DateStationFilters } from '../components/DateStationFilters'
@@ -14,8 +17,9 @@ import { Metric } from '../components/Metric'
 import { PageHeader } from '../components/PageHeader'
 import { FilterBar, Panel } from '../components/Panel'
 import { ErrorAlert, LoadingBlock } from '../components/States'
-import { fmtNum, fmtSigned } from '../format'
-import { NEUTRAL_SERIES, SERIES } from '../theme'
+import { fmtNum, fmtPct, fmtSigned } from '../format'
+import { INK, NEUTRAL_SERIES, SERIES } from '../theme'
+import { compassLabel } from '../wind'
 
 const VARIABLES: {
   value: ScatterVariable
@@ -109,12 +113,19 @@ const VARIABLES: {
   },
 ]
 
+// Direction is categorical (no daily mean, no scatter): picking it shows a wind rose instead.
+const WIND_DIRECTION = 'wind_direction'
+type Variable = ScatterVariable | typeof WIND_DIRECTION
+
 const VARIABLE_OPTIONS = [...new Set(VARIABLES.map((v) => v.group))].map((group) => ({
   group,
-  items: VARIABLES.filter((v) => v.group === group).map((v) => ({ value: v.value, label: v.label })),
+  items: VARIABLES.filter((v) => v.group === group).flatMap((v) => [
+    { value: v.value, label: v.label },
+    ...(v.value === 'wind_speed_m_s_avg' ? [{ value: WIND_DIRECTION, label: 'Hướng gió' }] : []),
+  ]),
 }))
 
-function variableOf(value: ScatterVariable) {
+function variableOf(value: Variable) {
   return VARIABLES.find((item) => item.value === value) ?? VARIABLES[0]
 }
 
@@ -201,14 +212,80 @@ function dayLabel(iso: string) {
   return `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(2, 4)}`
 }
 
+/** Polar bars, north on top and clockwise; petal length = share of hours with PM2.5 ≥ 115. */
+function windRoseOption(rose: WindRosePoint[]) {
+  const total = rose.reduce((sum, p) => sum + p.hours, 0)
+  return {
+    tooltip: {
+      trigger: 'item',
+      formatter: (item: { dataIndex: number }) => {
+        const p = rose[item.dataIndex]
+        if (!p) return ''
+        return [
+          `<b>Gió ${compassLabel(p.direction).toLowerCase()}</b>`,
+          `Giờ PM2.5 ≥ 115: <b>${p.exceed_pct == null ? '—' : fmtPct(p.exceed_pct)}</b>`,
+          `PM2.5 trung bình: <b>${p.pm25_avg == null ? '—' : `${fmtNum(p.pm25_avg)} µg/m³`}</b>`,
+          `Gió hướng này: ${fmtPct(total ? (100 * p.hours) / total : 0)} số giờ (${fmtNum(p.hours, 0)} giờ)`,
+        ].join('<br/>')
+      },
+    },
+    polar: { radius: [12, '76%'] },
+    // Category sectors are centred, so start half a sector (11.25°) past north to put N on top.
+    angleAxis: {
+      type: 'category',
+      data: rose.map((p) => compassLabel(p.direction)),
+      startAngle: 90 + 360 / 32,
+      clockwise: true,
+      axisTick: { show: false },
+      axisLine: { lineStyle: { color: INK.axis } },
+      // Every other label: the 8 main directions; the in-between ones are in the tooltip.
+      axisLabel: { interval: 1, color: INK.secondary, fontSize: 11 },
+    },
+    // Ring labels run along the N/NNW edge, so they sit above the petals with a halo.
+    radiusAxis: {
+      type: 'value',
+      min: 0,
+      splitNumber: 3,
+      z: 10,
+      axisLabel: {
+        formatter: (v: number) => `${fmtNum(v, 0)}%`,
+        fontSize: 10,
+        showMinLabel: false,
+        textBorderColor: INK.surface,
+        textBorderWidth: 3,
+      },
+      axisLine: { show: false },
+      splitLine: { lineStyle: { color: INK.grid } },
+    },
+    series: [
+      {
+        type: 'bar',
+        coordinateSystem: 'polar',
+        color: SERIES.blue,
+        itemStyle: { borderRadius: 2 },
+        emphasis: { itemStyle: { color: SERIES.orange } },
+        data: rose.map((p) => p.exceed_pct),
+      },
+    ],
+  }
+}
+
+function extremes(rose: WindRosePoint[]) {
+  const scored = rose.filter((p): p is WindRosePoint & { exceed_pct: number } => p.exceed_pct != null)
+  if (scored.length < 2) return null
+  const sorted = [...scored].sort((a, b) => b.exceed_pct - a.exceed_pct)
+  return { high: sorted[0], low: sorted[sorted.length - 1] }
+}
+
 export function WeatherPage() {
   const [meta, setMeta] = useState<OverviewMeta | null>(null)
   const [stations, setStations] = useState<Station[]>([])
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [stationKey, setStationKey] = useState<string | null>(null)
-  const [scatterVar, setScatterVar] = useState<ScatterVariable>('relative_humidity_pct_avg')
+  const [scatterVar, setScatterVar] = useState<Variable>('relative_humidity_pct_avg')
   const [data, setData] = useState<WeatherResponse | null>(null)
+  const [rose, setRose] = useState<WindRoseResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -230,17 +307,18 @@ export function WeatherPage() {
     if (!dateFrom || !dateTo) return
     let cancelled = false
     setLoading(true)
-    fetchWeather({
-      date_from: dateFrom,
-      date_to: dateTo,
-      station_key: stationKey ? Number(stationKey) : null,
-      scatter_variable: scatterVar,
-    })
-      .then((res) => {
-        if (!cancelled) {
-          setData(res)
-          setError(null)
-        }
+    const filters = { date_from: dateFrom, date_to: dateTo, station_key: stationKey ? Number(stationKey) : null }
+    const request =
+      scatterVar === WIND_DIRECTION
+        ? fetchWindRose(filters).then((res) => {
+            if (!cancelled) setRose(res)
+          })
+        : fetchWeather({ ...filters, scatter_variable: scatterVar }).then((res) => {
+            if (!cancelled) setData(res)
+          })
+    request
+      .then(() => {
+        if (!cancelled) setError(null)
       })
       .catch((err: unknown) => {
         if (!cancelled) setError(err instanceof Error ? err.message : String(err))
@@ -254,7 +332,9 @@ export function WeatherPage() {
   }, [dateFrom, dateTo, stationKey, scatterVar])
 
   const spec = variableOf(scatterVar)
-  const shown = data && data.scatter_variable === scatterVar ? data : null
+  const isRose = scatterVar === WIND_DIRECTION
+  const shown = !isRose && data && data.scatter_variable === scatterVar ? data : null
+  const shownRose = isRose ? rose : null
   const seriesValues = (point: WeatherSeriesPoint) => point[spec.value]
   const days = shown?.series.map((point) => point.date_day) ?? []
 
@@ -309,6 +389,7 @@ export function WeatherPage() {
   }
 
   const fit = shown ? fitLine(shown) : null
+  const roseEnds = shownRose ? extremes(shownRose.points) : null
   const perStep = fit ? fit.slope * spec.step : null
 
   const scatterOption = {
@@ -363,10 +444,10 @@ export function WeatherPage() {
     <Stack gap="lg">
       <PageHeader
         title="Thời tiết"
-        description="PM2.5 đi cùng nhiệt độ, độ ẩm, gió, áp suất, mưa và mây như thế nào. Mỗi điểm là một ngày."
+        description="PM2.5 đi cùng nhiệt độ, độ ẩm, tốc độ và hướng gió, áp suất, mưa và mây như thế nào."
       />
 
-      <FilterBar busy={loading && shown != null}>
+      <FilterBar busy={loading && (shown != null || shownRose != null)}>
         <DateStationFilters
           dateFrom={dateFrom}
           dateTo={dateTo}
@@ -382,7 +463,7 @@ export function WeatherPage() {
           label="Biến thời tiết"
           data={VARIABLE_OPTIONS}
           value={scatterVar}
-          onChange={(value) => value && setScatterVar(value as ScatterVariable)}
+          onChange={(value) => value && setScatterVar(value as Variable)}
           allowDeselect={false}
           maxDropdownHeight={420}
           w={220}
@@ -390,7 +471,7 @@ export function WeatherPage() {
       </FilterBar>
 
       {error && <ErrorAlert title="Không tải được dữ liệu thời tiết" message={error} />}
-      {!shown && loading && !error && <LoadingBlock height={340} />}
+      {!shown && !shownRose && loading && !error && <LoadingBlock height={340} />}
 
       {shown && !error && (
         <>
@@ -408,7 +489,7 @@ export function WeatherPage() {
           </Panel>
           <Panel
             title={`Tương quan PM2.5 và ${spec.seriesName.toLowerCase()}`}
-            description={`${readCloud(scatterVar, shown)}${fit ? ' Đường đứt là xu hướng tuyến tính.' : ''}`}
+            description={`${readCloud(spec.value, shown)}${fit ? ' Đường đứt là xu hướng tuyến tính.' : ''}`}
             busy={loading}
             actions={
               fit &&
@@ -434,6 +515,38 @@ export function WeatherPage() {
             />
           </Panel>
         </>
+      )}
+
+      {shownRose && !error && (
+        <Panel
+          title="PM2.5 theo hướng gió"
+          description="Mỗi cánh là một trong 16 hướng gió; cánh càng dài thì càng nhiều giờ PM2.5 ≥ 115 µg/m³. Tính theo từng giờ, cùng khoảng ngày và trạm đang chọn."
+          busy={loading}
+          actions={
+            roseEnds && (
+              <Group gap="xl" wrap="nowrap">
+                <Metric
+                  label="Nhiều giờ vượt nhất"
+                  value={fmtPct(roseEnds.high.exceed_pct)}
+                  hint={`gió ${compassLabel(roseEnds.high.direction).toLowerCase()}`}
+                  size="sm"
+                />
+                <Metric
+                  label="Ít nhất"
+                  value={fmtPct(roseEnds.low.exceed_pct)}
+                  hint={`gió ${compassLabel(roseEnds.low.direction).toLowerCase()}`}
+                  size="sm"
+                />
+              </Group>
+            )
+          }
+        >
+          <Chart
+            option={windRoseOption(shownRose.points)}
+            height={420}
+            label="Hoa gió: phần trăm số giờ PM2.5 từ 115 µg/m³ trở lên theo 16 hướng gió."
+          />
+        </Panel>
       )}
     </Stack>
   )
