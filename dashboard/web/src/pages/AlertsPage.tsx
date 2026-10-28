@@ -60,20 +60,20 @@ function ConfusionCard({ title, m, highlight }: { title: string; m: ConfusionMat
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Thực tế \ Dự đoán</Table.Th>
-            <Table.Th style={{ textAlign: 'center' }}>Cảnh báo</Table.Th>
             <Table.Th style={{ textAlign: 'center' }}>Không</Table.Th>
+            <Table.Th style={{ textAlign: 'center' }}>Cảnh báo</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
           <Table.Tr>
-            <Table.Th>Vượt ngưỡng</Table.Th>
-            {cell('TP — cảnh báo đúng', m.tp, 'rgba(22,163,74,0.15)')}
-            {cell('FN — bỏ sót', m.fn, 'rgba(220,38,38,0.15)')}
+            <Table.Th>Không</Table.Th>
+            {cell('TN — đúng là sạch', m.tn, 'rgba(100,116,139,0.08)')}
+            {cell('FP — báo nhầm', m.fp, 'rgba(245,158,11,0.15)')}
           </Table.Tr>
           <Table.Tr>
-            <Table.Th>Không vượt</Table.Th>
-            {cell('FP — báo nhầm', m.fp, 'rgba(245,158,11,0.15)')}
-            {cell('TN — đúng là sạch', m.tn, 'rgba(100,116,139,0.08)')}
+            <Table.Th>Cảnh báo</Table.Th>
+            {cell('FN — bỏ sót', m.fn, 'rgba(220,38,38,0.15)')}
+            {cell('TP — cảnh báo đúng', m.tp, 'rgba(22,163,74,0.15)')}
           </Table.Tr>
         </Table.Tbody>
       </Table>
@@ -222,8 +222,11 @@ export function AlertsPage() {
 
       {summary && (
         <SimpleGrid cols={{ base: 1, md: 2 }}>
+          <ConfusionCard
+            title={`Persistence — báo giờ tới nếu giờ này ≥ ${summary.alert_threshold ?? 115}`}
+            m={summary.persistence}
+          />
           <ConfusionCard title="Mô hình HistGradientBoosting" m={summary.model} highlight />
-          <ConfusionCard title="Giờ này đã vượt ngưỡng" m={summary.persistence} />
         </SimpleGrid>
       )}
 
@@ -268,9 +271,9 @@ export function AlertsPage() {
                 <Table.Th>Trạm</Table.Th>
                 <Table.Th>Số giờ vượt ngưỡng</Table.Th>
                 <Table.Th>F1 mô hình</Table.Th>
-                <Table.Th>F1 cách đơn giản</Table.Th>
+                <Table.Th>F1 persistence</Table.Th>
                 <Table.Th>Recall mô hình</Table.Th>
-                <Table.Th>Recall cách đơn giản</Table.Th>
+                <Table.Th>Recall persistence</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
