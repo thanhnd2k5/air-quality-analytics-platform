@@ -8,9 +8,8 @@ UI tiếng Việt. Không auth / CRUD / train model.
 
 | Route | Nội dung |
 |---|---|
-| `/` | Tổng quan — KPI + xu hướng |
-| `/tram` | Xếp hạng trạm + cluster |
-| `/dot-o-nhiem` | Episode + sự kiện đa-trạm |
+| `/` | Tổng quan — KPI, đợt ô nhiễm, xu hướng, xếp hạng trạm, số ngày theo mức PM2.5 |
+| `/phan-cum` | Phân cụm trạm (K-Means, K = 2) |
 | `/thoi-tiet` | PM2.5 vs weather |
 | `/olap` | OLAP tương tác: roll-up / drill-down / slice / dice / pivot (tự đọc `mart_olap_cube` khi có thể) |
 | `/du-bao` | Actual vs HistGB / persistence |
@@ -67,6 +66,10 @@ py -3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8100
 | `CORS_ORIGINS` | Origin exact thêm (tuỳ chọn) |
 | `CORS_ORIGIN_REGEX` | Cho phép `localhost` / `127.0.0.1` mọi port — dùng `[0-9]`/`[.]` (tránh `\\d` trong compose) |
 | `VITE_API_BASE_URL` | Dev: `dashboard/web/.env.development` → `http://127.0.0.1:8100`. Để trống = dùng Vite proxy `/api` |
+| `RESPONSE_CACHE_MB` | RAM cho cache response GET của API (mặc định **128**; `0` = tắt). Header `x-cache: HIT/MISS` cho biết lấy từ cache hay không |
+| `RESPONSE_CACHE_CHECK_SECONDS` | Chu kỳ (giây) kiểm tra bảng `mart`/`dwh` có đổi không; đổi (chạy lại pipeline) → cache tự xoá rồi tính lại `/olap/meta`… (mặc định **15**) |
+
+Web cũng nhớ response theo URL trong 5 phút (`src/api/client.ts`) để chuyển trang không tải lại; F5 luôn lấy dữ liệu mới.
 
 ## Endpoints chính
 

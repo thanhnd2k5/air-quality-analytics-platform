@@ -1,7 +1,33 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ?? ''
 
-export async function apiGet<T>(path: string): Promise<T> {
+// Responses are memoised per URL: pages share meta/stations calls, a request already in
+// flight is reused, and going back to a page renders without waiting. Failed requests are
+// dropped so they retry; a page reload (F5) always starts from fresh data.
+const CACHE_TTL_MS = 5 * 60 * 1000
+const CACHE_MAX_ENTRIES = 200
+const cache = new Map<string, { at: number; promise: Promise<unknown> }>()
+
+export function apiGet<T>(path: string): Promise<T> {
   const url = `${API_BASE}${path}`
+  const hit = cache.get(url)
+  if (hit && Date.now() - hit.at < CACHE_TTL_MS) {
+    cache.delete(url) // re-insert to keep Map order = least recently used first
+    cache.set(url, hit)
+    return hit.promise as Promise<T>
+  }
+  const promise = request<T>(url)
+  cache.set(url, { at: Date.now(), promise })
+  promise.catch(() => {
+    if (cache.get(url)?.promise === promise) cache.delete(url)
+  })
+  for (const key of cache.keys()) {
+    if (cache.size <= CACHE_MAX_ENTRIES) break
+    cache.delete(key)
+  }
+  return promise
+}
+
+async function request<T>(url: string): Promise<T> {
   let res: Response
   try {
     res = await fetch(url)

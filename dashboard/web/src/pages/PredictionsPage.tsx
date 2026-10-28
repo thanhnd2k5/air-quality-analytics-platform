@@ -1,17 +1,5 @@
-import {
-  Alert,
-  Badge,
-  Group,
-  Loader,
-  Paper,
-  Select,
-  SimpleGrid,
-  Stack,
-  Table,
-  Text,
-  Title,
-} from '@mantine/core'
-import ReactECharts from 'echarts-for-react'
+import { Alert, Select, SimpleGrid, Stack, Table, Text } from '@mantine/core'
+import { IconInfoCircle } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import {
   fetchPredictionMeta,
@@ -20,7 +8,14 @@ import {
   type PredictionsResponse,
 } from '../api/predictions'
 import { fetchStations, type Station } from '../api/stations'
+import { Chart } from '../components/Chart'
 import { DateStationFilters } from '../components/DateStationFilters'
+import { StatCard } from '../components/Metric'
+import { PageHeader } from '../components/PageHeader'
+import { FilterBar, Panel } from '../components/Panel'
+import { Pm25Badge } from '../components/Pm25Badge'
+import { EmptyState, ErrorAlert, LoadingBlock } from '../components/States'
+import { NEUTRAL_SERIES, SERIES } from '../theme'
 
 function fmt(n: number | null | undefined, d = 1) {
   if (n === null || n === undefined) return '—'
@@ -63,17 +58,19 @@ function splitLabel(split: string) {
   return SPLIT_LABEL[split] ?? split
 }
 
-function pickHeadline(metrics: PredictionsResponse['metrics']) {
-  return metrics.find((m) => m.split === 'test') ?? metrics[0] ?? null
+/** % by which the model's MAE is below the baseline's (positive = model better). */
+function reduction(model: number | null, baseline: number | null) {
+  if (model == null || baseline == null || baseline === 0) return null
+  return (1 - model / baseline) * 100
 }
 
-function aqiHint(pm25: number | null | undefined): string {
-  if (pm25 == null) return ''
-  if (pm25 <= 35) return 'Mức thấp'
-  if (pm25 <= 75) return 'Mức trung bình'
-  if (pm25 <= 115) return 'Hơi cao'
-  if (pm25 <= 150) return 'Cao'
-  return 'Rất cao'
+/** "−7.0%" when the model's error is lower, "+x%" when higher. */
+function fmtReduction(r: number | null) {
+  return r == null ? '—' : `${r >= 0 ? '−' : '+'}${Math.abs(r).toFixed(1)}%`
+}
+
+function pickHeadline(metrics: PredictionsResponse['metrics']) {
+  return metrics.find((m) => m.split === 'test') ?? metrics[0] ?? null
 }
 
 export function PredictionsPage() {
@@ -134,46 +131,46 @@ export function PredictionsPage() {
   const headline = data ? pickHeadline(data.metrics) : null
 
   const chartOption = {
-    color: ['#0d9488', '#334155', '#94a3b8'],
     tooltip: {
       trigger: 'axis',
       valueFormatter: (v: number | string) =>
         v == null || v === '' ? '—' : `${Number(v).toFixed(1)} µg/m³`,
     },
     legend: {
-      top: 0,
       data: ['Dự báo của mô hình', 'Thực tế đo được', 'Cách đơn giản (giờ trước)'],
+      // The three lines nearly coincide; the baseline starts hidden (click the legend to show it).
+      selected: { 'Cách đơn giản (giờ trước)': false },
     },
-    grid: { left: 56, right: 24, top: 48, bottom: 40 },
+    grid: { left: 8, right: 16, top: 48, bottom: 8, containLabel: true },
     xAxis: {
       type: 'category',
       data: series.map((p) => fmtTime(p.target_time)),
-      axisLabel: { hideOverlap: true },
+      axisLabel: { formatter: (t: string) => `${t.slice(8, 10)}/${t.slice(5, 7)} ${t.slice(11, 13)}h` },
     },
-    yAxis: {
-      type: 'value',
-      name: 'PM2.5 (µg/m³)',
-      splitLine: { lineStyle: { type: 'dashed', opacity: 0.4 } },
-    },
+    yAxis: { type: 'value', name: 'PM2.5 (µg/m³)' },
     series: [
       {
         name: 'Dự báo của mô hình',
         type: 'line',
         showSymbol: false,
-        lineStyle: { width: 2.5 },
+        color: SERIES.blue,
+        z: 3,
         data: series.map((p) => p.predicted_pm25),
       },
       {
         name: 'Thực tế đo được',
         type: 'line',
         showSymbol: false,
+        color: NEUTRAL_SERIES.strong,
+        lineStyle: { width: 1.5 },
         data: series.map((p) => p.actual_pm25),
       },
       {
         name: 'Cách đơn giản (giờ trước)',
         type: 'line',
         showSymbol: false,
-        lineStyle: { type: 'dashed' },
+        color: NEUTRAL_SERIES.soft,
+        lineStyle: { type: 'dashed', width: 1.5 },
         data: series.map((p) => p.predicted_pm25_persistence),
       },
     ],
@@ -185,15 +182,13 @@ export function PredictionsPage() {
       : null
 
   return (
-    <Stack gap="md">
-      <div>
-        <Title order={2}>Dự báo PM2.5 giờ tới</Title>
-        <Text size="sm" c="dimmed" maw={720}>
-          Số PM2.5 mô hình đoán cho từng giờ, đặt cạnh số đo thật và cách lấy nguyên giờ trước.
-        </Text>
-      </div>
+    <Stack gap="lg">
+      <PageHeader
+        title="Dự báo PM2.5 giờ tới"
+        description="Số PM2.5 mô hình hồi quy đoán cho từng giờ, đặt cạnh số đo thật và cách lấy nguyên giờ trước."
+      />
 
-      <Group align="flex-end" wrap="wrap">
+      <FilterBar busy={loading && data != null}>
         <DateStationFilters
           dateFrom={dateFrom}
           dateTo={dateTo}
@@ -206,7 +201,7 @@ export function PredictionsPage() {
           onStationKey={setStationKey}
         />
         <Select
-          label="Xem giai đoạn"
+          label="Giai đoạn"
           clearable
           placeholder="Tất cả"
           data={[
@@ -223,123 +218,103 @@ export function PredictionsPage() {
             setDateFrom(window.from)
             setDateTo(window.to)
           }}
-          w={200}
+          w={180}
         />
-      </Group>
+      </FilterBar>
 
-      {loading && (
-        <Group>
-          <Loader size="sm" />
-          <Text size="sm">Đang tải…</Text>
-        </Group>
-      )}
-      {error && (
-        <Alert color="red" title="Lỗi">
-          {error}
-        </Alert>
-      )}
+      {error && <ErrorAlert title="Không tải được dự báo" message={error} />}
+      {!data && loading && !error && <LoadingBlock height={360} />}
 
-      {!loading && !error && data && (
+      {data && !error && (
         <>
           {latest ? (
-            <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm">
-              <Paper withBorder p="md" radius="sm">
-                <Text size="xs" c="dimmed" tt="uppercase">
-                  Dự báo gần nhất
-                </Text>
-                <Text fw={700} size="2rem" mt={4}>
-                  {fmt(latest.predicted_pm25)}{' '}
-                  <Text span size="sm" fw={500} c="dimmed">
-                    µg/m³
-                  </Text>
-                </Text>
-                <Text size="sm" c="dimmed">
-                  {fmtTime(latest.target_time)}
-                  {stationName ? ` · ${stationName}` : ' · trung bình các trạm'}
-                </Text>
-                {latest.predicted_pm25 != null && (
-                  <Badge mt={8} variant="light" color="teal">
-                    {aqiHint(latest.predicted_pm25)}
-                  </Badge>
-                )}
-              </Paper>
-              <Paper withBorder p="md" radius="sm">
-                <Text size="xs" c="dimmed" tt="uppercase">
-                  Thực tế đo được
-                </Text>
-                <Text fw={700} size="2rem" mt={4}>
-                  {fmt(latest.actual_pm25)}{' '}
-                  <Text span size="sm" fw={500} c="dimmed">
-                    µg/m³
-                  </Text>
-                </Text>
-              </Paper>
-              <Paper withBorder p="md" radius="sm">
-                <Text size="xs" c="dimmed" tt="uppercase">
-                  Lệch bao nhiêu?
-                </Text>
-                <Text fw={700} size="2rem" mt={4}>
-                  {fmt(latest.absolute_error)}{' '}
-                  <Text span size="sm" fw={500} c="dimmed">
-                    µg/m³
-                  </Text>
-                </Text>
-              </Paper>
+            <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+              <StatCard
+                label="Dự báo gần nhất"
+                value={fmt(latest.predicted_pm25)}
+                unit="µg/m³"
+                hint={`${fmtTime(latest.target_time)} · ${stationName ?? 'trung bình các trạm'}`}
+              >
+                {latest.predicted_pm25 != null && <Pm25Badge value={latest.predicted_pm25} />}
+              </StatCard>
+              <StatCard label="Thực tế đo được" value={fmt(latest.actual_pm25)} unit="µg/m³" />
+              <StatCard
+                label="Lệch giữa dự báo và thực tế"
+                value={fmt(latest.absolute_error)}
+                unit="µg/m³"
+              />
             </SimpleGrid>
           ) : (
-            <Alert color="yellow" title="Chưa có điểm dự báo">
+            <Alert color="yellow" title="Chưa có điểm dự báo" icon={<IconInfoCircle size={18} />}>
               {split && STAGE_WINDOW[split]
                 ? `Giai đoạn ${STAGE_WINDOW[split].label} chỉ có giờ từ ${STAGE_WINDOW[split].start} đến ${STAGE_WINDOW[split].end}. Khoảng ngày đang chọn nằm ngoài giai đoạn này.`
                 : 'Không có dữ liệu trong khoảng đã chọn. Thử đổi ngày hoặc trạm.'}
             </Alert>
           )}
 
-          <Paper withBorder p="md" radius="sm">
-            <Text fw={600} mb="xs">
-              Số dự báo theo thời gian
-            </Text>
+          <Panel title="Dự báo theo thời gian" busy={loading}>
             {series.length === 0 ? (
-              <Text size="sm" c="dimmed">
-                Không có chuỗi để vẽ.
-              </Text>
+              <EmptyState title="Không có chuỗi để vẽ" description="Thử đổi khoảng ngày, trạm hoặc giai đoạn." />
             ) : (
-              <ReactECharts option={chartOption} style={{ height: 380 }} />
+              <Chart
+                option={chartOption}
+                height={380}
+                label="PM2.5 dự báo của mô hình, số đo thực tế và cách lấy nguyên giờ trước, theo giờ."
+              />
             )}
-          </Paper>
+          </Panel>
 
-          <Paper withBorder p="md" radius="sm">
-            <Text fw={600} mb={4}>
-              Sai số trung bình
-            </Text>
-            {headline && headline.mae_model != null && (
-              <Text size="sm" mb="sm">
-                Trung bình mỗi giờ lệch khoảng <strong>{fmt(headline.mae_model)} µg/m³</strong>
-                {headline.mae_persistence != null
-                  ? ` (cách đơn giản: ${fmt(headline.mae_persistence)} µg/m³).`
-                  : '.'}
-              </Text>
-            )}
-            <Table striped withTableBorder>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Giai đoạn</Table.Th>
-                  <Table.Th>Số điểm giờ</Table.Th>
-                  <Table.Th>Sai số mô hình</Table.Th>
-                  <Table.Th>Sai số cách đơn giản</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {data.metrics.map((m) => (
-                  <Table.Tr key={m.split}>
-                    <Table.Td>{splitLabel(m.split)}</Table.Td>
-                    <Table.Td>{m.n.toLocaleString('vi-VN')}</Table.Td>
-                    <Table.Td>{fmt(m.mae_model)} µg/m³</Table.Td>
-                    <Table.Td>{fmt(m.mae_persistence)} µg/m³</Table.Td>
+          <Panel
+            title="Sai số tuyệt đối trung bình (MAE)"
+            description={
+              headline && headline.mae_model != null ? (
+                <>
+                  Trung bình mỗi giờ lệch khoảng <strong>{fmt(headline.mae_model)} µg/m³</strong>
+                  {headline.mae_persistence != null
+                    ? `, so với ${fmt(headline.mae_persistence)} µg/m³ của cách đơn giản (giảm ${fmt(reduction(headline.mae_model, headline.mae_persistence))}%).`
+                    : '.'}
+                </>
+              ) : undefined
+            }
+            busy={loading}
+          >
+            <Table.ScrollContainer minWidth={480}>
+              <Table highlightOnHover>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Giai đoạn</Table.Th>
+                    <Table.Th ta="right">Số điểm giờ</Table.Th>
+                    <Table.Th ta="right">Sai số mô hình</Table.Th>
+                    <Table.Th ta="right">Sai số cách đơn giản</Table.Th>
+                    <Table.Th ta="right">So với cách đơn giản</Table.Th>
                   </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          </Paper>
+                </Table.Thead>
+                <Table.Tbody>
+                  {data.metrics.map((m) => (
+                    <Table.Tr key={m.split}>
+                      <Table.Td>{splitLabel(m.split)}</Table.Td>
+                      <Table.Td ta="right">{m.n.toLocaleString('vi-VN')}</Table.Td>
+                      <Table.Td ta="right" fw={600}>
+                        {fmt(m.mae_model)}{' '}
+                        <Text span size="xs" c="dimmed" fw={400}>
+                          µg/m³
+                        </Text>
+                      </Table.Td>
+                      <Table.Td ta="right">
+                        {fmt(m.mae_persistence)}{' '}
+                        <Text span size="xs" c="dimmed">
+                          µg/m³
+                        </Text>
+                      </Table.Td>
+                      <Table.Td ta="right" fw={600}>
+                        {fmtReduction(reduction(m.mae_model, m.mae_persistence))}
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </Table.ScrollContainer>
+          </Panel>
         </>
       )}
     </Stack>

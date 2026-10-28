@@ -8,6 +8,8 @@ export type WeatherSeriesPoint = {
   wind_speed_m_s_avg: number | null
   rain_mm_sum: number | null
   cloud_cover_pct_avg: number | null
+  pressure_hpa_avg: number | null
+  dew_point_c_avg: number | null
 }
 
 export type WeatherScatterPoint = {
@@ -31,6 +33,8 @@ export type ScatterVariable =
   | 'wind_speed_m_s_avg'
   | 'rain_mm_sum'
   | 'cloud_cover_pct_avg'
+  | 'pressure_hpa_avg'
+  | 'dew_point_c_avg'
 
 export function fetchWeather(opts: {
   date_from?: string

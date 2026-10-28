@@ -1,20 +1,20 @@
-import { MantineProvider, createTheme } from '@mantine/core'
+import { MantineProvider } from '@mantine/core'
+import { DatesProvider } from '@mantine/dates'
 import '@mantine/core/styles.css'
+import '@mantine/dates/styles.css'
+import 'dayjs/locale/vi'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-
-const theme = createTheme({
-  primaryColor: 'teal',
-  fontFamily: 'system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
-  defaultRadius: 'sm',
-})
+import { theme } from './theme'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <MantineProvider theme={theme} defaultColorScheme="light">
-      <App />
+      <DatesProvider settings={{ locale: 'vi', firstDayOfWeek: 1 }}>
+        <App />
+      </DatesProvider>
     </MantineProvider>
   </StrictMode>,
 )

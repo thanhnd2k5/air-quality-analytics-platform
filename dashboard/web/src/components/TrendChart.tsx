@@ -1,58 +1,64 @@
-import ReactECharts from 'echarts-for-react'
+import { useMemo } from 'react'
 import type { TrendPoint } from '../api/overview'
+import { INK, NEUTRAL_SERIES, SERIES } from '../theme'
+import { Chart } from './Chart'
 
 type Props = {
   points: TrendPoint[]
   height?: number
 }
 
+/** Daily PM2.5 (the subject of the project) up front; PM10 as a quiet reference line. */
 export function TrendChart({ points, height = 360 }: Props) {
-  const option = {
-    color: ['#0d9488', '#64748b', '#d97706'],
-    tooltip: { trigger: 'axis' },
-    legend: { top: 0, data: ['PM2.5', 'PM10', 'O3'] },
-    grid: { left: 48, right: 24, top: 40, bottom: 40 },
-    xAxis: {
-      type: 'category',
-      data: points.map((p) => p.date_day),
-      axisLabel: { hideOverlap: true },
-    },
-    yAxis: {
-      type: 'value',
-      name: 'µg/m³',
-      splitLine: { lineStyle: { type: 'dashed', opacity: 0.4 } },
-    },
-    series: [
-      {
-        name: 'PM2.5',
-        type: 'line',
-        showSymbol: false,
-        data: points.map((p) => p.pm25_ug_m3_avg),
-        markLine: {
-          symbol: 'none',
-          label: {
-            formatter: 'Ngưỡng PM2.5',
-            position: 'insideStartTop',
-            color: '#dc2626',
-          },
-          lineStyle: { color: '#dc2626', type: 'dashed' },
-          data: [{ yAxis: 115 }],
+  const option = useMemo(
+    () => ({
+      tooltip: {
+        trigger: 'axis',
+        valueFormatter: (v: number | null) => (v == null ? '—' : `${v.toFixed(1)} µg/m³`),
+      },
+      legend: { data: ['PM2.5', 'PM10'] },
+      grid: { left: 8, right: 16, top: 48, bottom: 8, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: points.map((p) => p.date_day),
+        axisLabel: { formatter: (d: string) => `${d.slice(8, 10)}/${d.slice(5, 7)}` },
+      },
+      yAxis: { type: 'value', name: 'µg/m³' },
+      series: [
+        {
+          name: 'PM10',
+          type: 'line',
+          showSymbol: false,
+          color: NEUTRAL_SERIES.soft,
+          lineStyle: { width: 1.5 },
+          data: points.map((p) => p.pm10_ug_m3_avg),
         },
-      },
-      {
-        name: 'PM10',
-        type: 'line',
-        showSymbol: false,
-        data: points.map((p) => p.pm10_ug_m3_avg),
-      },
-      {
-        name: 'O3',
-        type: 'line',
-        showSymbol: false,
-        data: points.map((p) => p.o3_ug_m3_avg),
-      },
-    ],
-  }
+        {
+          name: 'PM2.5',
+          type: 'line',
+          showSymbol: false,
+          color: SERIES.blue,
+          areaStyle: { opacity: 0.08 },
+          z: 3,
+          data: points.map((p) => p.pm25_ug_m3_avg),
+          markLine: {
+            symbol: 'none',
+            silent: true,
+            label: { formatter: '115 µg/m³', position: 'insideEndTop', color: INK.secondary, fontSize: 11 },
+            lineStyle: { color: INK.secondary, type: 'dashed', width: 1 },
+            data: [{ yAxis: 115 }],
+          },
+        },
+      ],
+    }),
+    [points],
+  )
 
-  return <ReactECharts option={option} style={{ height }} notMerge />
+  return (
+    <Chart
+      option={option}
+      height={height}
+      label="Biểu đồ đường PM2.5 và PM10 trung bình theo ngày, có vạch ngưỡng 115 µg/m³."
+    />
+  )
 }
