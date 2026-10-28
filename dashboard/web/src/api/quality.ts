@@ -1,4 +1,4 @@
-import { apiGetFresh } from './client'
+import { apiGet, apiGetFresh } from './client'
 
 export type ColumnMissing = {
   column: string
@@ -42,10 +42,13 @@ export type QualitySummary = {
   dbt_tests: { passed: number; errors: number; total: number; finished_at: string | null } | null
 }
 
-export function fetchQualitySummary() {
-  return apiGetFresh<QualitySummary>('/api/quality/summary')
+/** Cached like the other pages (the API caches it too, per data version); `fresh` skips the browser copy. */
+export function fetchQualitySummary(fresh = false) {
+  const path = '/api/quality/summary'
+  return fresh ? apiGetFresh<QualitySummary>(path) : apiGet<QualitySummary>(path)
 }
 
+/** Liveness is never cached: the tile must show the database as it is now. */
 export function fetchDbHealth() {
   return apiGetFresh<{ status: string; database: string }>('/api/health/db')
 }

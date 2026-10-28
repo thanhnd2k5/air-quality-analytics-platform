@@ -1,8 +1,7 @@
-import { Badge, Button, Group, Paper, Progress, SimpleGrid, Stack, Table, Text, Tooltip } from '@mantine/core'
-import { IconRefresh } from '@tabler/icons-react'
-import { useEffect, useState } from 'react'
+import { Alert, Button, Group, Paper, Progress, SimpleGrid, Stack, Text } from '@mantine/core'
+import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { fetchDbHealth, fetchQualitySummary, type PipelineRun, type QualitySummary } from '../api/quality'
-import { Metric } from '../components/Metric'
 import { PageHeader } from '../components/PageHeader'
 import { Panel } from '../components/Panel'
 import { Dot } from '../components/Pm25Badge'
@@ -10,45 +9,14 @@ import { ErrorAlert, LoadingBlock } from '../components/States'
 import { fmtNum, fmtPct } from '../format'
 import { INK, STATUS } from '../theme'
 
-type Tone = 'good' | 'warning' | 'critical' | 'neutral'
-const TONE: Record<Tone, string> = {
-  good: STATUS.good,
-  warning: STATUS.warning,
-  critical: STATUS.critical,
-  neutral: INK.muted,
-}
+type Tone = 'good' | 'critical' | 'neutral'
+const TONE: Record<Tone, string> = { good: STATUS.good, critical: STATUS.critical, neutral: INK.muted }
 
 // Data-quality flag set when the hour is cleaned (see docs/DATA_PREPROCESSING.md).
 const FLAG: Record<string, { label: string; color: string }> = {
   OK: { label: 'Đủ số đo', color: STATUS.good },
-  MISSING_MEASUREMENT: {
-    label: 'Thiếu số đo (giữ NULL)',
-    color: STATUS.warning,
-  },
-  SUSPECT_CAP: { label: 'Nghi chạm trần thiết bị', color: STATUS.critical },
-}
-
-const SOURCE: Record<string, string> = {
-  uci_prsa: 'File CSV UCI',
-  operational_db: 'CSDL vận hành (CDC)',
-}
-
-// Step names and what they do, as scripts/run_all.py prints them.
-const STEP: Record<string, string> = {
-  prereq: 'Kiểm tra Python/Docker, .env',
-  download: 'Tải bộ dữ liệu UCI (12 CSV)',
-  infra: 'Docker: PostgreSQL + MinIO',
-  lake: 'CSV → MinIO → Parquet',
-  openmeteo: 'Thời tiết Open-Meteo',
-  staging: 'Nạp staging + đối soát',
-  warehouse: 'dbt: lược đồ sao, khối con',
-  clustering: 'Phân cụm trạm',
-  forecast: 'Ma trận đặc trưng + hồi quy',
-  classify: 'Phân loại cảnh báo',
-  dbt_test: 'dbt test',
-  checks: 'Đối chiếu mart với artifact',
-  olap: 'Kiểm chứng OLAP + notebook',
-  dashboard: 'Dashboard API',
+  MISSING_MEASUREMENT: { label: 'Thiếu số đo', color: STATUS.warning },
+  SUSPECT_CAP: { label: 'Chạm trần thiết bị', color: STATUS.critical },
 }
 
 function pad(n: number) {
@@ -92,39 +60,25 @@ function StatusTile({ label, tone, status, hint }: { label: string; tone: Tone; 
   )
 }
 
-type StatusRowProps = {
-  q: QualitySummary | null
-  unreadable: boolean
-  dbUp: boolean | null
-  checkedAt: Date | null
-}
+type StatusRowProps = { q: QualitySummary | null; unreadable: boolean; dbUp: boolean | null }
 
-function StatusRow({ q, unreadable, dbUp, checkedAt }: StatusRowProps) {
+function StatusRow({ q, unreadable, dbUp }: StatusRowProps) {
   const rec = q?.reconcile
   const keysUnique = q ? q.warehouse.distinct_keys === q.warehouse.fact_rows : false
   const aq = rec?.datasets[0]
   const dbt = q?.dbt_tests
   const run = q?.last_run
-  const failed = run ? failedStep(run) : undefined
   // Summary not readable (API or database down): say so instead of "not run yet".
-  const unknown = {
-    tone: 'neutral' as const,
-    status: 'Không rõ',
-    hint: 'Không đọc được báo cáo',
-  }
+  const unknown = { tone: 'neutral' as const, status: 'Không rõ', hint: 'Không đọc được báo cáo' }
   return (
     <SimpleGrid cols={{ base: 2, lg: 4 }} spacing="md">
       <StatusTile
         label="Cơ sở dữ liệu"
         tone={dbUp == null ? 'neutral' : dbUp ? 'good' : 'critical'}
         status={dbUp == null ? 'Đang kiểm tra' : dbUp ? 'Đang chạy' : 'Mất kết nối'}
-        hint={
-          checkedAt
-            ? `Kiểm tra lúc ${pad(checkedAt.getHours())}:${pad(checkedAt.getMinutes())}:${pad(checkedAt.getSeconds())}`
-            : undefined
-        }
+        hint="PostgreSQL · kiểm tra trực tiếp"
       />
-      {unreadable ? (
+      {unreadable || !q ? (
         <>
           <StatusTile label="Đối soát nạp dữ liệu" {...unknown} />
           <StatusTile label="dbt test" {...unknown} />
@@ -136,22 +90,18 @@ function StatusRow({ q, unreadable, dbUp, checkedAt }: StatusRowProps) {
             label="Đối soát nạp dữ liệu"
             tone={!rec ? 'neutral' : rec.ok && keysUnique ? 'good' : 'critical'}
             status={!rec ? 'Chưa có' : rec.ok && keysUnique ? 'Khớp' : 'Lệch'}
-            hint={
-              aq
-                ? `${fmtNum(aq.target_rows, 0)} / ${fmtNum(aq.source_rows, 0)} dòng · ${keysUnique ? 'không trùng khoá' : 'có khoá trùng'}`
-                : 'Chưa chạy bước staging'
-            }
+            hint={aq ? `${fmtNum(aq.target_rows, 0)} / ${fmtNum(aq.source_rows, 0)} dòng` : 'Chưa chạy bước staging'}
           />
           <StatusTile
             label="dbt test"
             tone={!dbt ? 'neutral' : dbt.errors === 0 && dbt.passed === dbt.total ? 'good' : 'critical'}
             status={dbt ? `${dbt.passed}/${dbt.total} đạt` : 'Chưa có'}
-            hint={dbt ? `Chạy lúc ${fmtWhen(dbt.finished_at)}` : undefined}
+            hint={dbt ? fmtWhen(dbt.finished_at) : undefined}
           />
           <StatusTile
             label="Pipeline gần nhất"
             tone={!run ? 'neutral' : run.ok ? 'good' : 'critical'}
-            status={!run ? 'Chưa có' : run.ok ? 'Thành công' : `Lỗi ở bước ${failed?.step ?? '?'}`}
+            status={!run ? 'Chưa có' : run.ok ? 'Thành công' : `Lỗi ở bước ${failedStep(run)?.step ?? '?'}`}
             hint={run ? `${fmtWhen(run.finished_at)} · ${run.scope}` : undefined}
           />
         </>
@@ -160,219 +110,119 @@ function StatusRow({ q, unreadable, dbUp, checkedAt }: StatusRowProps) {
   )
 }
 
-function WarehousePanel({ q }: { q: QualitySummary }) {
-  const w = q.warehouse
+/** Something an administrator should act on; nothing is shown when all is well. */
+function Warnings({ q }: { q: QualitySummary }) {
+  const notes: string[] = []
+  const full = q.last_full_run
+  if (full && !full.ok && full.finished_at !== q.last_run?.finished_at) {
+    const step = failedStep(full)
+    notes.push(
+      `Lần chạy toàn bộ gần nhất (${fmtWhen(full.finished_at)}) lỗi ở bước ${step?.step ?? '?'}` +
+        (step?.error ? `: ${step.error}` : '') +
+        '. Dữ liệu hiện tại đến từ các lần chạy sau đó.',
+    )
+  }
+  for (const err of q.reconcile?.errors ?? []) notes.push(`Đối soát: ${err}`)
+  if (q.warehouse.distinct_keys !== q.warehouse.fact_rows) {
+    notes.push(`Bảng sự kiện có ${fmtNum(q.warehouse.fact_rows - q.warehouse.distinct_keys, 0)} dòng trùng khoá (trạm, giờ).`)
+  }
+  if (!notes.length) return null
   return (
-    <Panel
-      title="Dữ liệu trong kho"
-      description="Bảng sự kiện dwh.fact_air_quality_hourly: mỗi dòng là một trạm trong một giờ."
-    >
-      <SimpleGrid cols={3} spacing="md">
-        <Metric
-          label="Số dòng"
-          value={fmtNum(w.fact_rows, 0)}
-          hint={`${fmtDay(w.first_hour)} – ${fmtDay(w.last_hour)}`}
-          size="sm"
-        />
-        <Metric label="Trạm" value={fmtNum(w.stations, 0)} size="sm" />
-        <Metric label="Khoá trùng" value={fmtNum(w.fact_rows - w.distinct_keys, 0)} hint="(trạm, giờ)" size="sm" />
-      </SimpleGrid>
-      <Text size="xs" c="dimmed" mt="lg" mb={6}>
-        Lần nạp gần nhất (staging.load_registry) · nguồn:{' '}
-        {q.sources.map((s) => `${SOURCE[s.source_system] ?? s.source_system} ${fmtNum(s.rows, 0)} dòng`).join(', ')}
-      </Text>
-      <Table.ScrollContainer minWidth={460}>
-        <Table verticalSpacing={6}>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Bộ dữ liệu</Table.Th>
-              <Table.Th ta="right">File</Table.Th>
-              <Table.Th ta="right">Số dòng</Table.Th>
-              <Table.Th ta="right">Nạp lúc</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {q.loads.map((l) => (
-              <Table.Tr key={l.dataset}>
-                <Table.Td>{l.dataset}</Table.Td>
-                <Table.Td ta="right" className="tabular">
-                  {fmtNum(l.files, 0)}
-                </Table.Td>
-                <Table.Td ta="right" className="tabular">
-                  {fmtNum(l.rows, 0)}
-                </Table.Td>
-                <Table.Td ta="right" className="tabular" style={{ whiteSpace: 'nowrap' }}>
-                  {fmtWhen(l.last_loaded_at)}
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Table.ScrollContainer>
-    </Panel>
-  )
-}
-
-function FlagsPanel({ q }: { q: QualitySummary }) {
-  const total = q.status_counts.reduce((s, c) => s + c.rows, 0)
-  return (
-    <Panel
-      title="Cờ chất lượng từng giờ"
-      description="Gắn cho mỗi dòng khi làm sạch; dòng có cờ vẫn được giữ trong kho."
-    >
-      <Progress.Root size={18} radius="sm">
-        {q.status_counts.map((c) => (
-          <Tooltip key={c.status} label={`${FLAG[c.status]?.label ?? c.status}: ${fmtNum(c.rows, 0)} giờ`}>
-            <Progress.Section value={(c.rows / total) * 100} color={FLAG[c.status]?.color ?? INK.muted} />
-          </Tooltip>
-        ))}
-      </Progress.Root>
-      <Stack gap={10} mt="lg">
-        {q.status_counts.map((c) => (
-          <Group key={c.status} justify="space-between" wrap="nowrap">
-            <Group gap={8} wrap="nowrap">
-              <Dot color={FLAG[c.status]?.color ?? INK.muted} size={10} />
-              <Text size="sm">{FLAG[c.status]?.label ?? c.status}</Text>
-              <Text size="xs" c="dimmed" visibleFrom="sm">
-                {c.status}
-              </Text>
-            </Group>
-            <Text size="sm" className="tabular" style={{ whiteSpace: 'nowrap' }}>
-              <b>{fmtNum(c.rows, 0)}</b>{' '}
-              <Text span size="xs" c="dimmed">
-                ({fmtPct((c.rows / total) * 100, c.rows / total < 0.001 ? 3 : 1)})
-              </Text>
-            </Text>
-          </Group>
+    <Alert color="yellow" variant="light" icon={<IconAlertTriangle size={18} />} title="Cần chú ý">
+      <Stack gap={4}>
+        {notes.map((n) => (
+          <Text key={n} size="sm">
+            {n}
+          </Text>
         ))}
       </Stack>
-      <Text size="xs" c="dimmed" mt="lg">
-        Giờ thiếu số đo vẫn nằm trong kho để chuỗi thời gian không bị đứt; khai phá tự loại hoặc điền theo cách xử lý ở
-        bảng dưới. SUSPECT_CAP: giá trị đúng bằng trần thiết bị (PM2.5, PM10 = 999; CO = 10000).
+    </Alert>
+  )
+}
+
+function Column({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <Stack gap={8}>
+      <Text size="xs" c="dimmed" fw={500}>
+        {title}
       </Text>
-    </Panel>
+      {children}
+    </Stack>
   )
 }
 
-function MissingPanel({ q }: { q: QualitySummary }) {
-  const rows = q.warehouse.fact_rows || 1
-  return (
-    <Panel
-      title="Giá trị thiếu theo cột"
-      description="Thiếu ở nguồn = còn thiếu trong kho + đã lấp từ Open-Meteo. Chất ô nhiễm không được nội suy."
-    >
-      <Table.ScrollContainer minWidth={720}>
-        <Table verticalSpacing={6}>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Cột</Table.Th>
-              <Table.Th ta="right">Thiếu ở nguồn</Table.Th>
-              <Table.Th ta="right">Đã lấp</Table.Th>
-              <Table.Th ta="right">Còn thiếu trong kho</Table.Th>
-              <Table.Th>Cách xử lý</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {q.columns.map((c) => (
-              <Table.Tr key={c.column}>
-                <Table.Td style={{ whiteSpace: 'nowrap' }}>
-                  <Text size="sm" fw={500}>
-                    {c.label}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {c.kind}
-                  </Text>
-                </Table.Td>
-                <Table.Td ta="right" className="tabular">
-                  {fmtNum(c.missing_at_source, 0)}{' '}
-                  <Text span size="xs" c="dimmed">
-                    ({fmtPct((c.missing_at_source / rows) * 100, 2)})
-                  </Text>
-                </Table.Td>
-                <Table.Td ta="right" className="tabular">
-                  {c.filled ? fmtNum(c.filled, 0) : '—'}
-                </Table.Td>
-                <Table.Td ta="right" className="tabular" fw={c.remaining ? 600 : 400}>
-                  {fmtNum(c.remaining, 0)}
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm" c="dimmed">
-                    {c.treatment}
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Table.ScrollContainer>
-    </Panel>
+function SummaryPanel({ q }: { q: QualitySummary }) {
+  const w = q.warehouse
+  const rows = w.fact_rows || 1
+  const flagsTotal = q.status_counts.reduce((s, c) => s + c.rows, 0) || 1
+  const lastLoad = q.loads.reduce<string | null>(
+    (latest, l) => (l.last_loaded_at && (!latest || l.last_loaded_at > latest) ? l.last_loaded_at : latest),
+    null,
   )
-}
+  const pct = (n: number) => (n / rows) * 100
+  const pollutants = q.columns.filter((c) => c.kind === 'Chất ô nhiễm')
+  const weather = q.columns.filter((c) => c.kind === 'Thời tiết')
+  const worst = pollutants.reduce((a, b) => (b.missing_at_source > a.missing_at_source ? b : a), pollutants[0])
+  const range = (cols: typeof pollutants) => {
+    const v = cols.map((c) => pct(c.missing_at_source))
+    return `${fmtPct(Math.min(...v), v.some((x) => x < 1) ? 2 : 1)} – ${fmtPct(Math.max(...v), v.some((x) => x < 1) ? 2 : 1)}`
+  }
+  const weatherMissing = weather.reduce((s, c) => s + c.missing_at_source, 0)
+  const weatherFilled = weather.reduce((s, c) => s + c.filled, 0)
 
-function PipelinePanel({ run, full }: { run: PipelineRun; full: PipelineRun | null }) {
-  const fullFailed = full ? failedStep(full) : undefined
-  const showFull = full && full.finished_at !== run.finished_at
   return (
-    <Panel
-      title="Lần chạy pipeline gần nhất"
-      description={`python scripts/run_all.py · ${run.scope} · xong lúc ${fmtWhen(run.finished_at)}${
-        run.total_seconds ? ` · ${fmtNum(run.total_seconds / 60, 1)} phút` : ''
-      }`}
-    >
-      <Table.ScrollContainer minWidth={340}>
-        <Table verticalSpacing={6}>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Bước</Table.Th>
-              <Table.Th>Trạng thái</Table.Th>
-              <Table.Th ta="right">Thời gian</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {run.steps.map((s) => (
-              <Table.Tr key={s.step}>
-                <Table.Td>
-                  <Text size="sm" fw={500}>
-                    {STEP[s.step] ?? s.step}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {s.step}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Badge variant="light" color={s.status === 'ok' ? 'green' : s.status === 'skipped' ? 'gray' : 'red'}>
-                    {s.status === 'ok' ? 'Xong' : s.status === 'skipped' ? 'Bỏ qua' : 'Lỗi'}
-                  </Badge>
-                  {s.error && (
-                    <Text size="xs" c="red.7" mt={4}>
-                      {s.error}
-                    </Text>
-                  )}
-                </Table.Td>
-                <Table.Td ta="right" className="tabular">
-                  {s.seconds == null ? '—' : `${fmtNum(s.seconds, 1)} giây`}
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Table.ScrollContainer>
-      {showFull && full && (
-        <Group gap={8} mt="md" wrap="nowrap" align="flex-start">
-          <Dot color={full.ok ? STATUS.good : STATUS.critical} size={10} />
-          <Text size="sm">
-            Lần chạy toàn bộ gần nhất ({fmtWhen(full.finished_at)}):{' '}
-            {full.ok ? (
-              `thành công${full.total_seconds ? `, ${fmtNum(full.total_seconds / 60, 1)} phút` : ''}.`
-            ) : (
-              <>
-                lỗi ở bước <b>{fullFailed?.step ?? '?'}</b>
-                {fullFailed?.error ? ` (${fullFailed.error})` : ''}.
-              </>
-            )}
+    <Panel title="Tóm tắt">
+      <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl">
+        <Column title="Dữ liệu trong kho">
+          <Text fz={26} fw={650} lh={1.1} className="tabular">
+            {fmtNum(w.fact_rows, 0)}{' '}
+            <Text span size="sm" c="dimmed" fw={400}>
+              giờ-trạm
+            </Text>
           </Text>
-        </Group>
-      )}
+          <Text size="sm" c="dimmed">
+            {fmtNum(w.stations, 0)} trạm · {fmtDay(w.first_hour)} – {fmtDay(w.last_hour)}
+          </Text>
+          <Text size="sm" c="dimmed">
+            Nạp lần cuối {fmtWhen(lastLoad)}
+          </Text>
+        </Column>
+
+        <Column title="Cờ chất lượng từng giờ">
+          <Progress.Root size={14} radius="sm" mt={6}>
+            {q.status_counts.map((c) => (
+              <Progress.Section
+                key={c.status}
+                value={(c.rows / flagsTotal) * 100}
+                color={FLAG[c.status]?.color ?? INK.muted}
+              />
+            ))}
+          </Progress.Root>
+          <Stack gap={4} mt={4}>
+            {q.status_counts.map((c) => (
+              <Group key={c.status} justify="space-between" wrap="nowrap">
+                <Group gap={8} wrap="nowrap">
+                  <Dot color={FLAG[c.status]?.color ?? INK.muted} size={8} />
+                  <Text size="sm">{FLAG[c.status]?.label ?? c.status}</Text>
+                </Group>
+                <Text size="sm" className="tabular" c="dimmed">
+                  {c.rows / flagsTotal < 0.001 ? `${fmtNum(c.rows, 0)} giờ` : fmtPct((c.rows / flagsTotal) * 100)}
+                </Text>
+              </Group>
+            ))}
+          </Stack>
+        </Column>
+
+        <Column title="Giá trị thiếu">
+          <Text size="sm">
+            <b>Chất ô nhiễm</b> thiếu {range(pollutants)} số giờ, nhiều nhất {worst?.label}. Giữ NULL, không nội suy.
+          </Text>
+          <Text size="sm">
+            <b>Thời tiết</b> thiếu {range(weather)}, đã lấp{' '}
+            {fmtPct(weatherMissing ? (weatherFilled / weatherMissing) * 100 : 100, 0)} từ Open-Meteo.
+          </Text>
+        </Column>
+      </SimpleGrid>
     </Panel>
   )
 }
@@ -380,20 +230,17 @@ function PipelinePanel({ run, full }: { run: PipelineRun; full: PipelineRun | nu
 export function QualityPage() {
   const [q, setQ] = useState<QualitySummary | null>(null)
   const [dbUp, setDbUp] = useState<boolean | null>(null)
-  const [checkedAt, setCheckedAt] = useState<Date | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [round, setRound] = useState(0)
 
   useEffect(() => {
     let cancelled = false
-    // Health first and on its own: if the database is down, the summary fails but the tile
-    // still says so.
+    // Health on its own: if the database is down the summary fails, but this tile still says so.
     fetchDbHealth()
       .then(() => !cancelled && setDbUp(true))
       .catch(() => !cancelled && setDbUp(false))
-      .finally(() => !cancelled && setCheckedAt(new Date()))
-    fetchQualitySummary()
+    fetchQualitySummary(round > 0)
       .then((s) => {
         if (cancelled) return
         setQ(s)
@@ -415,24 +262,21 @@ export function QualityPage() {
     <Stack gap="lg">
       <PageHeader
         title="Chất lượng dữ liệu"
-        description="Kho có đang chạy không, dữ liệu nạp vào có đủ và sạch không, và lần chạy pipeline gần nhất ra sao."
+        description="Kho có đang chạy không, dữ liệu nạp vào có đủ và sạch không."
         actions={
           <Button variant="default" leftSection={<IconRefresh size={16} />} onClick={recheck} loading={loading}>
             Kiểm tra lại
           </Button>
         }
       />
-      <StatusRow q={q} unreadable={!q && !!error} dbUp={dbUp} checkedAt={checkedAt} />
+      {/* With the database down, a summary from cache would describe a state we cannot confirm. */}
+      <StatusRow q={q} unreadable={(!q && !!error) || dbUp === false} dbUp={dbUp} />
       {error && <ErrorAlert title="Không đọc được báo cáo chất lượng" message={error} />}
-      {!q && loading && <LoadingBlock height={240} />}
-      {q && (
+      {!q && loading && <LoadingBlock height={140} />}
+      {q && dbUp !== false && (
         <>
-          <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
-            <WarehousePanel q={q} />
-            <FlagsPanel q={q} />
-          </SimpleGrid>
-          <MissingPanel q={q} />
-          {q.last_run && <PipelinePanel run={q.last_run} full={q.last_full_run} />}
+          <Warnings q={q} />
+          <SummaryPanel q={q} />
         </>
       )}
     </Stack>

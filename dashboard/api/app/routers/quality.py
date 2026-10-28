@@ -62,6 +62,25 @@ def _artifacts() -> Path:
     return Path(configured) if configured else Path(__file__).resolve().parents[4] / "artifacts"
 
 
+# The artifact files this endpoint reads, relative to the artifacts directory.
+RECONCILE = "staging/reconcile.json"
+LAST_RUN = "run_all/run_summary.json"
+LAST_FULL_RUN = "run_all/run_summary_full.json"
+DBT_TEST_LOG = "run_all/logs/dbt_test.log"
+
+
+def artifacts_fingerprint() -> str:
+    """Size + mtime of those files, so the response cache drops /quality when a run rewrites them."""
+    parts = []
+    for rel in (RECONCILE, LAST_RUN, LAST_FULL_RUN, DBT_TEST_LOG):
+        try:
+            st = (_artifacts() / rel).stat()
+            parts.append(f"{rel}:{st.st_size}:{st.st_mtime_ns}")
+        except OSError:
+            parts.append(f"{rel}:-")
+    return "|".join(parts)
+
+
 def _read_json(path: Path) -> dict | None:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -205,8 +224,8 @@ def quality_summary(db: Session = Depends(get_db)) -> QualitySummary:
             for r in loads
         ],
         columns=columns,
-        reconcile=_reconcile(_read_json(art / "staging" / "reconcile.json")),
-        last_run=_run(_read_json(art / "run_all" / "run_summary.json")),
-        last_full_run=_run(_read_json(art / "run_all" / "run_summary_full.json")),
-        dbt_tests=_dbt_tests(art / "run_all" / "logs" / "dbt_test.log"),
+        reconcile=_reconcile(_read_json(art / RECONCILE)),
+        last_run=_run(_read_json(art / LAST_RUN)),
+        last_full_run=_run(_read_json(art / LAST_FULL_RUN)),
+        dbt_tests=_dbt_tests(art / DBT_TEST_LOG),
     )

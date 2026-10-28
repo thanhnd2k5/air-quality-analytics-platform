@@ -6,6 +6,8 @@ pg_stat_user_tables (table oid + insert/update/delete counters) is re-read at mo
 `check_seconds`: dbt's drop-and-recreate gives new oids and in-place loads bump the
 counters, so either one empties the cache.
 
+`extra_version` adds a fingerprint of non-table inputs (the artifact files /api/quality reads).
+
 Slow parameter-free endpoints listed in `warm_paths` are computed in the background at
 startup and after every data change, so the first page view does not pay for them.
 """
@@ -16,6 +18,7 @@ import asyncio
 import logging
 import time
 from collections import OrderedDict
+from collections.abc import Callable
 
 from sqlalchemy import text
 from starlette.concurrency import run_in_threadpool
@@ -39,9 +42,10 @@ _VERSION_SQL = text(
 Entry = tuple[int, list[tuple[bytes, bytes]], bytes]  # status, headers, body
 
 
-def _read_version() -> str:
+def _read_version(extra: Callable[[], str] | None) -> str:
     with get_engine().connect() as conn:
-        return conn.execute(_VERSION_SQL).scalar_one()
+        version = conn.execute(_VERSION_SQL).scalar_one()
+    return f"{version}|{extra()}" if extra else version
 
 
 async def _receive_empty() -> Message:
@@ -53,7 +57,7 @@ async def _discard(_message: Message) -> None:
 
 
 class ResponseCache:
-    """ASGI middleware: replay 200 responses of GET /api/* (except health and quality) from memory."""
+    """ASGI middleware: replay 200 responses of GET /api/* (except health) from memory."""
 
     def __init__(
         self,
@@ -61,11 +65,13 @@ class ResponseCache:
         max_mb: int = 128,
         check_seconds: float = 15.0,
         warm_paths: tuple[str, ...] = (),
+        extra_version: Callable[[], str] | None = None,
     ) -> None:
         self.app = app
         self.max_bytes = max_mb * 1024 * 1024
         self.check_seconds = check_seconds
         self.warm_paths = warm_paths
+        self.extra_version = extra_version
         self._entries: OrderedDict[str, Entry] = OrderedDict()
         self._size = 0
         self._inflight: dict[str, asyncio.Event] = {}
@@ -109,15 +115,14 @@ class ResponseCache:
         if scope["type"] != "http" or scope["method"] != "GET":
             return False
         path = scope["path"]
-        # /api/quality reads artifact files too, which can change while the tables do not.
-        return path.startswith("/api/") and not path.startswith(("/api/health", "/api/quality"))
+        return path.startswith("/api/") and not path.startswith("/api/health")
 
     async def _data_version(self) -> str | None:
         now = time.monotonic()
         if self._version is not None and now - self._checked_at < self.check_seconds:
             return self._version
         try:
-            version = await run_in_threadpool(_read_version)
+            version = await run_in_threadpool(_read_version, self.extra_version)
         except Exception:
             logger.warning("response cache bypassed: cannot read data version", exc_info=True)
             return None
@@ -127,7 +132,7 @@ class ResponseCache:
             self._size = 0
             self._version = version
             if changed:
-                logger.info("mart/dwh changed, response cache cleared")
+                logger.info("data changed, response cache cleared")
                 self._spawn_warm()
         self._checked_at = now
         return version

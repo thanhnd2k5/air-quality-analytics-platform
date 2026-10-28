@@ -41,7 +41,10 @@ if settings.response_cache_mb > 0:
             "/api/predictions/meta",
             "/api/alerts/meta",
             "/api/alerts/summary?split=test",
+            "/api/quality/summary",
         ),
+        # run_all rewrites these files even when no table changes (e.g. a failed run).
+        extra_version=quality.artifacts_fingerprint,
     )
 
 app.add_middleware(
