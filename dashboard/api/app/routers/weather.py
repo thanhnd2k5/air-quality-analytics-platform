@@ -21,6 +21,8 @@ ScatterVar = Literal[
     "wind_speed_m_s_avg",
     "rain_mm_sum",
     "cloud_cover_pct_avg",
+    "pressure_hpa_avg",
+    "dew_point_c_avg",
 ]
 
 SCATTER_COLUMNS = {
@@ -29,6 +31,8 @@ SCATTER_COLUMNS = {
     "wind_speed_m_s_avg": "w.wind_speed_m_s_avg",
     "rain_mm_sum": "w.rain_mm_sum",
     "cloud_cover_pct_avg": "w.cloud_cover_pct_avg",
+    "pressure_hpa_avg": "w.pressure_hpa_avg",
+    "dew_point_c_avg": "w.dew_point_c_avg",
 }
 
 
@@ -59,7 +63,9 @@ def weather_analysis(
             w.relative_humidity_pct_avg,
             w.wind_speed_m_s_avg,
             w.rain_mm_sum,
-            w.cloud_cover_pct_avg
+            w.cloud_cover_pct_avg,
+            w.pressure_hpa_avg,
+            w.dew_point_c_avg
         FROM mart.mart_pollution_weather AS w
         WHERE w.date_day >= :start
           AND w.date_day <= :end
@@ -75,7 +81,9 @@ def weather_analysis(
             AVG(w.relative_humidity_pct_avg) AS relative_humidity_pct_avg,
             AVG(w.wind_speed_m_s_avg) AS wind_speed_m_s_avg,
             AVG(w.rain_mm_sum) AS rain_mm_sum,
-            AVG(w.cloud_cover_pct_avg) AS cloud_cover_pct_avg
+            AVG(w.cloud_cover_pct_avg) AS cloud_cover_pct_avg,
+            AVG(w.pressure_hpa_avg) AS pressure_hpa_avg,
+            AVG(w.dew_point_c_avg) AS dew_point_c_avg
         FROM mart.mart_pollution_weather AS w
         WHERE w.date_day >= :start
           AND w.date_day <= :end
@@ -130,6 +138,8 @@ def weather_analysis(
                 wind_speed_m_s_avg=as_float(r["wind_speed_m_s_avg"]),
                 rain_mm_sum=as_float(r["rain_mm_sum"]),
                 cloud_cover_pct_avg=as_float(r["cloud_cover_pct_avg"]),
+                pressure_hpa_avg=as_float(r["pressure_hpa_avg"]),
+                dew_point_c_avg=as_float(r["dew_point_c_avg"]),
             )
             for r in series_rows
         ],

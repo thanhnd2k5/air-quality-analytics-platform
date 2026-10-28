@@ -54,6 +54,12 @@ MEASURES: dict[str, tuple[str, str, str]] = {
         "100.0 * sum(cube.pm25_exceed_hours) / nullif(sum(cube.pm25_hour_count), 0)",
         "% giờ PM2.5 ≥ 115",
     ),
+    "exceed_hours": (
+        "count(*) filter (where fact.pm25_ug_m3 >= 115)",
+        "sum(cube.pm25_exceed_hours)",
+        "Số giờ PM2.5 ≥ 115",
+    ),
+    # Row count: equals days × 24 × 12 stations (the hourly grid is complete), kept for checks.
     "hours": ("count(*)", "sum(cube.hour_count)", "Số giờ quan trắc"),
 }
 
@@ -130,7 +136,7 @@ def olap_query(
     db: Session = Depends(get_db),
     rows: str = Query("year"),
     cols: str | None = Query(None),
-    measure: Literal["pm25_avg", "exceed_pct", "hours"] = Query("pm25_avg"),
+    measure: Literal["pm25_avg", "exceed_pct", "exceed_hours", "hours"] = Query("pm25_avg"),
     filter: list[str] = Query(default_factory=list),  # noqa: A002 — public query name
 ) -> OlapResponse:
     if rows not in ATTRS:

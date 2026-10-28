@@ -11,6 +11,8 @@ class WeatherSeriesPoint(BaseModel):
     wind_speed_m_s_avg: float | None
     rain_mm_sum: float | None
     cloud_cover_pct_avg: float | None
+    pressure_hpa_avg: float | None
+    dew_point_c_avg: float | None
 
 
 class WeatherScatterPoint(BaseModel):

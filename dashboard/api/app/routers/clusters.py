@@ -28,8 +28,8 @@ K_GRID = [
 ]
 
 LABEL_VI = {
-    "elevated_core": "Lõi ô nhiễm cao",
-    "cleaner_outskirts": "Ngoại ô phía bắc",
+    "elevated_core": "Nhóm A · ô nhiễm nặng",
+    "cleaner_outskirts": "Nhóm B · ô nhiễm nhẹ hơn",
 }
 
 
