@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     response_cache_mb: int = 128
     # How often to re-check whether the mart/dwh tables changed (cache cleared if so).
     response_cache_check_seconds: float = 15.0
+    # Pipeline outputs read by /api/quality (reconcile, run summary, dbt log). Empty = repo artifacts/.
+    artifacts_dir: str = ""
 
     @property
     def database_url(self) -> str:

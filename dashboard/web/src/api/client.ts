@@ -27,6 +27,11 @@ export function apiGet<T>(path: string): Promise<T> {
   return promise
 }
 
+/** Status calls (health, data quality) must show the current state: no memo. */
+export function apiGetFresh<T>(path: string): Promise<T> {
+  return request<T>(`${API_BASE}${path}`)
+}
+
 async function request<T>(url: string): Promise<T> {
   let res: Response
   try {
@@ -48,7 +53,14 @@ async function request<T>(url: string): Promise<T> {
     )
   }
   if (!res.ok) {
-    throw new Error(`${res.status} ${res.statusText}: ${body}`)
+    let detail = body
+    try {
+      const parsed = JSON.parse(body)
+      if (typeof parsed?.detail === 'string') detail = parsed.detail
+    } catch {
+      // not JSON: show the raw body
+    }
+    throw new Error(`${res.status} ${res.statusText}: ${detail}`)
   }
   try {
     return JSON.parse(body) as T

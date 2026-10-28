@@ -53,7 +53,7 @@ async def _discard(_message: Message) -> None:
 
 
 class ResponseCache:
-    """ASGI middleware: replay 200 responses of GET /api/* (except health) from memory."""
+    """ASGI middleware: replay 200 responses of GET /api/* (except health and quality) from memory."""
 
     def __init__(
         self,
@@ -109,7 +109,8 @@ class ResponseCache:
         if scope["type"] != "http" or scope["method"] != "GET":
             return False
         path = scope["path"]
-        return path.startswith("/api/") and not path.startswith("/api/health")
+        # /api/quality reads artifact files too, which can change while the tables do not.
+        return path.startswith("/api/") and not path.startswith(("/api/health", "/api/quality"))
 
     async def _data_version(self) -> str | None:
         now = time.monotonic()

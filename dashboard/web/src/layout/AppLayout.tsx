@@ -7,6 +7,7 @@ import {
   IconCircles,
   IconCloud,
   IconCube,
+  IconDatabase,
   IconHome,
   IconMap2,
 } from '@tabler/icons-react'
@@ -35,6 +36,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { to: '/', label: 'Tổng quan', icon: IconHome },
       { to: '/olap', label: 'Phân tích OLAP', icon: IconCube },
+      { to: '/chat-luong', label: 'Chất lượng dữ liệu', icon: IconDatabase },
     ],
   },
   {

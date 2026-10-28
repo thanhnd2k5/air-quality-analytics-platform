@@ -11,6 +11,7 @@ UI tiếng Việt. Không auth / CRUD / train model.
 | `/` | Tổng quan — KPI, đợt ô nhiễm, xu hướng, xếp hạng trạm, số ngày theo mức PM2.5 |
 | `/phan-cum` | Phân cụm trạm (K-Means, K = 2) |
 | `/thoi-tiet` | PM2.5 vs weather |
+| `/chat-luong` | Chất lượng dữ liệu: DB còn chạy, đối soát nạp, cờ chất lượng, giá trị thiếu theo cột, dbt test, lần chạy pipeline gần nhất (`/api/quality/summary`, đọc thêm `artifacts/` mount chỉ-đọc) |
 | `/olap` | OLAP tương tác: roll-up / drill-down / slice / dice / pivot (tự đọc `mart_olap_cube` khi có thể) |
 | `/du-bao` | Actual vs HistGB / persistence |
 | `/canh-bao` | Phân loại cảnh báo PM2.5 ≥ 115: ma trận nhầm lẫn mô hình vs persistence, timeline theo trạm |

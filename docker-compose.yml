@@ -218,6 +218,10 @@ services:
       # In-memory GET response cache (dashboard/api/app/cache.py); 0 turns it off.
       RESPONSE_CACHE_MB: ${RESPONSE_CACHE_MB:-128}
       RESPONSE_CACHE_CHECK_SECONDS: ${RESPONSE_CACHE_CHECK_SECONDS:-15}
+      # /api/quality reads run_all's reconcile / run summary / dbt log from here.
+      ARTIFACTS_DIR: /app/artifacts
+    volumes:
+      - ./artifacts:/app/artifacts:ro
     ports:
       # Host 8100 → container 8000 (avoid clash with other apps on :8000)
       - "${DASHBOARD_API_PORT:-8100}:8000"

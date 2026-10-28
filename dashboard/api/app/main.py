@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError
 
 from app.cache import ResponseCache
 from app.config import get_settings
@@ -15,6 +16,7 @@ from app.routers import (
     olap,
     overview,
     predictions,
+    quality,
     stations,
     weather,
 )
@@ -57,6 +59,13 @@ async def empty_mart_handler(_request: Request, exc: EmptyMartError) -> JSONResp
     return JSONResponse(status_code=503, content={"detail": exc.message})
 
 
+@app.exception_handler(OperationalError)
+async def database_down_handler(_request: Request, _exc: OperationalError) -> JSONResponse:
+    # Handled here (inside CORS) so the browser sees a 503 it can read, not a bare 500 that it
+    # reports as a CORS failure.
+    return JSONResponse(status_code=503, content={"detail": "Không kết nối được PostgreSQL."})
+
+
 app.include_router(health.router, prefix="/api")
 app.include_router(overview.router, prefix="/api")
 app.include_router(compare.router, prefix="/api")
@@ -68,6 +77,7 @@ app.include_router(stations.router, prefix="/api")
 app.include_router(clusters.router, prefix="/api")
 app.include_router(alerts.router, prefix="/api")
 app.include_router(olap.router, prefix="/api")
+app.include_router(quality.router, prefix="/api")
 
 
 @app.get("/")
