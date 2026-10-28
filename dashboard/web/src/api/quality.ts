@@ -48,7 +48,9 @@ export function fetchQualitySummary(fresh = false) {
   return fresh ? apiGetFresh<QualitySummary>(path) : apiGet<QualitySummary>(path)
 }
 
-/** Liveness is never cached: the tile must show the database as it is now. */
-export function fetchDbHealth() {
-  return apiGetFresh<{ status: string; database: string }>('/api/health/db')
+export type ServiceCheck = { name: string; role: string; ok: boolean; latency_ms: number; detail: string | null }
+
+/** Live probe of PostgreSQL and MinIO; never cached, so each poll shows the state right now. */
+export function fetchServices() {
+  return apiGetFresh<{ checked_at: string; services: ServiceCheck[] }>('/api/health/services')
 }

@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     response_cache_check_seconds: float = 15.0
     # Pipeline outputs read by /api/quality (reconcile, run summary, dbt log). Empty = repo artifacts/.
     artifacts_dir: str = ""
+    # Data lake probed by /api/health/services (host:port; the repo .env says localhost:9010).
+    minio_endpoint: str = "localhost:9000"
+    minio_secure: bool = False
 
     @property
     def database_url(self) -> str:

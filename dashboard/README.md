@@ -11,7 +11,7 @@ UI tiếng Việt. Không auth / CRUD / train model.
 | `/` | Tổng quan — KPI, đợt ô nhiễm, xu hướng, xếp hạng trạm, số ngày theo mức PM2.5 |
 | `/phan-cum` | Phân cụm trạm (K-Means, K = 2) |
 | `/thoi-tiet` | PM2.5 vs weather |
-| `/chat-luong` | Chất lượng dữ liệu (tổng quan cho người quản trị): DB còn chạy, đối soát nạp, dbt test, lần chạy pipeline gần nhất, cờ chất lượng, giá trị thiếu (`/api/quality/summary`, đọc thêm `artifacts/` mount chỉ-đọc) |
+| `/chat-luong` | Theo dõi (monitor) cho người quản trị, tự làm mới 30 giây: API, PostgreSQL, MinIO (thời gian phản hồi, `/api/health/services`), đối soát nạp, khoá trùng, dbt test, lần chạy pipeline gần nhất, cờ chất lượng (`/api/quality/summary`, đọc thêm `artifacts/` mount chỉ-đọc) |
 | `/olap` | OLAP tương tác: roll-up / drill-down / slice / dice / pivot (tự đọc `mart_olap_cube` khi có thể) |
 | `/du-bao` | Actual vs HistGB / persistence |
 | `/canh-bao` | Phân loại cảnh báo PM2.5 ≥ 115: ma trận nhầm lẫn mô hình vs persistence, timeline theo trạm |
@@ -74,7 +74,7 @@ Web cũng nhớ response theo URL trong 5 phút (`src/api/client.ts`) để chuy
 
 ## Endpoints chính
 
-- `GET /api/health`, `/api/health/db`
+- `GET /api/health`, `/api/health/db`, `/api/health/services` (PostgreSQL + MinIO, không cache)
 - `GET /api/stations`, `/api/stations/compare`
 - `GET /api/overview/meta|kpis|trends`
 - `GET /api/episodes`, `/api/weather`
