@@ -11,6 +11,8 @@ from app.schemas.weather import (
     WeatherResponse,
     WeatherScatterPoint,
     WeatherSeriesPoint,
+    WindRosePoint,
+    WindRoseResponse,
 )
 
 router = APIRouter(prefix="/weather", tags=["weather"])
@@ -151,5 +153,56 @@ def weather_analysis(
                 weather_value=as_float(r["weather_value"]),
             )
             for r in scatter_rows
+        ],
+    )
+
+
+@router.get("/wind-rose", response_model=WindRoseResponse)
+def wind_rose(
+    db: Session = Depends(get_db),
+    date_from: date | None = Query(None),
+    date_to: date | None = Query(None),
+    station_key: int | None = Query(None),
+) -> WindRoseResponse:
+    start, end = resolve_date_range(db, date_from, date_to)
+    params: dict = {"start": start, "end": end}
+    station_filter = ""
+    if station_key is not None:
+        station_filter = "AND fact.station_key = :station_key"
+        params["station_key"] = station_key
+
+    # Hourly grain from the star schema (the daily mart has no wind direction); calm/unknown dropped.
+    sql = f"""
+    SELECT
+        wind.wind_direction AS direction,
+        wind.azimuth_deg,
+        COUNT(fact.pm25_ug_m3) AS hours,
+        100.0 * AVG((fact.pm25_ug_m3 >= 115)::int) AS exceed_pct,
+        AVG(fact.pm25_ug_m3) AS pm25_avg
+    FROM dwh.fact_air_quality_hourly AS fact
+    JOIN dwh.dim_date AS calendar ON fact.date_key = calendar.date_key
+    JOIN dwh.dim_wind_direction AS wind ON fact.wind_direction_key = wind.wind_direction_key
+    WHERE calendar.date_day >= :start
+      AND calendar.date_day <= :end
+      AND wind.azimuth_deg IS NOT NULL
+      {station_filter}
+    GROUP BY wind.wind_direction, wind.azimuth_deg
+    ORDER BY wind.azimuth_deg
+    """
+    rows = fetch_all(db, sql, params)
+
+    return WindRoseResponse(
+        date_from=start,
+        date_to=end,
+        station_key=station_key,
+        points=[
+            WindRosePoint(
+                direction=r["direction"],
+                azimuth_deg=float(r["azimuth_deg"]),
+                hours=int(r["hours"]),
+                exceed_pct=as_float(r["exceed_pct"]),
+                pm25_avg=as_float(r["pm25_avg"]),
+            )
+            for r in rows
         ],
     )

@@ -21,6 +21,14 @@ class WeatherScatterPoint(BaseModel):
     weather_value: float | None
 
 
+class WindRosePoint(BaseModel):
+    direction: str
+    azimuth_deg: float
+    hours: int
+    exceed_pct: float | None
+    pm25_avg: float | None
+
+
 class WeatherResponse(BaseModel):
     date_from: date
     date_to: date
@@ -28,3 +36,12 @@ class WeatherResponse(BaseModel):
     series: list[WeatherSeriesPoint]
     scatter_variable: str
     scatter: list[WeatherScatterPoint]
+
+
+class WindRoseResponse(BaseModel):
+    """Hourly PM2.5 per 16-point wind direction over the chosen days / station."""
+
+    date_from: date
+    date_to: date
+    station_key: int | None = None
+    points: list[WindRosePoint]

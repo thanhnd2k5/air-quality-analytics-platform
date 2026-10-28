@@ -18,6 +18,14 @@ export type WeatherScatterPoint = {
   weather_value: number | null
 }
 
+export type WindRosePoint = {
+  direction: string
+  azimuth_deg: number
+  hours: number
+  exceed_pct: number | null
+  pm25_avg: number | null
+}
+
 export type WeatherResponse = {
   date_from: string
   date_to: string
@@ -25,6 +33,13 @@ export type WeatherResponse = {
   series: WeatherSeriesPoint[]
   scatter_variable: string
   scatter: WeatherScatterPoint[]
+}
+
+export type WindRoseResponse = {
+  date_from: string
+  date_to: string
+  station_key: number | null
+  points: WindRosePoint[]
 }
 
 export type ScatterVariable =
@@ -49,4 +64,13 @@ export function fetchWeather(opts: {
   if (opts.scatter_variable) sp.set('scatter_variable', opts.scatter_variable)
   const q = sp.toString()
   return apiGet<WeatherResponse>(`/api/weather${q ? `?${q}` : ''}`)
+}
+
+export function fetchWindRose(opts: { date_from?: string; date_to?: string; station_key?: number | null }) {
+  const sp = new URLSearchParams()
+  if (opts.date_from) sp.set('date_from', opts.date_from)
+  if (opts.date_to) sp.set('date_to', opts.date_to)
+  if (opts.station_key != null) sp.set('station_key', String(opts.station_key))
+  const q = sp.toString()
+  return apiGet<WindRoseResponse>(`/api/weather/wind-rose${q ? `?${q}` : ''}`)
 }
