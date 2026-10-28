@@ -15,9 +15,19 @@ from sqlalchemy.orm import Session
 
 from app.coerce import as_float
 from app.db import fetch_all, get_db
+from app.routers.clusters import LABEL_VI as CLUSTER_LABEL_VI
 from app.schemas.olap import OlapAttribute, OlapCell, OlapMeta, OlapResponse
 
 router = APIRouter(prefix="/olap", tags=["olap"])
+
+# Station → locked KMeans group (mart.mart_station_cluster), shown with the dashboard's labels.
+# The label is computed once per station in the joined subquery, not once per fact row.
+_CLUSTER_LABEL_SQL = (
+    "case cluster_label "
+    + " ".join(f"when '{k}' then '{v}'" for k, v in CLUSTER_LABEL_VI.items())
+    + " else cluster_label end"
+)
+CLUSTER_EXPR = "cluster.group_label"
 
 # attribute → (SQL expression on the star join, label, hierarchy)
 ATTRS: dict[str, tuple[str, str, str]] = {
@@ -29,6 +39,7 @@ ATTRS: dict[str, tuple[str, str, str]] = {
     "hour": ("lpad(tod.hour::text, 2, '0')", "Giờ", "daytime"),
     "district": ("station.district", "Quận", "location"),
     "station": ("station.station_name", "Trạm", "location"),
+    "cluster": (CLUSTER_EXPR, "Nhóm trạm", "cluster"),
     "wind_regime": ("wind.wind_regime", "Chế độ gió", "wind"),
     "wind_quadrant": ("wind.wind_quadrant", "Phần tư hướng gió", "wind"),
     "wind_direction": ("wind.wind_direction", "Hướng gió", "wind"),
@@ -39,6 +50,8 @@ HIERARCHIES: dict[str, list[str]] = {
     "season": ["season"],
     "daytime": ["day_part", "hour"],
     "location": ["district", "station"],
+    # Each station sits in exactly one group, so the group rolls stations up like a district does.
+    "cluster": ["cluster", "station"],
     "wind": ["wind_regime", "wind_quadrant", "wind_direction"],
 }
 
@@ -81,6 +94,17 @@ STAR_FROM = """
     join dwh.dim_wind_direction as wind on fact.wind_direction_key = wind.wind_direction_key
 """
 
+# Joined only when a query uses the station group (12-row table, one row per station).
+CLUSTER_JOIN = f"""    left join (
+        select station_key, {_CLUSTER_LABEL_SQL} as group_label from mart.mart_station_cluster
+    ) as cluster on fact.station_key = cluster.station_key
+"""
+
+
+def _star_from(attrs) -> str:
+    return STAR_FROM + (CLUSTER_JOIN if "cluster" in attrs else "")
+
+
 SEASON_ORDER = {"spring": 1, "summer": 2, "autumn": 3, "winter": 4}
 DAYPART_ORDER = {"night": 1, "morning": 2, "afternoon": 3, "evening": 4}
 REGIME_ORDER = {"northerly": 1, "southerly": 2}
@@ -120,7 +144,7 @@ def _parse_filters(raw: list[str]) -> dict[str, list[str]]:
 def olap_meta(db: Session = Depends(get_db)) -> OlapMeta:
     attributes = []
     for name, (expr, label, hierarchy) in ATTRS.items():
-        members = fetch_all(db, f"select distinct {expr} as v {STAR_FROM} where {expr} is not null")
+        members = fetch_all(db, f"select distinct {expr} as v {_star_from({name})} where {expr} is not null")
         values = sorted((r["v"] for r in members), key=_sort_key(name))
         attributes.append(OlapAttribute(name=name, label=label, hierarchy=hierarchy, members=values))
     return OlapMeta(
@@ -167,10 +191,11 @@ def olap_query(
         from_sql = "from mart.mart_olap_cube as cube"
     else:
         cuboid = None
-        source = "dwh.fact_air_quality_hourly ⋈ 4 bảng chiều (tính trực tiếp)"
+        source = "dwh.fact_air_quality_hourly ⋈ 4 bảng chiều" + (" + nhóm trạm" if "cluster" in used else "")
+        source += " (tính trực tiếp)"
         r_expr, c_expr = ATTRS[rows][0], ATTRS[cols][0] if cols else None
         m_expr = MEASURES[measure][0]
-        from_sql = STAR_FROM
+        from_sql = _star_from(used)
 
     if c_expr:
         group = f"grouping sets (({r_expr}, {c_expr}), ({r_expr}), ({c_expr}), ())"

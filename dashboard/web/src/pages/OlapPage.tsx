@@ -71,7 +71,8 @@ const SEASON_VI: Record<string, string> = {
 const ATTR_GROUPS: { label: string; hierarchies: string[] }[] = [
   { label: 'Thời gian', hierarchies: ['time', 'season'] },
   { label: 'Trong ngày', hierarchies: ['daytime'] },
-  { label: 'Địa điểm', hierarchies: ['location'] },
+  // Station sits under both its district and its cluster group; it is listed once, last.
+  { label: 'Địa điểm', hierarchies: ['cluster', 'location'] },
   { label: 'Gió', hierarchies: ['wind'] },
 ]
 
@@ -106,6 +107,14 @@ const EXAMPLES: { label: string; hint: string; rows: string; cols: string | null
     cols: 'month',
     measure: 'exceed_pct',
     filters: { district: ['Dongcheng', 'Xicheng'], year: ['2016'] },
+  },
+  {
+    label: 'Nhóm trạm × mùa',
+    hint: 'Nhóm A (ô nhiễm nặng) so với nhóm B theo mùa; drill-down vào một nhóm để xem từng trạm',
+    rows: 'cluster',
+    cols: 'season',
+    measure: 'exceed_pct',
+    filters: {},
   },
   {
     label: 'Hướng gió × mùa',
@@ -530,6 +539,7 @@ export function OlapPage() {
       group: g.label,
       items: g.hierarchies
         .flatMap((h) => meta?.hierarchies[h] ?? [])
+        .filter((name, i, all) => all.lastIndexOf(name) === i)
         .filter((name) => name !== exclude && attrs.some((a) => a.name === name))
         .map((name) => ({ value: name, label: attrLabel(name) })),
     }))
