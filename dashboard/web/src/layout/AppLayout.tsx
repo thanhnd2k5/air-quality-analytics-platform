@@ -184,13 +184,6 @@ export function AppLayout() {
           </Stack>
         </AppShell.Section>
 
-        <AppShell.Section px="md" py="sm" style={{ borderTop: '1px solid var(--mantine-color-gray-3)' }}>
-          <Text size="xs" c="dimmed" lh={1.5}>
-            Nguồn: UCI #501 (PRSA)
-            <br />
-            Open-Meteo ERA5 · CC BY 4.0
-          </Text>
-        </AppShell.Section>
       </AppShell.Navbar>
 
       <AppShell.Main>
