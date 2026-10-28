@@ -1,4 +1,4 @@
-import { Badge, Box, Group, Paper, Select, SimpleGrid, Stack, Table, Text, Title } from '@mantine/core'
+import { Anchor, Badge, Box, Group, Paper, Select, SimpleGrid, Stack, Table, Text, Title } from '@mantine/core'
 import { useEffect, useMemo, useState } from 'react'
 import {
   fetchAlertMeta,
@@ -13,6 +13,7 @@ import { fetchStations, type Station } from '../api/stations'
 import { Chart } from '../components/Chart'
 import { DateField } from '../components/DateField'
 import { Metric } from '../components/Metric'
+import { ModelExplainer } from '../components/ModelExplainer'
 import { PageHeader } from '../components/PageHeader'
 import { FilterBar, Panel } from '../components/Panel'
 import { Dot } from '../components/Pm25Badge'
@@ -45,7 +46,9 @@ function tint(color: string) {
   return `color-mix(in srgb, ${color} 12%, white)`
 }
 
-function ConfusionCard({ title, m, highlight }: { title: string; m: ConfusionMatrix; highlight?: boolean }) {
+type ConfusionCardProps = { title: string; m: ConfusionMatrix; highlight?: boolean; onExplain?: () => void }
+
+function ConfusionCard({ title, m, highlight, onExplain }: ConfusionCardProps) {
   const cell = (code: string, label: string, v: number, color?: string) => (
     <Table.Td style={{ background: color ? tint(color) : 'var(--mantine-color-gray-0)', textAlign: 'center' }}>
       <Text fw={650} size="lg" className="tabular">
@@ -72,9 +75,21 @@ function ConfusionCard({ title, m, highlight }: { title: string; m: ConfusionMat
       <Group justify="space-between" mb="md" wrap="nowrap" align="flex-start">
         <Box>
           <Title order={2}>{title}</Title>
-          <Text size="xs" c={highlight ? 'brand.7' : 'dimmed'} fw={highlight ? 600 : 400} mt={2}>
-            {highlight ? 'Mô hình được chọn' : 'Mốc so sánh đơn giản'}
-          </Text>
+          <Group gap={6} mt={2} wrap="wrap">
+            <Text size="xs" c={highlight ? 'brand.7' : 'dimmed'} fw={highlight ? 600 : 400}>
+              {highlight ? 'Mô hình được chọn' : 'Mốc so sánh đơn giản'}
+            </Text>
+            {onExplain && (
+              <>
+                <Text size="xs" c="dimmed">
+                  ·
+                </Text>
+                <Anchor component="button" type="button" size="xs" onClick={onExplain}>
+                  Mô hình quyết định thế nào?
+                </Anchor>
+              </>
+            )}
+          </Group>
         </Box>
         <Badge color={highlight ? 'brand' : 'gray'} size="lg" className="tabular" style={{ flex: 'none' }}>
           F1 {pct(m.f1)}
@@ -131,6 +146,7 @@ export function AlertsPage() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [timeline, setTimeline] = useState<AlertTimeline | null>(null)
+  const [explain, setExplain] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -289,7 +305,12 @@ export function AlertsPage() {
               title={`Persistence: báo giờ tới nếu giờ này ≥ ${summary.alert_threshold ?? 115}`}
               m={summary.persistence}
             />
-            <ConfusionCard title="Mô hình HistGradientBoosting" m={summary.model} highlight />
+            <ConfusionCard
+              title="Mô hình HistGradientBoosting"
+              m={summary.model}
+              highlight
+              onExplain={() => setExplain(true)}
+            />
           </SimpleGrid>
           <Text size="xs" c="dimmed" className="tabular">
             Công thức: P = TP / (TP + FP) · R = TP / (TP + FN) · F1 = 2·P·R / (P + R)
@@ -298,6 +319,14 @@ export function AlertsPage() {
       ) : (
         !error && <LoadingBlock height={220} />
       )}
+
+      <ModelExplainer
+        opened={explain}
+        onClose={() => setExplain(false)}
+        series={timeline?.series ?? []}
+        station={stationName}
+        cutoff={summary?.probability_cutoff ?? timeline?.probability_cutoff ?? 0.5}
+      />
 
       <FilterBar busy={loading && timeline != null}>
         <Select
