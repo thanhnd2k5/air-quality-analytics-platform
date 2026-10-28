@@ -30,6 +30,7 @@ from report_lib import (  # noqa: E402
     ROOT,
     Facts,
     architecture_figure,
+    feature_vi,
     pct,
     vn,
     vn_int,
@@ -418,8 +419,8 @@ def chapter_olap(r: Report, f: Facts) -> None:
              "nút Pivot đổi hàng ↔ cột", 15.5)
     r.p(
         "Pivot giữ nguyên dữ liệu, chỉ đổi khung nhìn: đưa trạm lên hàng và tháng sang cột (câu pivot_station_month "
-        "dùng FILTER), hoặc ngược lại. Trên dashboard, bấm vào một dòng sẽ khoan xuống mức con; tổng hàng/cột được "
-        "sinh bằng GROUPING SETS và câu SQL sinh ra được hiển thị để kiểm tra."
+        "dùng FILTER), hoặc ngược lại. Trên dashboard, bấm tên một hàng hoặc một cột sẽ khoan xuống mức con; tổng "
+        "hàng/cột được sinh bằng GROUPING SETS và trạng thái khung nhìn được giữ trên URL để mở lại đúng khối đó."
     )
     r.h2("5.5. CUBE và trả lời từ khối đã tính trước")
     r.p(
@@ -442,7 +443,7 @@ def chapter_mining(r: Report, f: Facts) -> None:
     r.h2("6.2. Dữ liệu huấn luyện")
     r.bullets([
         [("b", "Nhãn: "), ("", "y = 1 nếu PM2.5(t+1) ≥ 115 µg/m³, ngược lại y = 0 (src/classification/target.py).")],
-        [("b", "Đặc trưng (49): "),
+        [("b", f"Đặc trưng ({f.n_features}): "),
          ("", "chỉ dùng thông tin biết tại thời điểm t. Gồm PM2.5 hiện tại, độ trễ 1–24 giờ, trung bình trượt 6/24 "
               "giờ, mức thay đổi trong giờ; PM10, CO, NO2 và độ trễ của chúng; nhiệt độ, độ ẩm, tốc độ gió; giờ, "
               "tháng, thứ, mùa, trạm, cụm trạm; số giờ đã ở trong đợt ô nhiễm.")],
@@ -479,11 +480,17 @@ def chapter_mining(r: Report, f: Facts) -> None:
             font_size=9.5, align_right=set(range(1, 9)))
     r.figure(ART / "classification" / "figures" / "confusion_matrices_test.png", "Ma trận nhầm lẫn trên tập test", 16)
     maj = f.test("majority")
+    per, loc = f.test("persistence"), f.test(f.locked)
+    # Worded from the numbers: at longer horizons the model trades extra false alarms for far fewer misses.
+    fp_move = (
+        f"số lần báo nhầm từ {vn_int(per['fp'])} xuống {vn_int(loc['fp'])}"
+        if loc["fp"] <= per["fp"]
+        else f"đổi lại số lần báo nhầm tăng từ {vn_int(per['fp'])} lên {vn_int(loc['fp'])}"
+    )
     r.p(
         f"Mô hình majority đạt accuracy {vn(maj['accuracy'], 3)} nhưng không phát được cảnh báo nào (recall = 0). Đây "
-        f"là lý do không báo cáo accuracy đơn lẻ. HistGB giảm số giờ bỏ sót từ {vn_int(f.test('persistence')['fn'])} "
-        f"xuống {vn_int(f.test(f.locked)['fn'])} và số lần báo nhầm từ {vn_int(f.test('persistence')['fp'])} xuống "
-        f"{vn_int(f.test(f.locked)['fp'])}."
+        f"là lý do không báo cáo accuracy đơn lẻ. HistGB giảm số giờ bỏ sót từ {vn_int(per['fn'])} "
+        f"xuống {vn_int(loc['fn'])}, {fp_move}."
     )
     r.h2("6.5. Bằng chứng mô hình tốt hơn cách làm hiện tại")
     on = f.onset
@@ -520,12 +527,23 @@ def chapter_mining(r: Report, f: Facts) -> None:
              "Đường Precision–Recall trên test; chấm tròn là ngưỡng đã chọn trên val", 10.5)
     r.h2("6.6. Diễn giải mô hình")
     imp = f.importance.head(3)
+    root_feat, root_thr = f.tree_root
+    if root_feat == "pm25_ug_m3" and abs(root_thr - 115) <= 10:
+        root_note = f"Nút gốc tách tại PM2.5 ≈ {vn(root_thr, 0)} µg/m³, sát ngưỡng 115."
+    elif root_feat == "pm25_ug_m3":
+        root_note = (
+            f"Nút gốc tách tại PM2.5 ≈ {vn(root_thr, 0)} µg/m³, thấp hơn ngưỡng 115 khá nhiều: muốn báo trước "
+            f"{f.horizon_h} giờ, mô hình phải để ý từ khi PM2.5 còn dưới ngưỡng."
+        )
+    else:
+        root_note = f"Nút gốc tách theo {feature_vi(root_feat)} tại {vn(root_thr, 1)}."
+    branches = [f"{feature_vi(c)} ({c})" for c in f.tree_branch_features()]
     r.p(
-        f"Cây quyết định cho thấy PM2.5 hiện tại chiếm {pct(imp.iloc[0].importance, 1)} độ quan trọng; tiếp theo là "
-        f"mức thay đổi trong giờ vừa qua ({pct(imp.iloc[1].importance, 1)}) và tốc độ gió "
-        f"({pct(imp.iloc[2].importance, 1)}). Nút gốc tách tại PM2.5 ≈ 110 µg/m³, sát ngưỡng 115. Các nhánh dưới "
-        "dùng xu hướng tăng (pm25_delta_1) và trung bình 24 giờ để nhận ra lúc ô nhiễm sắp vượt ngưỡng. Luật đầy "
-        "đủ nằm trong artifacts/classification/tree_rules.txt."
+        f"Cây quyết định cho thấy {feature_vi(imp.iloc[0].feature)} chiếm {pct(imp.iloc[0].importance, 1)} độ quan "
+        f"trọng; tiếp theo là {feature_vi(imp.iloc[1].feature)} ({pct(imp.iloc[1].importance, 1)}) và "
+        f"{feature_vi(imp.iloc[2].feature)} ({pct(imp.iloc[2].importance, 1)}). {root_note} Các nhánh bên dưới dùng "
+        f"{', '.join(branches[:-1])} và {branches[-1]} để tách tiếp những giờ dễ vượt ngưỡng. Luật đầy đủ nằm trong "
+        "artifacts/classification/tree_rules.txt."
     )
     r.figure(ART / "classification" / "figures" / "decision_tree_top.png", "Ba tầng đầu của cây quyết định (entropy)", 16)
     r.h2("6.7. Phân tích bổ trợ")
@@ -545,8 +563,9 @@ def chapter_app(r: Report, f: Facts) -> None:
     r.h1("Ứng dụng khai phá dữ liệu")
     r.p(
         "Kết quả khai phá được đưa vào ứng dụng web chỉ-đọc gồm API FastAPI đọc kho và các mart, cùng giao diện "
-        "React. Trang Cảnh báo cho người vận hành thấy ma trận nhầm lẫn của mô hình cạnh cách làm hiện tại, dòng "
-        "thời gian xác suất cảnh báo theo trạm, và các giờ cảnh báo đúng, báo nhầm, bỏ sót."
+        "React. Trang Cảnh báo cho người vận hành thấy ma trận nhầm lẫn của mô hình cạnh cách làm hiện tại, và "
+        f"dòng thời gian PM2.5 theo trạm kèm những giờ mô hình đã cảnh báo từ {f.horizon_h} giờ trước, tô màu theo "
+        "kết quả: cảnh báo đúng, báo nhầm, bỏ sót."
     )
     r.figure(SHOTS / "canh_bao.png", "Trang /canh-bao: mô hình so với persistence và dòng thời gian cảnh báo tại Dongsi", 15.5)
     r.table(
@@ -556,7 +575,7 @@ def chapter_app(r: Report, f: Facts) -> None:
             ["/olap", "OLAP tương tác: roll-up, drill-down, slice, dice, pivot"],
             ["/canh-bao", "Phân loại cảnh báo: ma trận nhầm lẫn, dòng thời gian, so sánh theo trạm"],
             ["/du-bao", "Hồi quy PM2.5 giờ tới so với thực tế"],
-            ["/tram, /dot-o-nhiem, /thoi-tiet, /ban-do", "Xếp hạng trạm, đợt ô nhiễm, thời tiết, bản đồ 12 trạm"],
+            ["/phan-cum, /thoi-tiet, /ban-do", "Phân cụm trạm, PM2.5 theo 7 biến thời tiết, bản đồ 12 trạm"],
         ],
         [5.5, 10.0],
         "Các trang của ứng dụng",
@@ -648,6 +667,8 @@ cd dashboard/web && npm install && npm run dev   # giao diện: http://localhost
         "Claude Code (Anthropic, mô hình Claude Opus 5.5), phiên ngày 12/10/2026: đánh giá repo so với yêu cầu Bài 12; "
         "viết module phân loại cảnh báo, chiều hướng gió, khối CUBE, các truy vấn và trang OLAP, trang cảnh báo, "
         "script chạy một lệnh, tài liệu thiết kế; soạn bản nháp báo cáo và slide này.",
+        "Claude Code, phiên ngày 28/10/2026: thêm bộ nhớ đệm cho API và giao diện; thiết kế lại giao diện dashboard; "
+        "chạy thử nghiệm bỏ biến thời tiết theo từng tầm dự báo; cập nhật báo cáo, slide và ảnh dashboard.",
         "[NHÓM ĐIỀN] Các công cụ AI khác đã dùng trong các phase trước (tài liệu docs/PROJECT_CONTEXT.md nhắc tới "
         "các phiên ChatGPT): công cụ, mục đích, phần việc liên quan.",
         "Mọi số liệu trong báo cáo đều được sinh từ mã nguồn chạy trên dữ liệu thật (artifacts/), không do AI tự "

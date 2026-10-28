@@ -4,3 +4,100 @@ body,
   margin: 0;
   min-height: 100%;
 }
+
+:root {
+  /* Secondary text: slate-500 keeps ≥ 4.5:1 on white and on the page plane. */
+  --mantine-color-dimmed: #64748b;
+  --app-page-bg: #f6f8fb;
+}
+
+body {
+  background: var(--app-page-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Numbers that must line up (tables, KPI values, axis-like labels). */
+.tabular,
+.mantine-Table-td,
+.mantine-Table-th {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Table header: quieter, smaller, on a light band. */
+.mantine-Table-thead .mantine-Table-th {
+  color: var(--mantine-color-gray-7);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  background: var(--mantine-color-gray-0);
+  white-space: nowrap;
+}
+
+/* Sidebar links: neutral grey selection, ink text; the icon carries the accent. */
+.side-link .mantine-NavLink-label {
+  color: var(--mantine-color-gray-8);
+  font-weight: 500;
+}
+.side-link:hover {
+  background-color: var(--mantine-color-gray-0);
+}
+.side-link[data-active],
+.side-link[data-active]:hover {
+  background-color: var(--mantine-color-gray-1);
+}
+.side-link[data-active] .mantine-NavLink-label {
+  color: var(--mantine-color-black);
+  font-weight: 600;
+}
+
+/* Skip link: hidden until focused with the keyboard. */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 1000;
+  padding: 8px 12px;
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-brand-6);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 120ms ease-out;
+}
+.skip-link:focus {
+  top: 10px;
+}
+
+/* Main region receives focus on route change; no ring for that programmatic focus. */
+#main:focus {
+  outline: none;
+}
+
+.leaflet-container {
+  font-family: inherit;
+  /* Keep Leaflet's pane z-indexes (200–1000) inside the map, so dropdowns, date pickers
+     and the sticky header (z-index 100–300) stay on top of it. */
+  isolation: isolate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Monitor page: a soft pulse on the "live" dot; still for reduced motion. */
+.live-dot {
+  animation: live-pulse 2s ease-out infinite;
+}
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent); }
+  70% { box-shadow: 0 0 0 7px color-mix(in srgb, currentColor 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+}

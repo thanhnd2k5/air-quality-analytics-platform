@@ -324,7 +324,7 @@ Em cần chỉ được thao tác trên trang OLAP, không chỉ đọc định 
 
 **Trả lời mẫu:** Em mở tổng quan để nêu quy mô và khoảng thời gian; sang OLAP thực hiện một ví dụ roll-up hoặc slice; sang cảnh báo giải thích nhãn, baseline và một kết quả chính. Nếu còn thời gian, em mở phát lại để minh họa thời điểm dự đoán và khi nào biết kết quả thật. Mỗi màn hình phải trả lời một câu hỏi nghiệp vụ, tránh chỉ bấm qua các biểu đồ.
 
-**Các trang thực tế:** `/`, `/olap`, `/canh-bao`, `/phat-lai`; phần bổ trợ có `/tram`, `/dot-o-nhiem`, `/thoi-tiet`, `/du-bao`, `/ban-do`.
+**Các trang thực tế:** `/`, `/olap`, `/canh-bao`; phần bổ trợ có `/phan-cum`, `/ban-do`, `/thoi-tiet`, `/du-bao`. Xếp hạng trạm và đợt ô nhiễm nằm ở trang Tổng quan.
 
 ### 66. ★ Thầy chọn ngày mà không có dự đoán thì có phải hệ thống lỗi không?
 

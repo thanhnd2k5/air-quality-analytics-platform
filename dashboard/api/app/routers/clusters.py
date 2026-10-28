@@ -1,10 +1,12 @@
 """Locked station clusters (Phase 9): membership from the mart, profiles from daily aggregates."""
 
+import csv
 from datetime import date
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.artifacts import artifacts_path
 from app.coerce import as_float
 from app.db import fetch_all, get_db
 from app.errors import EmptyMartError
@@ -27,9 +29,27 @@ K_GRID = [
     KSelectionPoint(method="agglomerative_ward", k=4, silhouette=0.3256200815572777),
 ]
 
+
+def _k_grid() -> list[KSelectionPoint]:
+    """Silhouette for every K (scripts/clustering_k_sweep.py); the locked grid if that file is absent."""
+    try:
+        with (artifacts_path() / "clustering" / "k_selection_extended.csv").open(encoding="utf-8") as fh:
+            return [
+                KSelectionPoint(
+                    method=r["method"],
+                    k=int(r["k"]),
+                    silhouette=float(r["silhouette"]),
+                    inertia=float(r["inertia"]) if r["inertia"] else None,
+                )
+                for r in csv.DictReader(fh)
+            ]
+    except (OSError, KeyError, ValueError):
+        return K_GRID
+
+
 LABEL_VI = {
-    "elevated_core": "Lõi ô nhiễm cao",
-    "cleaner_outskirts": "Ngoại ô phía bắc",
+    "elevated_core": "Nhóm A · ô nhiễm nặng",
+    "cleaner_outskirts": "Nhóm B · ô nhiễm nhẹ hơn",
 }
 
 
@@ -100,6 +120,6 @@ def list_clusters(db: Session = Depends(get_db)) -> ClustersResponse:
         silhouette=SILHOUETTE,
         window_from=WINDOW_FROM,
         window_to=WINDOW_TO,
-        k_grid=K_GRID,
+        k_grid=_k_grid(),
         groups=list(groups.values()),
     )

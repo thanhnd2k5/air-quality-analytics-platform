@@ -31,6 +31,32 @@ def pct(x: float, d: int = 1) -> str:
     return vn(100 * x, d) + "%"
 
 
+_FEATURE_VI = {
+    "pm25_ug_m3": "PM2.5 hiện tại",
+    "pm25_delta_1": "mức thay đổi PM2.5 trong giờ vừa qua",
+    "pm25_roll_mean_6": "PM2.5 trung bình 6 giờ",
+    "pm25_roll_mean_24": "PM2.5 trung bình 24 giờ",
+    "wind_speed_m_s": "tốc độ gió",
+    "temperature_c": "nhiệt độ",
+    "relative_humidity_pct": "độ ẩm",
+    "hour": "giờ trong ngày",
+    "month": "tháng",
+    "season_code": "mùa",
+    "day_of_week": "thứ trong tuần",
+    "station_key": "trạm",
+    "cluster_id": "cụm trạm",
+}
+
+
+def feature_vi(name: str) -> str:
+    """Readable Vietnamese label for a model feature column (falls back to the column name)."""
+    if name in _FEATURE_VI:
+        return _FEATURE_VI[name]
+    m = re.fullmatch(r"(\w+?)_lag_(\d+)", name)
+    base = m and ({"pm25": "PM2.5"}.get(m.group(1)) or _FEATURE_VI.get(m.group(1)))
+    return f"{base} cách đây {m.group(2)} giờ" if base else name
+
+
 def dbt_test_count() -> tuple[int, int]:
     """(passed, total) from the latest run_all dbt_test log; falls back to the documented 130/130."""
     log = ART / "run_all" / "logs" / "dbt_test.log"
@@ -78,6 +104,15 @@ class Facts:
         return self.cls["locked_model"]
 
     @property
+    def horizon_h(self) -> int:
+        """Alert horizon of the locked classifier, in hours (t+h)."""
+        return int(self.cls["horizon_hours"])
+
+    @property
+    def n_features(self) -> int:
+        return len(load_json("models/pm25_alert/metadata.json")["feature_cols"])
+
+    @property
     def tree_depth(self) -> int:
         return int(self.cls["params"]["decision_tree"]["max_depth"])
 
@@ -93,6 +128,23 @@ class Facts:
     @property
     def mcnemar(self) -> dict:
         return self.cls["mcnemar_vs_persistence_test"]
+
+    @property
+    def tree_root(self) -> tuple[str, float]:
+        """(feature, threshold) of the decision tree's root split, from tree_rules.txt."""
+        rules = (ART / "classification" / "tree_rules.txt").read_text(encoding="utf-8")
+        m = re.search(r"^\|--- (\w+) <= ([\d.]+)", rules, re.M)
+        return m.group(1), float(m.group(2))
+
+    def tree_branch_features(self, max_depth: int = 4, k: int = 3) -> list[str]:
+        """Features used just below the root (depth 2..max_depth), in order of first appearance."""
+        rules = (ART / "classification" / "tree_rules.txt").read_text(encoding="utf-8")
+        root = self.tree_root[0]
+        seen: list[str] = []
+        for indent, name in re.findall(r"^((?:\|   )*)\|--- (\w+) [<>]", rules, re.M):
+            if 1 <= len(indent) // 4 < max_depth and name != root and name not in seen:
+                seen.append(name)
+        return seen[:k]
 
     def horizon_f1(self, h: int, model: str) -> float:
         row = self.horizon[(self.horizon.horizon_h == h) & (self.horizon.model == model)]

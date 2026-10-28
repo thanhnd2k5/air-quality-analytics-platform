@@ -6,7 +6,7 @@ import { MapPage } from './pages/MapPage'
 import { OlapPage } from './pages/OlapPage'
 import { OverviewPage } from './pages/OverviewPage'
 import { PredictionsPage } from './pages/PredictionsPage'
-import { StationsPage } from './pages/StationsPage'
+import { QualityPage } from './pages/QualityPage'
 import { WeatherPage } from './pages/WeatherPage'
 
 export default function App() {
@@ -16,11 +16,11 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<OverviewPage />} />
           <Route path="/phan-cum" element={<ClustersPage />} />
-          <Route path="/tram" element={<StationsPage />} />
           <Route path="/thoi-tiet" element={<WeatherPage />} />
           <Route path="/du-bao" element={<PredictionsPage />} />
           <Route path="/canh-bao" element={<AlertsPage />} />
           <Route path="/olap" element={<OlapPage />} />
+          <Route path="/chat-luong" element={<QualityPage />} />
           <Route path="/ban-do" element={<MapPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

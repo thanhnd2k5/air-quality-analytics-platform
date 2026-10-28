@@ -1,5 +1,6 @@
-import { Group, Select, TextInput } from '@mantine/core'
+import { Select } from '@mantine/core'
 import type { Station } from '../api/stations'
+import { DateField } from './DateField'
 
 type Props = {
   dateFrom: string
@@ -14,6 +15,7 @@ type Props = {
   showStation?: boolean
 }
 
+/** Date range + station controls; rendered inline so a page can add its own filters beside them. */
 export function DateStationFilters({
   dateFrom,
   dateTo,
@@ -27,29 +29,15 @@ export function DateStationFilters({
   showStation = true,
 }: Props) {
   return (
-    <Group align="flex-end" gap="sm" wrap="wrap">
-      <TextInput
-        label="Từ ngày"
-        type="date"
-        value={dateFrom}
-        min={dataMin}
-        max={dataMax}
-        onChange={(e) => onDateFrom(e.currentTarget.value)}
-      />
-      <TextInput
-        label="Đến ngày"
-        type="date"
-        value={dateTo}
-        min={dataMin}
-        max={dataMax}
-        onChange={(e) => onDateTo(e.currentTarget.value)}
-      />
+    <>
+      <DateField label="Từ ngày" value={dateFrom} min={dataMin} max={dateTo || dataMax} onChange={onDateFrom} />
+      <DateField label="Đến ngày" value={dateTo} min={dateFrom || dataMin} max={dataMax} onChange={onDateTo} />
       {showStation && (
         <Select
           label="Trạm"
           clearable
           searchable
-          placeholder="Tất cả trạm"
+          placeholder="Tất cả 12 trạm"
           data={stations.map((s) => ({
             value: String(s.station_key),
             label: s.station_name,
@@ -59,6 +47,6 @@ export function DateStationFilters({
           w={220}
         />
       )}
-    </Group>
+    </>
   )
 }

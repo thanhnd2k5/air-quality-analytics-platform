@@ -245,6 +245,7 @@ def step_clustering(ctx: Ctx) -> None:
         return
     script(ctx, "clustering", "run_clustering_phase9b.py")
     script(ctx, "clustering", "run_clustering_phase9.py")
+    script(ctx, "clustering", "clustering_k_sweep.py")  # K = 2…11 for the dashboard chart (display only)
 
 
 def step_forecast(ctx: Ctx) -> None:

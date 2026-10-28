@@ -20,6 +20,15 @@ class Settings(BaseSettings):
     # Any localhost / 127.0.0.1 port (Vite may land on 5173–5180+).
     # Prefer [0-9] / [.] so Docker Compose env defaults do not over-escape \\d.
     cors_origin_regex: str = r"https?://(localhost|127[.]0[.]0[.]1)(:[0-9]+)?$"
+    # In-memory GET response cache (app/cache.py); 0 turns it off.
+    response_cache_mb: int = 128
+    # How often to re-check whether the mart/dwh tables changed (cache cleared if so).
+    response_cache_check_seconds: float = 15.0
+    # Pipeline outputs read by /api/quality (reconcile, run summary, dbt log). Empty = repo artifacts/.
+    artifacts_dir: str = ""
+    # Data lake probed by /api/health/services (host:port; the repo .env says localhost:9010).
+    minio_endpoint: str = "localhost:9000"
+    minio_secure: bool = False
 
     @property
     def database_url(self) -> str:

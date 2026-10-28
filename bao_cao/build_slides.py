@@ -188,6 +188,7 @@ def build(f: Facts) -> Presentation:
     d = Deck()
     loc = f.test(f.locked)
     per = f.test("persistence")
+    h = f.horizon_h
 
     # 1 — title ---------------------------------------------------------------
     s = d.dark(
@@ -349,8 +350,8 @@ def build(f: Facts) -> Presentation:
         "quý → Roll-up về năm → lọc quận Dongcheng (slice) → thêm Xicheng + năm 2016 (dice) → bấm Pivot. Nếu "
         "mạng/Docker lỗi, mở notebooks/olap/olap_demo.ipynb (đã chạy sẵn output).",
     )
-    d.picture(s, SHOTS / "olap_dice_tram_x_thang.png", MARGIN, Inches(1.4), h=Inches(5.4))
-    ops = [("1", "Roll-up", "tháng → quý → năm, trạm → quận"), ("2", "Drill-down", "bấm một dòng để khoan xuống"),
+    d.picture(s, SHOTS / "olap_dice_tram_x_thang.png", MARGIN, Inches(2.2), w=Inches(7.6))
+    ops = [("1", "Roll-up", "tháng → quý → năm, trạm → quận"), ("2", "Drill-down", "bấm tên hàng/cột để khoan xuống"),
            ("3", "Slice", "một giá trị: quận = Dongcheng"), ("4", "Dice", "nhiều chiều: quận × năm × mùa"),
            ("5", "Pivot", "đổi hàng ↔ cột")]
     for i, (num, name, desc) in enumerate(ops):
@@ -438,7 +439,7 @@ def build(f: Facts) -> Presentation:
             (f"{vn_int(per['fp'])} → {vn_int(loc['fp'])}", "cảnh báo nhầm (FP)", INK),
             (vn(f.test("majority")["accuracy"], 2), "accuracy của majority — dù recall = 0", MUTED))):
         d.stat(s, v, lab, MARGIN + i * Inches(3.08), Inches(4.75), Inches(2.85), color=color, h=Inches(1.75),
-               value_size=28)
+               value_size=24)
 
     # 12 — evidence (native chart) --------------------------------------------
     s = d.content(
@@ -482,11 +483,12 @@ def build(f: Facts) -> Presentation:
     # 13 — application ----------------------------------------------------------
     s = d.content(
         "Ứng dụng: trang Cảnh báo cho người vận hành", "4 · Khai phá",
-        "≈30\". DEMO trang /canh-bao: hai ma trận nhầm lẫn cạnh nhau, dòng thời gian xác suất cảnh báo tại một trạm "
-        "(chấm xanh = cảnh báo đúng, vàng = báo nhầm, đỏ = bỏ sót), bảng so sánh theo trạm.",
+        "≈30\". DEMO trang /canh-bao: hai ma trận nhầm lẫn cạnh nhau, dòng thời gian PM2.5 thực đo tại một trạm kèm "
+        f"những giờ mô hình đã cảnh báo từ {h} giờ trước (xanh = cảnh báo đúng, vàng = báo nhầm, đỏ = bỏ sót), bảng "
+        "so sánh theo trạm.",
     )
     d.picture(s, SHOTS / "canh_bao.png", MARGIN, Inches(1.4), h=Inches(5.4))
-    d.bullets(s, ["Ma trận nhầm lẫn: mô hình so với cách hiện tại", "Dòng thời gian xác suất theo trạm",
+    d.bullets(s, ["Ma trận nhầm lẫn: mô hình so với cách hiện tại", "Dòng thời gian PM2.5 và cảnh báo theo trạm",
                   "Đọc từ mart_pm25_alerts (dbt)", "Cùng app: /olap, /du-bao, /ban-do"], Inches(7.25), Inches(1.6),
               Inches(5.5), Inches(5.0), 17, gap=14)
 

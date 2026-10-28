@@ -4,6 +4,33 @@ Tài liệu ghi nhận tiến độ thực hiện theo từng phase của dự �
 
 ---
 
+## 2026-10-28 (Dashboard: cache, giao diện mới, trang Chất lượng dữ liệu)
+
+Nhánh `feature/dashboard-redesign-cache`.
+
+### Done
+- **Hiệu năng.** `dashboard/api/app/cache.py`: cache phản hồi GET trong RAM, xoá khi bảng `mart`/`dwh` đổi (dấu vân tay `pg_stat_user_tables`, kiểm tra mỗi 15 giây) hoặc khi file artifacts mà `/quality` đọc đổi; tính sẵn các endpoint chậm khi khởi động; header `x-cache`. Phía web: `apiGet` nhớ kết quả 5 phút.
+- **Giao diện.** Thiết kế lại toàn bộ (theme, bảng màu mức PM2.5, ECharts theme chung). Một kiểu số Việt Nam cho cả app (`src/format.ts`: 1.234,5). Menu 3 nhóm: Kho dữ liệu (Tổng quan, OLAP, Chất lượng dữ liệu), Khai phá (Cảnh báo), Bổ trợ (Phân cụm, Bản đồ, Thời tiết).
+- **Bỏ khỏi menu** (code vẫn còn): `/phat-lai`, `/tram`, `/dot-o-nhiem` (xếp hạng trạm và đợt ô nhiễm gộp vào Tổng quan); `/du-bao` ẩn vì hồi quy không thuộc 3 loại khai phá của Bài 12 — vẫn mở được bằng đường dẫn.
+- **OLAP.** Độ đo "Số giờ PM2.5 ≥ 115"; thuộc tính **Nhóm trạm** (cụm KMeans đã khoá) với phân cấp Nhóm trạm → Trạm; chọn thuộc tính theo nhóm, roll-up/drill-down theo phân cấp, bộ lọc, mẫu nhanh, URL.
+- **Cảnh báo.** Ma trận nhầm lẫn TP góc trên trái; dòng thời gian PM2.5 + dải cảnh báo + kết quả từng giờ; hộp "Mô hình quyết định thế nào?" (4 bước + một ví dụ thật từ dòng thời gian).
+- **Phân cụm.** Biểu đồ silhouette K = 2…11 (`scripts/clustering_k_sweep.py` → `artifacts/clustering/k_selection_extended.csv`, chỉ để hiển thị; khoá K = 2 không đổi và vẫn cao nhất).
+- **Thời tiết.** Thêm áp suất, điểm sương vào `mart_pollution_weather` và API; đường hồi quy, r, độ dốc.
+- **Chất lượng dữ liệu (`/chat-luong`).** Màn hình theo dõi tự làm mới 30 giây: API / PostgreSQL / MinIO (`/api/health/services`, không cache) với thời gian phản hồi và vạch lịch sử; đối soát nạp, khoá trùng, dbt test, lần chạy pipeline gần nhất (`/api/quality/summary`); cờ chất lượng. API đọc `artifacts/` qua mount chỉ-đọc (`ARTIFACTS_DIR`).
+- **Lỗi kết nối DB** trả 503 JSON từ bên trong CORS → mọi trang báo "Không kết nối được PostgreSQL" thay vì lỗi CORS gây hiểu nhầm.
+- **Khai phá.** Thử đổi bài toán chính sang PM2.5(t+6) rồi hoàn tác; `run_all.py --from classify` tái tạo đúng số liệu t+1 cũ. Ảnh ma trận nhầm lẫn trong artifacts đặt TP góc trên trái.
+
+### Kiểm tra
+- `npx tsc -b`, `npm run lint` (0 lỗi, 8 cảnh báo có từ trước), `pytest` 93 passed, quét console 8 trang.
+- Đã thử tắt PostgreSQL và tắt API: trang `/chat-luong` báo đúng trạng thái.
+
+### Còn lại
+- Báo cáo / slide chưa build lại theo giao diện cuối (ảnh trong `.docx` còn số dạng "105.0", chưa có `/chat-luong`).
+- "6 giờ tới" có 3 cách hiểu (điểm t+6, cửa sổ t+1…t+6, khởi phát đợt). Nhóm cân nhắc cách C (`artifacts/classification/onset_6h/`), chưa chốt; bài toán chính vẫn là t+1.
+- `yeucaubaitap/` (có PDF sách) chưa nằm trong `.gitignore`.
+
+---
+
 ## 2026-10-18 (Operational DB CDC – Giai đoạn 5 **HOÀN THÀNH**)
 
 ### Done

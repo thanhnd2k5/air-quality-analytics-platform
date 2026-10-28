@@ -3,9 +3,27 @@
 > **Project:** Phân tích và dự báo ô nhiễm không khí theo khu vực và điều kiện thời tiết  
 > **Môn học:** Kho dữ liệu và Khai phá dữ liệu  
 > **Quy mô nhóm:** 2 thành viên  
-> **Trạng thái:** Chuẩn bị triển khai  
-> **Phiên bản tài liệu:** 1.1  
-> **Cập nhật:** 15/09/2026
+> **Trạng thái:** Đã triển khai; đang hoàn thiện dashboard và báo cáo  
+> **Phiên bản tài liệu:** 1.2  
+> **Cập nhật:** 28/10/2026 (mục 0 là trạng thái hiện tại; các mục sau là ngữ cảnh gốc lúc lập kế hoạch)
+
+---
+
+# 0. Trạng thái hiện tại (28/10/2026) — đọc trước
+
+Các mục 1–… bên dưới là kế hoạch ban đầu (09/2026). Chỗ nào khác với mục này thì mục này đúng.
+
+**Bài toán khai phá chính:** phân loại cảnh báo PM2.5(t+1) ≥ 115 µg/m³ (`HORIZON_HOURS = 1`, `src/classification/constants.py`). Mô hình khoá HistGradientBoosting, so với baseline persistence. Số liệu: `artifacts/classification/model_lock.json`. Hồi quy PM2.5(t+1) chỉ là phân tích bổ trợ.
+
+**Quyết định 28/10/2026:**
+- Đã thử chuyển sang PM2.5(t+6) rồi hoàn tác. "6 giờ tới" có 3 cách hiểu: (A) điểm t+6, (B) có giờ nào trong t+1…t+6 vượt ngưỡng, (C) đợt ≥ 3 giờ khởi phát trong t+1…t+6 khi giờ hiện tại còn sạch. Nhóm cân nhắc C; thí nghiệm có sẵn ở `artifacts/classification/onset_6h/` (HistGB chỉ dùng dữ liệu trạm thua luật PM2.5(t) ≥ 105; bản thêm đặc trưng trạm lân cận mới thắng). **Chưa chốt.**
+- Trang `/du-bao` ẩn khỏi menu vì hồi quy không thuộc 3 loại khai phá của Bài 12 (pipeline vẫn giữ: bài toán phân loại dùng chung ma trận đặc trưng).
+
+**Dashboard** (`dashboard/README.md`): Kho dữ liệu (`/`, `/olap`, `/chat-luong`) · Khai phá (`/canh-bao`) · Bổ trợ (`/phan-cum`, `/ban-do`, `/thoi-tiet`). `/du-bao`, `/phat-lai`, `/tram`, `/dot-o-nhiem` không có trên menu. API có cache phản hồi (`app/cache.py`), endpoint theo dõi `/api/health/services` và `/api/quality/summary` (đọc `artifacts/` mount chỉ-đọc). Số hiển thị theo kiểu Việt Nam (`src/format.ts`).
+
+**Phân cụm:** khoá K = 2 (KMeans, `artifacts/clustering/cluster_lock.json`). Biểu đồ dashboard hiển thị K = 2…11 từ `k_selection_extended.csv` (chỉ để xem). Nhóm trạm dùng được trong OLAP.
+
+**Chạy lại:** `python scripts/run_all.py` (hoặc `--from classify`); báo cáo `bao_cao/build_report.py`, `build_slides.py`, `finalize_office.ps1` (dùng python trong `.venv`). Tiến độ chi tiết: `docs/PROGRESS.md`.
 
 ---
 

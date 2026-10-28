@@ -22,3 +22,5 @@ where pm25_hour_count > hour_count
     or (pm25_ug_m3_avg is null) is distinct from (pm25_hour_count = 0)
     or (temperature_c_avg is null) is distinct from (temperature_hour_count = 0)
     or (rain_mm_sum is null) is distinct from (rain_hour_count = 0)
+    or (pressure_hpa_avg is null) is distinct from (pressure_hour_count = 0)
+    or (dew_point_c_avg is null) is distinct from (dew_point_hour_count = 0)
