@@ -39,8 +39,12 @@
 | Thử nghiệm | Bỏ biến thời tiết khỏi mô hình ở tầm 1/3/6 giờ để đo đóng góp (kết quả: đóng góp tăng theo tầm) | script thử nghiệm ngoài repo |
 | Khai phá | Thử `HORIZON_HOURS` = 6 rồi hoàn tác về 1 và chạy lại `run_all.py --from classify` | `src/classification/constants.py` |
 | Báo cáo & slide | Đoạn diễn giải cây quyết định đọc từ artifacts; chụp lại ảnh dashboard; ma trận nhầm lẫn đặt TP ở góc trên trái | `bao_cao/`, `artifacts/dashboard_screenshots/` |
+| Định dạng số | Một kiểu số Việt Nam cho cả dashboard (1.234,5), kể cả trục và tooltip biểu đồ | `dashboard/web/src/format.ts` |
+| Chất lượng dữ liệu | Trang theo dõi `/chat-luong`: trạng thái API/PostgreSQL/MinIO, đối soát nạp, khoá trùng, dbt test, lần chạy pipeline, cờ chất lượng; lỗi mất kết nối DB trả 503 rõ ràng | `routers/quality.py`, `routers/health.py`, `QualityPage.tsx` |
+| OLAP & phân cụm | Thuộc tính Nhóm trạm (phân cấp Nhóm trạm → Trạm) trong OLAP; biểu đồ silhouette K = 2…11 (chỉ hiển thị, khoá K = 2 giữ nguyên) | `routers/olap.py`, `scripts/clustering_k_sweep.py` |
+| Cảnh báo | Hộp "Mô hình quyết định thế nào?" (4 bước + ví dụ thật); ẩn trang Dự báo giá trị khỏi menu | `ModelExplainer.tsx`, `AppLayout.tsx` |
 
-Nguyên tắc như phiên trước: số liệu đọc từ `artifacts/`, AI không commit thay nhóm.
+Nguyên tắc như phiên trước: số liệu đọc từ `artifacts/`. Các commit trên nhánh `feature/dashboard-redesign-cache` do AI tạo theo yêu cầu của thành viên dùng máy (tài khoản git của thành viên đó, có dòng `Co-Authored-By: Claude`); các thành viên khác không có commit nào do AI tạo thay.
 
 ## 2. Các công cụ AI khác — NHÓM ĐIỀN
 

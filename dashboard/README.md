@@ -14,7 +14,7 @@ UI tiếng Việt. Không auth / CRUD / train model.
 | `/chat-luong` | Theo dõi (monitor) cho người quản trị, tự làm mới 30 giây: API, PostgreSQL, MinIO (thời gian phản hồi, `/api/health/services`), đối soát nạp, khoá trùng, dbt test, lần chạy pipeline gần nhất, cờ chất lượng (`/api/quality/summary`, đọc thêm `artifacts/` mount chỉ-đọc) |
 | `/olap` | OLAP tương tác: roll-up / drill-down / slice / dice / pivot (tự đọc `mart_olap_cube` khi có thể); xem và lọc theo nhóm trạm (phân cụm), phân cấp Nhóm trạm → Trạm |
 | `/du-bao` | Hồi quy PM2.5 giờ tới (bổ trợ): actual vs HistGB / persistence. Không có trên menu (hồi quy không thuộc 3 loại khai phá của Bài 12); mở bằng đường dẫn |
-| `/canh-bao` | Phân loại cảnh báo PM2.5 ≥ 115: ma trận nhầm lẫn mô hình vs persistence, timeline theo trạm |
+| `/canh-bao` | Phân loại cảnh báo PM2.5 ≥ 115: ma trận nhầm lẫn mô hình vs persistence, timeline theo trạm, hộp "Mô hình quyết định thế nào?" |
 | `/ban-do` | 12 marker Leaflet |
 
 ## Demo nhanh (Windows)
